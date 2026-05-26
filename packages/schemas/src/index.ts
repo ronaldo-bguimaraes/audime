@@ -1,1 +1,1 @@
-export * from "./invoice/invoice.schema.js";
+export * from "./invoice/invoice.schema";

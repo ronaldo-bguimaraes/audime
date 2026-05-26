@@ -1,19 +1,16 @@
 {
   "compilerOptions": {
-    "target": "es2022",
-    "module": "esnext",
-    // "moduleResolution": "nodenext",
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
 
     "rootDir": "./src",
     "outDir": "./dist",
 
-    /* Necessário para o tsup gerar as definições de tipo */
     "declaration": true,
+    "declarationMap": true,
 
-    /* Regras de Qualidade e Segurança */
     "strict": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
   },
   "include": ["src"],
