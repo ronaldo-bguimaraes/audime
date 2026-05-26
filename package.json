@@ -1,5 +1,8 @@
 {
+  "name": "audime",
+  "private": true,
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "packages/*"
   ]
 }

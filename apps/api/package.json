@@ -1,13 +1,19 @@
 {
+  "name": "@audime/api",
+  "version": "1.0.0",
+  "type": "module",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "start": "node index.js"
+    "dev": "tsx watch src/server.ts",
+    "build": "node build.js",
+    "start": "node dist/server.js"
   },
   "dependencies": {
     "fastify": "^5.8.5"
   },
   "devDependencies": {
     "@types/node": "^25.9.1",
+    "esbuild": "^0.28.0",
+    "tsx": "^4.22.3",
     "typescript": "^6.0.3"
   }
 }
