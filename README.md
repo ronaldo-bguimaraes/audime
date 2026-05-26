@@ -1,2 +1,2 @@
-# audime
-Gestão de gastos pessoais detalhada
+# Audime
+Gestão detalhada de gastos pessoais
