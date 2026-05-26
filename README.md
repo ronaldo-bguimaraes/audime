@@ -12,4 +12,5 @@ npm run dev -w @audime/web
 
 ```bash
 npm run dev -w @audime/api
+npm run build -w @audime/api
 ```
