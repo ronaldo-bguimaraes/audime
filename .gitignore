@@ -218,4 +218,7 @@ __marimo__/
 .streamlit/secrets.toml
 
 node_modules/
-tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# Turbo
+.turbo

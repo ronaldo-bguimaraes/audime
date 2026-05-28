@@ -6,10 +6,14 @@
     "packages/*"
   ],
   "devDependencies": {
+    "turbo": "^2.9.15",
     "typescript": "5.8.3"
   },
   "scripts": {
-    "build:api": "bash scripts/build-api.sh",
-    "start:api": "bash scripts/start-api.sh"
-  }
+    "dev:api": "turbo run dev --filter=@audime/api",
+    "build:api": "turbo run build --filter=@audime/api",
+    "start:api": "npm run start -w @audime/api",
+    "prod:api": "npm ci && npm run build:api && npm run start:api"
+  },
+  "packageManager": "npm@11.15.0"
 }

@@ -2,6 +2,12 @@
 
 Gestão detalhada de gastos pessoais
 
+## Instalar dependências
+
+```bash
+npm install
+```
+
 ## Executar web
 
 ```bash
