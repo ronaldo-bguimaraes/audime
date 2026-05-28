@@ -5,8 +5,10 @@
     "apps/*",
     "packages/*"
   ],
+  "dependencies": {
+    "turbo": "^2.9.15"
+  },
   "devDependencies": {
-    "turbo": "^2.9.15",
     "typescript": "5.8.3"
   },
   "scripts": {
