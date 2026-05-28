@@ -5,17 +5,20 @@
     "apps/*",
     "packages/*"
   ],
-  "dependencies": {
-    "turbo": "^2.9.15"
-  },
   "devDependencies": {
+    "turbo": "^2.9.15",
     "typescript": "5.8.3"
   },
   "scripts": {
     "dev:api": "turbo run dev --filter=@audime/api",
     "build:api": "turbo run build --filter=@audime/api",
     "start:api": "npm run start -w @audime/api",
-    "prod:api": "npm ci && npm run build:api && npm run start:api"
+    "dev:web": "turbo run dev --filter=@audime/web",
+    "build:web": "turbo run build --filter=@audime/web",
+    "start:web": "npm run start -w @audime/web"
   },
-  "packageManager": "npm@11.15.0"
+  "packageManager": "npm@11.15.0",
+  "dependencies": {
+    "react-router": "^7.15.1"
+  }
 }
