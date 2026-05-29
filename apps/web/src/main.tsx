@@ -6,6 +6,7 @@ import "./index.css";
 
 import Home from "./pages/Home.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import QrScanner from "./components/QrScanner.tsx";
 
 const root = document.getElementById("root")!;
 
@@ -14,6 +15,7 @@ createRoot(root).render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/scanner" element={<QrScanner />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
