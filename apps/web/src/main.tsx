@@ -5,6 +5,8 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import "./index.css";
 
 import Home from "./pages/Home.tsx";
+import Login from "./pages/Login.tsx";
+import AuthCallback from "./pages/AuthCallback.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import QrScanner from "./components/QrScanner.tsx";
 
@@ -15,6 +17,8 @@ createRoot(root).render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/scanner" element={<QrScanner />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

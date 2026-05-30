@@ -5,15 +5,19 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "node build.js",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "debug:db": "tsx src/debug-db.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
-    "fastify": "^5.8.5",
-    "@audime/schemas": "*"
+    "@audime/schemas": "*",
+    "fastify": "^5.8.5"
   },
   "devDependencies": {
     "@types/node": "^25.9.1",
     "esbuild": "^0.28.0",
-    "tsx": "^4.22.3"
+    "tsx": "^4.22.3",
+    "vitest": "^4.1.7"
   }
 }

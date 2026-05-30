@@ -6,10 +6,13 @@
     "packages/*"
   ],
   "devDependencies": {
+    "@types/pg": "^8.20.0",
+    "prisma": "^7.8.0",
     "turbo": "^2.9.15",
     "typescript": "5.8.3"
   },
   "scripts": {
+    "dev": "turbo run dev",
     "dev:api": "turbo run dev --filter=@audime/api",
     "build:api": "turbo run build --filter=@audime/api",
     "start:api": "npm run start -w @audime/api",
@@ -19,6 +22,13 @@
   },
   "packageManager": "npm@11.15.0",
   "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "@fastify/jwt": "^10.1.0",
+    "@fastify/oauth2": "^8.2.0",
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "dotenv": "^17.4.2",
+    "pg": "^8.21.0",
     "react-router": "^7.15.1"
   }
 }
