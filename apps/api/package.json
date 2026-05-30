@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "node build.js",
+    "build": "npx prisma generate && node build.js",
     "start": "node dist/server.js",
     "debug:db": "tsx src/debug-db.ts",
     "test": "vitest run",
