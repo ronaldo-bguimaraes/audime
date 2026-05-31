@@ -3,6 +3,8 @@ import cors from "@fastify/cors";
 
 import authPlugin from "./modules/auth";
 
+import { getEnvsStatus } from "./debug-db";
+
 export const app = Fastify({
   logger: true,
 });
@@ -15,6 +17,10 @@ app.get("/health", async () => {
   return { ok: true };
 });
 
+app.get("/", async () => {
+  return { online: true };
+});
+
 app.get("/envs", async () => {
-  return { loadEnv: process.env.LOAD_ENV ?? "not set" };
+  return getEnvsStatus();
 });
