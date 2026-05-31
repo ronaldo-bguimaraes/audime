@@ -1,9 +1,6 @@
 {
   "compilerOptions": {
-    "moduleResolution": "bundler",
-    "strict": true,
-    "skipLibCheck": true,
-    "types": ["node"]
+    "moduleResolution": "bundler"
   },
-  "include": ["src"]
+  "include": ["src", "prisma.config.ts", "vitest.config.ts"]
 }
