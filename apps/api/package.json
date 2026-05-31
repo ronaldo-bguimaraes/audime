@@ -4,19 +4,24 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "npx prisma generate && node build.js",
-    "start": "node dist/server.js",
-    "debug:db": "tsx src/debug-db.ts",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "build": "prisma generate && node build.js",
+    "start": "node dist/server.js"
   },
   "dependencies": {
     "@audime/schemas": "*",
-    "fastify": "^5.8.5"
+    "@fastify/cors": "^11.2.0",
+    "@fastify/jwt": "^10.1.0",
+    "@fastify/oauth2": "^8.2.0",
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "dotenv": "^17.4.2",
+    "fastify": "^5.8.5",
+    "pg": "^8.21.0"
   },
   "devDependencies": {
     "@types/node": "^25.9.1",
     "esbuild": "^0.28.0",
+    "prisma": "^7.8.0",
     "tsx": "^4.22.3",
     "vitest": "^4.1.7"
   }

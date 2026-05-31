@@ -1,16 +1,12 @@
-import dotenv from "dotenv"
-import { resolve, dirname } from "path"
-import { fileURLToPath } from "url"
+import "dotenv/config";
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-dotenv.config({ path: resolve(__dirname, "../.env") })
+import { app } from "./app";
 
-const { app } = await import("./app")
+export const API_PORT = Number.parseInt(process.env.PORT ?? "3333");
 
 const start = async () => {
   try {
-    await app.listen({ port: 3333, host: "0.0.0.0" });
-    console.log("Server running on http://localhost:3333");
+    await app.listen({ port: API_PORT });
   } catch (err) {
     app.log.error(err);
     process.exit(1);

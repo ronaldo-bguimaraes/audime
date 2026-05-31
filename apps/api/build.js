@@ -6,7 +6,6 @@ await build({
   platform: "node",
   target: "node20",
   format: "esm",
+  packages: "external",
   outfile: "dist/server.js",
-  sourcemap: true,
-  external: ["fastify"],
 });

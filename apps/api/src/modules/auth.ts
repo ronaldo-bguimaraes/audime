@@ -1,8 +1,11 @@
+import { prisma } from "../prisma/prisma";
+
 import type { FastifyInstance } from "fastify";
+
 import fp from "fastify-plugin";
-import oauth2, { type OAuth2Namespace } from "@fastify/oauth2";
 import jwt from "@fastify/jwt";
-import { prisma } from "../lib/prisma";
+
+import oauth2, { type OAuth2Namespace } from "@fastify/oauth2";
 
 const FRONTEND_URL = process.env.FRONTEND_URL ?? "http://localhost:5173";
 
@@ -33,9 +36,9 @@ async function authPlugin(app: FastifyInstance) {
     callbackUri: `${process.env.API_URL ?? "http://localhost:3333"}/auth/google/callback`,
   });
 
-  app.decorate("authenticate", async function (request, reply) {
+  app.decorate("authenticate", async (req, reply) => {
     try {
-      await request.jwtVerify();
+      await req.jwtVerify();
     } catch {
       reply.status(401).send({ error: "Unauthorized" });
     }
@@ -71,7 +74,9 @@ async function authPlugin(app: FastifyInstance) {
 
     const sessionToken = await reply.jwtSign({ sub: user.id });
 
-    return reply.redirect(`${FRONTEND_URL}/auth/callback?token=${sessionToken}`);
+    return reply.redirect(
+      `${FRONTEND_URL}/auth/callback?token=${sessionToken}`,
+    );
   });
 
   app.get("/auth/me", { preHandler: [app.authenticate] }, async (req) => {

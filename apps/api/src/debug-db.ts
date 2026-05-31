@@ -1,4 +1,9 @@
-import "dotenv/config"
+const envs = ["DATABASE_URL", "NODE_ENV", "PORT"];
 
-console.log("DATABASE_URL:", process.env.DATABASE_URL ?? "NOT SET")
-console.log("NODE_ENV:", process.env.NODE_ENV ?? "not set")
+const result: Record<string, string> = {};
+
+for (const env of envs) {
+  result[env] = process.env[env] ?? "";
+}
+
+console.log(JSON.stringify(result, null, 2));
