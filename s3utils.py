@@ -43,6 +43,11 @@ def list_objects(prefix: str = "") -> list[str]:
     return keys
 
 
+def head_object(key: str) -> dict:
+    client = get_s3_client()
+    return client.head_object(Bucket=R2_STORAGE_BUCKET, Key=key)
+
+
 def generate_presigned_url(key: str, expires_in: int = 3600) -> str:
     client = get_s3_client()
     return client.generate_presigned_url(
