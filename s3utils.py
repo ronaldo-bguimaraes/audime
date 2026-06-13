@@ -28,6 +28,16 @@ def upload_file(local_path: str, key: str) -> None:
     client.upload_file(local_path, R2_STORAGE_BUCKET, key)
 
 
+def put_object(key: str, data: bytes, metadata: dict = None) -> None:
+    client = get_s3_client()
+    client.put_object(
+        Body=data,
+        Bucket=R2_STORAGE_BUCKET,
+        Key=key,
+        Metadata=metadata or {}
+    )
+
+
 def download_file(key: str, local_path: str) -> None:
     client = get_s3_client()
     client.download_file(R2_STORAGE_BUCKET, key, local_path)

@@ -11,3 +11,5 @@ node_modules/
 
 # Prisma generated client
 apps/api/src/generated/
+
+__pycache__/

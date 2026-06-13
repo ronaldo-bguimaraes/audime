@@ -1,0 +1,6 @@
+boto3
+msoffcrypto-tool
+pandas
+psycopg[binary]
+requests
+sqlalchemy
