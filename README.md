@@ -1,41 +1,33 @@
 # Audime
 
-Gestão detalhada de gastos pessoais
+Gestão detalhada de gastos pessoais — API Python.
 
-## Instalar dependências
+## Stack
 
-```bash
-npm install
-```
+- Python 3.14 + FastAPI
+- PostgreSQL (Supabase)
+- Cloudflare R2 (storage)
+- BeautifulSoup (parsing NFC-e)
 
-## Executar web
-
-### To Build
-```bash
-npm run dev:api
-```
-
-### To Dev
-```bash
-npm run dev:api
-```
-
-## Executar api
+## Setup
 
 ```bash
-npm run dev -w @audime/api
-npm run build -w @audime/api
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
 ```
 
+## Executar
 
-## Configurar deploy
-
-### To Build
 ```bash
-npm ci && npm run build:api
+uvicorn app.main:app --reload
 ```
 
-### To Start API
-```bash
-npm run start:api
-```
+## Documentação
+
+- `docs/banco-de-dados.md` — Schema do banco
+- `docs/arquitetura/api.md` — Endpoints REST
+- `docs/arquitetura/backend.md` — Arquitetura
+- `docs/arquitetura/armazenamento.md` — Cloudflare R2
+- `docs/flows/upload.md` — Fluxo de extração NFC-e
+- `docs/PRD.md` — Visão do produto

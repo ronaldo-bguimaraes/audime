@@ -33,12 +33,10 @@ Usuários brasileiros não têm visibilidade detalhada dos seus gastos. As notas
 ## 4. Experiência do Usuário
 
 | Fluxo | Descrição |
-|---|---|
-| Login | Google OAuth (já implementado) |
-| Scan | Câmera escaneia QR code da NFC-e |
-| Processamento | Sistema baixa o HTML, faz parse, armazena dados |
-| Consulta | Dashboard com visão agregada e por item |
-| Fatura C6 | Upload/importação de fatura para conciliação |
+|---|---|---|
+| Extração | API recebe URL de QR Code, baixa HTML, faz parse e armazena |
+| Consulta | API expõe dados estruturados via REST |
+| Fatura C6 | Importação de fatura para conciliação |
 
 ## 5. Critérios de Sucesso
 
@@ -51,14 +49,12 @@ Usuários brasileiros não têm visibilidade detalhada dos seus gastos. As notas
 
 | Componente | Tecnologia |
 |---|---|
-| API | Fastify + TypeScript |
-| Frontend | React + Vite + Tailwind |
+| API | FastAPI + Python 3.14 |
 | Banco | PostgreSQL (Supabase) |
-| ORM | Prisma |
+| ORM | SQLAlchemy + Pydantic |
 | Auth | Google OAuth + JWT |
-| Storage | Backblaze B2 (S3-compatible) |
-| Scan | html5-qrcode (browser) |
-| Schema | Zod (compartilhado) |
+| Storage | Cloudflare R2 (S3-compatible) |
+| Parsing | BeautifulSoup |
 
 ## 7. Fora de Escopo (por enquanto)
 
