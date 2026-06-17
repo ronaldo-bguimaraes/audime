@@ -1,6 +1,0 @@
-{
-  "compilerOptions": {
-    "moduleResolution": "bundler"
-  },
-  "include": ["src", "prisma.config.ts", "vitest.config.ts"]
-}
