@@ -2,7 +2,7 @@ from enum import Enum
 
 import sqlalchemy as sa
 
-from database.base import Base, pg_timestampz
+from abstract.base import Base, pg_timestampz
 
 
 class ExtracaoStatus(Enum):

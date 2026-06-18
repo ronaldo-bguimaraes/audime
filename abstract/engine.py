@@ -2,7 +2,6 @@ import sqlalchemy as sa
 from sqlalchemy.orm import sessionmaker
 
 from app.core.config import settings
-from database.base import Base
 
 url = sa.URL.create(
     drivername="postgresql+psycopg",

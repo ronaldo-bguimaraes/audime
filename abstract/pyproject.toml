@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "audime-abstract"
+version = "0.1.0"
+description = "Camada abstrata de dados do Audime — SQLAlchemy models, engine e base declarativa"
+requires-python = ">=3.13"
+dependencies = [
+    "sqlalchemy>=2.0",
+    "psycopg[binary]",
+    "pydantic-settings"
+]
