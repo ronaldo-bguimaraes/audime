@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: audime-postgres
+    restart: unless-stopped
+    ports:
+      - "${DB_POSTGRES_PORT}:5432"
+    environment:
+      POSTGRES_USER: ${DB_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${DB_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${DB_POSTGRES_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+volumes:
+  postgres_data:
