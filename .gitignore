@@ -8,3 +8,6 @@ __pycache__/
 # Loopback — workspace do ciclo (transitório)
 .agents/workspace/
 docs/analise-loopback.md
+
+# Test database
+test.db

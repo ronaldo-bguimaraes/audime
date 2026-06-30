@@ -16,7 +16,7 @@ class Usuario(Base):
     __tablename__ = "usuario"
     __table_args__ = {"schema": "core"}
 
-    id_usuario = sa.Column(sa.BigInteger, primary_key=True)
+    id_usuario = sa.Column(sa.BigInteger().with_variant(sa.Integer(), "sqlite"), primary_key=True)
     nome = sa.Column(sa.String, nullable=False)
     email = sa.Column(sa.String, nullable=False, unique=True)
     created_at = pg_timestampz()

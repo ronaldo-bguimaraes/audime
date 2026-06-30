@@ -4,6 +4,21 @@
 
 Processo completo desde o escaneamento do QR Code até o armazenamento dos dados estruturados.
 
+## Formato da URL
+
+A URL vem do QR Code impresso no DANFE. O parâmetro `p` contém:
+
+```
+https://<base_url>?p=<chave_44digitos>|<versao>|<tpAmb>|<idCSC>|<hash>
+```
+
+Cada estado tem sua própria `base_url`. Consulte [docs/flows/qrcode-url.md](qrcode-url.md) para a lista completa de URLs por UF e o detalhamento do formato.
+
+**Exemplo (MT):**
+```
+http://www.sefaz.mt.gov.br/nfce/consultanfce?p=51260509477652008413651230002620731725445443|2|1|1|8D8C7A538544E4EF09D4749A4D5E4C70DA94863C
+```
+
 ## Etapas
 
 ### 1. Usuário envia URL

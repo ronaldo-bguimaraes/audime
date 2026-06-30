@@ -19,4 +19,24 @@
 - `abstract.engine` importa `app.core.config` — dependência entre pacotes irmãos. Se `app.core.config` um dia importar algo de `abstract`, forma circular import
 - Parser NFC-e continua frágil (seletores hardcoded para MT)
 - Extração síncrona na request (bloqueia FastAPI)
-- Zero testes reais (só placeholder)
+- Testes com SQLite exigem `schema_translate_map` e `with_variant` para `BigInteger`
+
+## Ciclo 2 — Autenticação sem senha
+
+### O que funcionou
+- Arquitetura de `EmailSender` abstrato com `LogEmailSender` permite trocar implementação sem mexer no fluxo
+- `PyJWT` com HS256 é simples e direto para MVP
+- Rate limiting básico com `AuthCode.attempts` + cooldown de 60s
+
+### O que aprendemos
+- Testes com SQLite exigem `schema_translate_map` para ignorar schemas PostgreSQL (`core`, `raw`, etc.)
+- `sa.BigInteger` não auto-incrementa no SQLite — usar `with_variant(sa.Integer(), "sqlite")`
+- `DateTime(timezone=True)` no SQLite perde timezone — `expires_at.replace(tzinfo=...)` ao comparar
+- `HTTPBearer` do FastAPI retorna 401 (não 403) quando token está ausente
+- `get_current_user_id()` agora lê do JWT via `Depends(security)` — endpoints protegidos por padrão
+
+### Pendências
+- Trocar `LogEmailSender` por SMTP real (Resend, SendGrid, Gmail)
+- Adicionar refresh token + rotação
+- Adicionar Redis para rate limiting em produção
+- Migrar tabela `auth_code` para SQL de produção em `scripts.sql`

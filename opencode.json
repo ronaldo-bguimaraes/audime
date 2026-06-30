@@ -1,0 +1,30 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "build": {
+      "permission": {
+        "task": {
+          "*": "deny",
+          "loopback": "allow",
+          "questionador": "allow",
+          "explicador": "allow",
+          "especulador": "allow",
+          "validador": "allow",
+          "seguranca": "allow"
+        }
+      }
+    },
+    "loopback": {
+      "permission": {
+        "task": {
+          "*": "deny",
+          "questionador": "allow",
+          "explicador": "allow",
+          "especulador": "allow",
+          "validador": "allow",
+          "seguranca": "allow"
+        }
+      }
+    }
+  }
+}

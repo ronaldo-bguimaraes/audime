@@ -1,5 +1,6 @@
 boto3
 beautifulsoup4
+cryptography
 fastapi
 msoffcrypto-tool
 pandas

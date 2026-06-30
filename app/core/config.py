@@ -18,5 +18,8 @@ class Settings(BaseSettings):
     r2_access_key_id: str
     r2_secret_access_key: str
 
+    jwt_secret: str = "dev-secret-change-in-production-min-32-chars!!"
+    jwt_algorithm: str = "HS256"
+
 
 settings = Settings()
