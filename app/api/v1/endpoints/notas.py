@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.api.v1.schemas import ItemResponse, NotaResponse, VincularFaturaRequest
 from app.core.deps import get_db
-from database.models.raw import ItemNota, Nota
+from abstract.models.raw import ItemNota, Nota
 
 router = APIRouter(prefix="/v1/notas", tags=["notas"])
 

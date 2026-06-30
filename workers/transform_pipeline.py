@@ -5,10 +5,10 @@ Executa em batch para normalizar dados brutos e popular agregações.
 
 from sqlalchemy.orm import Session
 
-from database.engine import SessionLocal
-from database.models.analytics import GastoCategoria, GastoMensal
-from database.models.raw import ItemNota, Nota, Transacao
-from database.models.staging import ItemNormalizado, NotaNormalizada
+from abstract.engine import SessionLocal
+from abstract.models.analytics import GastoCategoria, GastoMensal
+from abstract.models.raw import ItemNota, Nota, Transacao
+from abstract.models.staging import ItemNormalizado, NotaNormalizada
 
 
 def normalizar_notas(db: Session):

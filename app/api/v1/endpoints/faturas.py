@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.api.v1.schemas import FaturaRequest, FaturaResponse, TransacaoResponse
 from app.core.deps import get_db
-from database.models.raw import Fatura, Transacao
+from abstract.models.raw import Fatura, Transacao
 
 router = APIRouter(prefix="/v1/faturas", tags=["faturas"])
 

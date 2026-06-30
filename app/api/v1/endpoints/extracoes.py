@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.api.v1.schemas import ExtracaoRequest, ExtracaoResponse
 from app.core.deps import get_db
 from app.services.extracao_service import executar_extracao
-from database.models.core import Extracao
+from abstract.models.core import Extracao
 
 router = APIRouter(prefix="/v1/extracoes", tags=["extracoes"])
 

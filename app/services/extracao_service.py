@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 from app.core.deps import get_current_user_id
 from app.services.parser_nfce import parse_nfce
 from app.services.storage_service import download_url, generate_filename, hash_sha256, upload_to_r2
-from database.models.core import Extracao, ExtracaoStatus
-from database.models.raw import Importacao, ItemNota, Nota
+from abstract.models.core import Extracao, ExtracaoStatus
+from abstract.models.raw import Importacao, ItemNota, Nota
 
 OUTPUT_PREFIX = "imports/html"
 

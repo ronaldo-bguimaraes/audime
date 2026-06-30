@@ -1,6 +1,6 @@
 from collections.abc import Generator
 
-from database.engine import SessionLocal
+from abstract.engine import SessionLocal
 
 
 def get_db() -> Generator:
