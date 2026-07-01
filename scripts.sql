@@ -29,6 +29,18 @@ CREATE TABLE core.usuario (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE TABLE core.auth_code (
+    id_auth_code    BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    email           TEXT NOT NULL,
+    code_hash       CHAR(64) NOT NULL,
+    expires_at      TIMESTAMPTZ NOT NULL,
+    used            BOOLEAN DEFAULT FALSE,
+    attempts        INTEGER DEFAULT 0,
+    last_attempt_at TIMESTAMPTZ
+);
+
+CREATE INDEX idx_auth_code_email ON core.auth_code(email);
+
 CREATE TABLE core.extracao (
     id_extracao BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     status      core.extracao_status NOT NULL DEFAULT 'PENDING',

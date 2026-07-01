@@ -2,7 +2,6 @@ import posixpath
 
 from sqlalchemy.orm import Session
 
-from app.core.deps import get_current_user_id
 from app.services.parser_nfce import parse_nfce
 from app.services.storage_service import download_url, generate_filename, hash_sha256, upload_to_r2
 from abstract.models.core import Extracao, ExtracaoStatus
@@ -11,8 +10,7 @@ from abstract.models.raw import Importacao, ItemNota, Nota
 OUTPUT_PREFIX = "imports/html"
 
 
-def executar_extracao(url: str, db: Session) -> dict:
-    id_usuario = get_current_user_id()
+def executar_extracao(url: str, id_usuario: int, db: Session) -> dict:
 
     extracao = Extracao(id_usuario=id_usuario, status=ExtracaoStatus.PENDING)
     db.add(extracao)

@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+from sqlalchemy.orm import relationship
 
 from abstract.base import Base, pg_timestampz
 
@@ -66,6 +67,12 @@ class Nota(Base):
     id_fatura = sa.Column(sa.BigInteger, sa.ForeignKey("raw.fatura.id_fatura"))
     id_importacao = sa.Column(sa.BigInteger, sa.ForeignKey("raw.importacao.id_importacao"))
 
+    items = relationship("ItemNota", backref="nota_rel", lazy="selectin")
+
+    @property
+    def id(self) -> int:
+        return self.id_nota
+
 
 class ItemNota(Base):
     __tablename__ = "item_nota"
@@ -82,3 +89,11 @@ class ItemNota(Base):
     imported_at = pg_timestampz()
     id_nota = sa.Column(sa.BigInteger, sa.ForeignKey("raw.nota.id_nota"))
     id_usuario = sa.Column(sa.BigInteger, sa.ForeignKey("core.usuario.id_usuario"))
+
+    @property
+    def id(self) -> int:
+        return self.id_item_nota
+
+    @property
+    def nota_id(self) -> int:
+        return self.id_nota

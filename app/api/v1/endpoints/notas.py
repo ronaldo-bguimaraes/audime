@@ -2,21 +2,37 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 
 from app.api.v1.schemas import ItemResponse, NotaResponse, VincularFaturaRequest
-from app.core.deps import get_db
+from app.core.deps import get_current_user_id, get_db
 from abstract.models.raw import ItemNota, Nota
 
 router = APIRouter(prefix="/v1/notas", tags=["notas"])
 
 
 @router.get("", response_model=list[NotaResponse])
-def listar_notas(db: Session = Depends(get_db)):
-    notas = db.query(Nota).options(joinedload(Nota.items)).all()
-    return notas
+def listar_notas(
+    db: Session = Depends(get_db),
+    id_usuario: int = Depends(get_current_user_id),
+):
+    return (
+        db.query(Nota)
+        .options(joinedload(Nota.items))
+        .filter(Nota.id_usuario == id_usuario)
+        .all()
+    )
 
 
 @router.get("/{id_nota}", response_model=NotaResponse)
-def obter_nota(id_nota: int, db: Session = Depends(get_db)):
-    nota = db.query(Nota).options(joinedload(Nota.items)).filter(Nota.id_nota == id_nota).first()
+def obter_nota(
+    id_nota: int,
+    db: Session = Depends(get_db),
+    id_usuario: int = Depends(get_current_user_id),
+):
+    nota = (
+        db.query(Nota)
+        .options(joinedload(Nota.items))
+        .filter(Nota.id_nota == id_nota, Nota.id_usuario == id_usuario)
+        .first()
+    )
     if not nota:
         raise HTTPException(status_code=404)
     return nota
