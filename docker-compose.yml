@@ -12,6 +12,31 @@ services:
       POSTGRES_DB: ${DB_POSTGRES_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_POSTGRES_USER} -d ${DB_POSTGRES_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: .
+    container_name: audime-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    environment:
+      DB_POSTGRES_USER: ${DB_POSTGRES_USER}
+      DB_POSTGRES_PASSWORD: ${DB_POSTGRES_PASSWORD}
+      DB_POSTGRES_HOST: postgres
+      DB_POSTGRES_NAME: ${DB_POSTGRES_NAME}
+      DB_POSTGRES_PORT: "5432"
+      R2_ENDPOINT: ${R2_ENDPOINT}
+      R2_STORAGE_BUCKET: ${R2_STORAGE_BUCKET}
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   web:
     build:
@@ -20,6 +45,8 @@ services:
     restart: unless-stopped
     ports:
       - "${WEB_PORT:-3000}:80"
+    depends_on:
+      - backend
 
   cloudflared:
     container_name: audime-cloudflared

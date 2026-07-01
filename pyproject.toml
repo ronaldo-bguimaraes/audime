@@ -12,6 +12,7 @@ dependencies = [
     "pandas>=3.0.3",
     "psycopg[binary]>=3.3.4",
     "pydantic-settings>=2.14.2",
+    "pyjwt>=2.10.0",
     "pytest>=9.1.1",
     "requests>=2.34.2",
     "sqlalchemy>=2.0.51",

@@ -10,7 +10,8 @@
           "explicador": "allow",
           "especulador": "allow",
           "validador": "allow",
-          "seguranca": "allow"
+          "seguranca": "allow",
+          "aprendiz": "allow"
         }
       }
     },
@@ -22,7 +23,8 @@
           "explicador": "allow",
           "especulador": "allow",
           "validador": "allow",
-          "seguranca": "allow"
+          "seguranca": "allow",
+          "aprendiz": "allow"
         }
       }
     }

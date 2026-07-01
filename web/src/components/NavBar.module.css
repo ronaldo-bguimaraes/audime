@@ -1,0 +1,76 @@
+.header {
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav {
+  max-width: 1126px;
+  margin: 0 auto;
+  padding: 0 16px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.links {
+  display: flex;
+  gap: 16px;
+  flex: 1;
+}
+
+.link {
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.link:hover {
+  background: var(--code-bg);
+  color: var(--text-h);
+}
+
+.userArea {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.userName {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.logoutBtn {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.logoutBtn:hover {
+  background: var(--code-bg);
+  color: var(--text-h);
+}
+
+@media (max-width: 600px) {
+  .userName {
+    display: none;
+  }
+}

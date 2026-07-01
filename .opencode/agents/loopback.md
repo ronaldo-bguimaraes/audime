@@ -21,6 +21,7 @@ Your available subagents are:
 - `especulador` — define critérios e valida resultados
 - `questionador` — pesquisa e questiona decisões
 - `explicador` — pesquisa e explica conceitos
+- `aprendiz` — pesquisa, questiona, explica e registra aprendizado
 - `validador` — executa testes, lints e typechecks
 - `seguranca` — auditoria de segurança
 

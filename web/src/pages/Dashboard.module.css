@@ -1,0 +1,137 @@
+.container {
+  padding: 24px 16px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0;
+}
+
+.newButton {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 18px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.newButton:hover {
+  opacity: 0.9;
+}
+
+.empty {
+  text-align: center;
+  padding: 48px 16px;
+  color: var(--text);
+  font-size: 15px;
+}
+
+.emptyLink {
+  color: var(--accent);
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  background: var(--bg);
+  transition: box-shadow 0.15s;
+}
+
+.card:hover {
+  box-shadow: var(--shadow);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.empresa {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0;
+}
+
+.valor {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.cardBody {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.info {
+  display: flex;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.label {
+  color: var(--text);
+}
+
+.value {
+  color: var(--text-h);
+}
+
+.detailsButton {
+  display: inline-block;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 13px;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.detailsButton:hover {
+  background: var(--code-bg);
+  color: var(--text-h);
+}
+
+@media (max-width: 600px) {
+  .header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .cardHeader {
+    flex-direction: column;
+    gap: 4px;
+  }
+}

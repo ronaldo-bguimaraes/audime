@@ -1,0 +1,29 @@
+.container {
+  padding: 16px;
+  margin: 16px 0;
+  border-radius: 8px;
+  background: var(--error-bg, #fef2f2);
+  border: 1px solid var(--error-border, #fecaca);
+  text-align: center;
+}
+
+.message {
+  color: var(--error-text, #dc2626);
+  font-size: 14px;
+  margin: 0 0 12px;
+}
+
+.retry {
+  display: inline-flex;
+  padding: 8px 16px;
+  border: 1px solid var(--error-border, #fecaca);
+  border-radius: 6px;
+  background: var(--error-bg, #fef2f2);
+  color: var(--error-text, #dc2626);
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.retry:hover {
+  background: var(--error-border, #fecaca);
+}

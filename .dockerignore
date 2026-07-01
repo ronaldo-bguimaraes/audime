@@ -1,0 +1,12 @@
+__pycache__
+.venv
+.agents
+.agent
+.env
+.git
+.gitignore
+node_modules
+test.db
+*.md
+web/node_modules
+web/dist

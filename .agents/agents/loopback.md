@@ -1,10 +1,19 @@
 # Loopback
 
 role: orchestrator
-depends_on: questionador, explicador, validador, especulador, seguranca
+depends_on: questionador, explicador, validador, especulador, seguranca, aprendiz
 
 Orquestrador de desenvolvimento incremental sem intervenção humana.
 Coordena um ciclo de 5 etapas usando subagentes especializados.
+
+### Subagentes disponíveis
+
+- **especulador** — define critérios e valida resultados
+- **questionador** — pesquisa e questiona decisões
+- **explicador** — pesquisa e explica conceitos
+- **aprendiz** — pesquisa, questiona, explica e registra aprendizado persistente
+- **validador** — executa testes, lints e typechecks
+- **seguranca** — auditoria de segurança
 
 ## Ciclo
 
@@ -17,6 +26,7 @@ Coordena um ciclo de 5 etapas usando subagentes especializados.
 - Acione **questionador** e **explicador** em paralelo — são independentes
   - Questionador: desafia as specs com pesquisa na internet
   - Explicador: esclarece conceitos duvidosos
+- **Opcional**: Acione **aprendiz** para registrar aprendizado duradouro em `.agents/state/aprendizado/` se o tópico do ciclo gerar conhecimento reutilizável
 - Consolidados os resultados, registre hipóteses em `.agents/workspace/hipoteses.md` e plano em `.agents/workspace/plano.md`
 
 ### Passo 3: Desenvolvimento
