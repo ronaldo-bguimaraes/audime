@@ -30,3 +30,4 @@ Para consultas rápidas sem alterar arquivos, use o **Modo Análise**.
 - Audit mandatory: nenhum ciclo termina sem validação
 - Maker-checker split: especulador ≠ implementador ≠ validador
 - No-downgrade: toda iteração melhora o projeto
+- **Segurança first**: antes de todo `git commit` ou `git push`, execute `@seguranca` para varrer credenciais vazadas. Se o seguranca apontar issues, resolva antes de prosseguir.
