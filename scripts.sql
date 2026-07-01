@@ -105,6 +105,13 @@ CREATE TABLE raw.item_nota (
     id_usuario         BIGINT NOT NULL REFERENCES core.usuario(id_usuario)
 );
 
+-- ============================================================
+-- Migration: NFC-e Parser Enhancement (2026-06-30)
+-- ============================================================
+
+ALTER TABLE raw.nota ADD COLUMN IF NOT EXISTS qtd_total_itens INTEGER;
+
+-- ============================================================
 -- staging e analytics serão criados em implementação futura.
 -- Ver docs/banco-de-dados.md para os schemas planejados.
 

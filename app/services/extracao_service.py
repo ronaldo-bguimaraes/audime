@@ -44,13 +44,25 @@ def executar_extracao(url: str, db: Session) -> dict:
 
         nota_extraida = parse_nfce(html_bytes)
 
+        emissao_date = None
+        if nota_extraida.emissao:
+            from datetime import datetime
+            try:
+                emissao_date = datetime.strptime(
+                    nota_extraida.emissao.split()[0], "%d/%m/%Y"
+                ).date()
+            except (ValueError, IndexError):
+                emissao_date = None
+
         nota = Nota(
             empresa=nota_extraida.empresa,
             chave=nota_extraida.chave,
             numero=nota_extraida.numero,
             serie=nota_extraida.serie,
-            emissao=nota_extraida.emissao,
+            emissao=emissao_date,
             valor_total=nota_extraida.valor_total,
+            qtd_total_itens=nota_extraida.qtd_total_itens,
+            extra=nota_extraida.extra,
             id_usuario=id_usuario,
             id_importacao=importacao.id_importacao,
         )

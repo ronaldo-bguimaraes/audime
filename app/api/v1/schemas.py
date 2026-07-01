@@ -38,6 +38,8 @@ class NotaResponse(BaseModel):
     serie: str
     emissao: date
     valor_total: float
+    qtd_total_itens: Optional[int] = None
+    extra: Optional[dict] = None
     items: list[ItemResponse]
 
     model_config = ConfigDict(from_attributes=True)

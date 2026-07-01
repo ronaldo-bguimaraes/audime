@@ -59,6 +59,7 @@ class Nota(Base):
     serie = sa.Column(sa.Text, nullable=False)
     emissao = sa.Column(sa.Date, nullable=False)
     valor_total = sa.Column(sa.Numeric(10, 2), nullable=False)
+    qtd_total_itens = sa.Column(sa.Integer, nullable=True)
     extra = sa.Column(sa.JSON, default={})
     imported_at = pg_timestampz()
     id_usuario = sa.Column(sa.BigInteger, sa.ForeignKey("core.usuario.id_usuario"))

@@ -66,6 +66,8 @@ export interface Nota {
   serie: string;
   emissao: string;
   valor_total: number;
+  qtd_total_itens: number | null;
+  extra: Record<string, unknown> | null;
   items: ItemNota[];
 }
 
