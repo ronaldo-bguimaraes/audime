@@ -2,6 +2,29 @@
 
 <!-- Acumuladas entre ciclos. Toda falha vira lição aqui. -->
 
+## Ciclo 6 — NFC-e Parser Enhancement
+
+### O que funcionou
+- O questionador identificou corretamente que `.contents[1]` era frágil (HIGH severity) — a substituição por `get_text(strip=True)` + regex resolveu o problema
+- O explicador confirmou que a abordagem híbrida (colunas dedicadas + JSONB) é a recomendada pela literatura PostgreSQL
+- O parser testado com HTML real validou todos os 33 critérios de uma vez
+- `br_to_float()` com replace duplo (`.` → ``, `,` → `.`) funciona para todos os casos do HTML real
+
+### O que aprendemos
+- **`.contents[1]` é frágil**: a posição do text node depende do parser BeautifulSoup e da estrutura HTML. Sempre usar `get_text(strip=True)` + regex para extrair valores de spans com tags aninhadas
+- **`id="linhaTotal"` repetido**: HTML inválido mas intencional no SEFAZ. `select("#linhaTotal")` retorna todos; `select_one("#linhaTotal")` retorna apenas o primeiro
+- **Formato decimal BR**: valores como "17,9" (sem zero à direita) quebram parsers ingênuos. O replace duplo (`replace('.', '').replace(',', '.')`) funciona porque a vírgula só aparece como decimal
+- **Chave com espaços**: 54 caracteres vs 44 esperados. `re.sub(r'\s+', '', chave.strip())` é mais robusto que `.replace(' ', '')`
+- **JSONB + colunas dedicadas**: o modelo híbrido (colunas para campos consultados com frequência, JSONB para dados semi-estruturados) é a estratégia correta
+- **Valor total do HTML**: mais confiável que soma (inclui descontos), mas requer fallback para soma se a extração falhar
+- **`NaN` no HTML**: SEFAZ usa "NaN" para troco não aplicável. `br_to_float()` trata como None
+
+### Riscos identificados
+- SSRF via URL fornecida pelo usuário (`POST /v1/extracoes`) — sem validação de domínio atual
+- JWT secret padrão hardcoded em `app/core/config.py` — precisa ser removido antes de produção
+- Parser depende de classes CSS específicas do SEFAZ MT (SVRS) — podem mudar sem aviso
+
+
 ## Ciclo 1 — Segurança + Correção de Imports
 
 ### O que funcionou

@@ -21,5 +21,10 @@ class Settings(BaseSettings):
     jwt_secret: str = "dev-secret-change-in-production-min-32-chars!!"
     jwt_algorithm: str = "HS256"
 
+    redis_host: str = "localhost"
+    redis_port: int = 6379
+    redis_password: str | None = None
+    redis_db: int = 0
+
 
 settings = Settings()

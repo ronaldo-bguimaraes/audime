@@ -1,12 +1,27 @@
 from datetime import date, datetime
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, HttpUrl
 
 
 class ExtracaoRequest(BaseModel):
-    url: str
+    url: HttpUrl
     tipo: str = "NFCE"
+
+
+class ExtracaoJobResponse(BaseModel):
+    """Response returned immediately after enqueuing an extraction job."""
+
+    id_extracao: int
+    status: str = "PENDING"
+    job_id: str | None = None
+
+
+class ExtracaoStatusResponse(BaseModel):
+    """Status of an extraction (for polling)."""
+
+    id_extracao: int
+    status: str
 
 
 class ExtracaoResponse(BaseModel):
