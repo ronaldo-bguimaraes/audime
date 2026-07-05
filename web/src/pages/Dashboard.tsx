@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useFetch } from "../hooks/useFetch";
 import { listarDashboardNotas } from "../api/dashboard";
 import { LoadingSpinner } from "../components/LoadingSpinner";
@@ -8,6 +8,7 @@ import type { DashboardNota } from "../types";
 import styles from "./Dashboard.module.css";
 
 export function Dashboard() {
+  const navigate = useNavigate();
   const { data: notas, loading, error, refetch } = useFetch<DashboardNota[]>(
     listarDashboardNotas,
     [],
@@ -44,7 +45,7 @@ export function Dashboard() {
       ) : (
         <div className={styles.grid}>
           {notas.map((nota) => (
-            <NotaCard key={nota.id_extracao} nota={nota} />
+            <NotaCard key={nota.id_extracao} nota={nota} navigate={navigate} />
           ))}
         </div>
       )}
@@ -52,9 +53,20 @@ export function Dashboard() {
   );
 }
 
-function NotaCard({ nota }: { nota: DashboardNota }) {
+function NotaCard({ nota, navigate }: { nota: DashboardNota; navigate: ReturnType<typeof useNavigate> }) {
   return (
-    <div className={styles.card}>
+    <div
+      className={styles.card}
+      role="button"
+      tabIndex={0}
+      onClick={() => navigate(`/notas/${nota.id_extracao}`)}
+      onKeyDown={(ev) => {
+        if (ev.key === "Enter" || ev.key === " ") {
+          ev.preventDefault();
+          navigate(`/notas/${nota.id_extracao}`);
+        }
+      }}
+    >
       <div className={styles.cardHeader}>
         <h2 className={styles.empresa}>#{nota.id_extracao} {nota.empresa}</h2>
         <span className={styles.valor}>{formatBRL(nota.valor_total ?? 0)}</span>
@@ -73,9 +85,6 @@ function NotaCard({ nota }: { nota: DashboardNota }) {
           <span className={styles.value}>{nota.items.length}</span>
         </div>
       </div>
-      <Link to={`/notas/${nota.id_extracao}`} className={styles.detailsButton}>
-        Ver detalhes
-      </Link>
     </div>
   );
 }
