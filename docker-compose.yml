@@ -111,5 +111,22 @@ services:
     command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
     restart: unless-stopped
 
+  portainer:
+    container_name: audime-portainer
+    image: portainer/portainer-ce:lts
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    ports:
+      - 9443:9443
+
 volumes:
   postgres_data:
+    name: postgres_data
+  portainer_data:
+    name: portainer_data
+
+networks:
+  default:
+    name: audime_network
