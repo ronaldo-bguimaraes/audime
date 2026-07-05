@@ -1,18 +1,24 @@
 import { api } from "./client";
 
 export interface ExtracaoResult {
-  data?: {
-    id_extracao: number;
-    status: string;
-    created_at: string;
-  };
-  id_extracao?: number;
-  status?: string;
+  id_extracao: number;
+  status: string;
+  created_at: string;
 }
 
-export async function criarExtracao(url: string): Promise<ExtracaoResult> {
-  return api.post<ExtracaoResult>("/v1/extracoes", {
+export interface CriarExtracaoResult {
+  id_extracao: number;
+  status: string;
+  job_id: string | null;
+}
+
+export async function criarExtracao(url: string): Promise<CriarExtracaoResult> {
+  return api.post<CriarExtracaoResult>("/v1/extracoes", {
     url,
     tipo: "NFCE",
   });
+}
+
+export async function listarExtracoes(limit = 10): Promise<ExtracaoResult[]> {
+  return api.get<ExtracaoResult[]>(`/v1/extracoes?limit=${limit}`);
 }

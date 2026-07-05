@@ -80,7 +80,13 @@ def test_upgrade_creates_tables(alembic_cfg, sqlite_engine):
 
     Usamos config.attributes["connection"] para compartilhar a conexão
     com o Alembic, garantindo que o SQLite in-memory seja o mesmo.
+
+    Também cria as tabelas de domínio (Base.metadata.create_all) antes
+    de executar migrações reais, já que a migration inicial é vazia.
     """
+    # Cria tabelas de domínio primeiro (a migration inicial é vazia)
+    Base.metadata.create_all(bind=sqlite_engine)
+
     with sqlite_engine.connect() as conn:
         alembic_cfg.attributes["connection"] = conn
         command.upgrade(alembic_cfg, "head")
@@ -95,6 +101,8 @@ def test_upgrade_creates_tables(alembic_cfg, sqlite_engine):
 
 def test_upgrade_idempotent(alembic_cfg, sqlite_engine):
     """CAT-021: upgrade duas vezes seguidas não causa erro."""
+    Base.metadata.create_all(bind=sqlite_engine)
+
     with sqlite_engine.connect() as conn:
         alembic_cfg.attributes["connection"] = conn
         command.upgrade(alembic_cfg, "head")
@@ -111,6 +119,8 @@ def test_downgrade_idempotent(alembic_cfg, sqlite_engine):
     ao estado base (sem revisão). O upgrade subsequente reaplica
     a migration vazia.
     """
+    Base.metadata.create_all(bind=sqlite_engine)
+
     # Upgrade primeira vez
     with sqlite_engine.connect() as conn:
         alembic_cfg.attributes["connection"] = conn

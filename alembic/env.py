@@ -62,7 +62,7 @@ def get_postgres_url() -> str:
         database=settings.db_postgres_name,
         port=settings.db_postgres_port,
     )
-    return url.render_as_string(hide_password=False)
+    return url.render_as_string(hide_password=True)
 
 
 def get_database_url() -> str:

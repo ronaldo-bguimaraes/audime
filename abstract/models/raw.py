@@ -86,7 +86,7 @@ class ItemNota(Base):
     item_descricao = sa.Column(sa.Text, nullable=False)
     item_quantidade = sa.Column(sa.Numeric(10, 3), nullable=False, default=1)
     item_tipo_unidade = sa.Column(sa.Text, default="UN")
-    item_valor_unidade = sa.Column(sa.Numeric(10, 2), nullable=False)
+    item_valor_unidade = sa.Column(sa.Numeric(10, 2), nullable=True)
     item_valor_total = sa.Column(sa.Numeric(10, 2), nullable=False)
     extra = sa.Column(sa.JSON, default={})
     imported_at = pg_timestampz()

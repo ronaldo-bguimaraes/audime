@@ -40,7 +40,7 @@ def executar_extracao(url: str, id_usuario: int, db: Session) -> dict:
         db.commit()
         db.refresh(importacao)
 
-        nota_extraida = parse_nfce(html_bytes)
+        nota_extraida = parse_nfce(html_bytes, url=url)
 
         emissao_date = None
         if nota_extraida.emissao:

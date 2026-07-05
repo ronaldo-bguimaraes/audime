@@ -15,6 +15,11 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncGenerator:
     """FastAPI lifespan — manages the shared ARQ Redis pool."""
+    if settings.app_env == "production" and not settings.jwt_secret:
+        raise RuntimeError(
+            "JWT_SECRET must be set in production. "
+            "Generate a long random string (min 32 chars) and set it in .env"
+        )
     pool = None
     try:
         pool = await create_pool(

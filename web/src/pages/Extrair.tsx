@@ -1,15 +1,44 @@
-import { useState, type FormEvent } from "react";
-import { useNavigate } from "react-router";
-import { criarExtracao } from "../api/extracoes";
+import { useState, useEffect, useCallback, type FormEvent } from "react";
+import { criarExtracao, listarExtracoes, type ExtracaoResult } from "../api/extracoes";
 import { FetchError } from "../api/client";
 import styles from "./Extrair.module.css";
 
+const STATUS_ATIVOS = new Set(["PENDING", "RUNNING"]);
+
+function StatusBadge({ status }: { status: string }) {
+  const className = `${styles.badge} ${styles[`badge_${status.toLowerCase()}`] || ""}`;
+  const animated = status === "RUNNING" ? styles.pulse : "";
+  return <span className={`${className} ${animated}`}>{status}</span>;
+}
+
 export function Extrair() {
-  const navigate = useNavigate();
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [extracoes, setExtracoes] = useState<ExtracaoResult[]>([]);
+  const [polling, setPolling] = useState(false);
+
+  const fetchExtracoes = useCallback(async () => {
+    try {
+      const data = await listarExtracoes(10);
+      setExtracoes(data);
+      const hasAtivas = data.some((e) => STATUS_ATIVOS.has(e.status));
+      setPolling(hasAtivas);
+    } catch {
+      setPolling(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchExtracoes();
+  }, [fetchExtracoes]);
+
+  useEffect(() => {
+    if (!polling) return;
+    const id = setInterval(fetchExtracoes, 5000);
+    return () => clearInterval(id);
+  }, [polling, fetchExtracoes]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -19,10 +48,9 @@ export function Extrair() {
 
     try {
       await criarExtracao(url);
+      setUrl("");
       setSuccess("Extração iniciada com sucesso!");
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 2000);
+      await fetchExtracoes();
     } catch (err) {
       const message =
         err instanceof FetchError
@@ -50,7 +78,7 @@ export function Extrair() {
 
         {success && (
           <div className={styles.success} role="status">
-            {success} Redirecionando...
+            {success}
           </div>
         )}
 
@@ -76,6 +104,32 @@ export function Extrair() {
             {loading ? "Extraindo..." : "Extrair"}
           </button>
         </form>
+      </div>
+
+      <div className={styles.listCard}>
+        <h2 className={styles.listTitle}>Extrações Recentes</h2>
+        {extracoes.length === 0 ? (
+          <p className={styles.empty}>Nenhuma extração encontrada.</p>
+        ) : (
+          <div className={styles.table}>
+            <div className={styles.tableHeader}>
+              <span className={styles.colId}>#</span>
+              <span className={styles.colData}>Data</span>
+              <span className={styles.colStatus}>Status</span>
+            </div>
+            {extracoes.map((e) => (
+              <div key={e.id_extracao} className={styles.tableRow}>
+                <span className={styles.colId}>{e.id_extracao}</span>
+                <span className={styles.colData}>
+                  {new Date(e.created_at).toLocaleString("pt-BR")}
+                </span>
+                <span className={styles.colStatus}>
+                  <StatusBadge status={e.status} />
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

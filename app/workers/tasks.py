@@ -97,7 +97,7 @@ async def executar_extracao(
         db.refresh(importacao)
 
         # ── Parse HTML (sync → thread) ──────────────────────────────
-        nota_extraida = await asyncio.to_thread(parse_nfce, html_bytes)
+        nota_extraida = await asyncio.to_thread(parse_nfce, html_bytes, url)
 
         # ── Parse emission date ─────────────────────────────────────
         emissao_date = None

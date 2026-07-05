@@ -31,6 +31,16 @@ export function Login() {
     }
   }, [isAuthenticated, navigate]);
 
+  // Restaura fase codeSent após refresh se havia email pendente
+  useEffect(() => {
+    const pending = localStorage.getItem("pending_email");
+    if (pending && phase === "idle") {
+      setEmail(pending);
+      setPhase("codeSent");
+      setTimeLeft(60);
+    }
+  }, []);
+
   // Contagem regressiva para reenvio
   useEffect(() => {
     if (phase === "codeSent" && timeLeft > 0) {
@@ -136,6 +146,9 @@ export function Login() {
           <form onSubmit={handleVerify} className={styles.form}>
             <p className={styles.codeSentMsg}>
               Código enviado para <strong>{email}</strong>
+            </p>
+            <p className={styles.spamHint}>
+              Não recebeu? Verifique a caixa de <strong>spam</strong>.
             </p>
             <label htmlFor="login-code" className={styles.label}>
               Código de verificação

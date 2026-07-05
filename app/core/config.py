@@ -20,14 +20,14 @@ class Settings(BaseSettings):
 
     app_env: str = "production"
 
-    jwt_secret: str = "dev-secret-change-in-production-min-32-chars!!"
+    jwt_secret: str = ""
     jwt_algorithm: str = "HS256"
 
     smtp_host: str = "smtp.gmail.com"
     smtp_port: int = 587
-    smtp_user: str = "guimaraes.ronaldob@gmail.com"
+    smtp_user: str = ""
     smtp_password: str = ""
-    mail_from: str = "guimaraes.ronaldob@gmail.com"
+    mail_from: str = ""
     mail_from_name: str = "Audime"
 
     redis_host: str = "localhost"

@@ -1,13 +1,4 @@
-"""Extrações endpoints — refactored to use ARQ task queue.
-
-The synchronous extraction flow has been replaced::
-
-    POST /v1/extracoes   →  enqueues an ARQ job, returns 202 Accepted
-    GET  /v1/extracoes/{id}/status  →  polls the extraction status
-    GET  /v1/extracoes/{id}         →  returns full extraction record
-"""
-
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from arq.connections import ArqRedis
 
@@ -60,6 +51,26 @@ async def criar_extracao(
         status=ExtracaoStatus.PENDING.value,
         job_id=job.job_id if job else None,
     )
+
+
+@router.get(
+    "",
+    response_model=list[ExtracaoResponse],
+)
+def listar_extracoes(
+    db: Session = Depends(get_db),
+    id_usuario: int = Depends(get_current_user_id),
+    limit: int = Query(default=10, ge=1, le=100),
+) -> list[ExtracaoResponse]:
+    """List extractions for the authenticated user, most recent first."""
+    extracoes = (
+        db.query(Extracao)
+        .filter(Extracao.id_usuario == id_usuario)
+        .order_by(Extracao.created_at.desc())
+        .limit(limit)
+        .all()
+    )
+    return extracoes  # type: ignore[return-value]
 
 
 @router.get(
