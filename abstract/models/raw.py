@@ -51,10 +51,7 @@ class Transacao(Base):
 
 class Nota(Base):
     __tablename__ = "nota"
-    __table_args__ = (
-        sa.UniqueConstraint("chave", "id_usuario", name="uq_nota_chave_usuario"),
-        {"schema": "raw"},
-    )
+    __table_args__ = {"schema": "raw"}
 
     id_nota = sa.Column(sa.BigInteger, primary_key=True)
     empresa = sa.Column(sa.Text, nullable=False)

@@ -1,24 +1,53 @@
 import { useState, useEffect, useCallback, type FormEvent } from "react";
-import { criarExtracao, listarExtracoes, type ExtracaoResult } from "../api/extracoes";
+import { useNavigate } from "react-router";
+import { criarExtracao, listarExtracoes, reprocessarExtracao, type ExtracaoResult, type PipelineStep } from "../api/extracoes";
 import { FetchError } from "../api/client";
 import styles from "./Extrair.module.css";
 
 const STATUS_ATIVOS = new Set(["PENDING", "RUNNING"]);
 
-function StatusBadge({ status }: { status: string }) {
-  const className = `${styles.badge} ${styles[`badge_${status.toLowerCase()}`] || ""}`;
-  const animated = status === "RUNNING" ? styles.pulse : "";
-  return <span className={`${className} ${animated}`}>{status}</span>;
+const STEP_ORDER: Record<string, number> = {
+  RAW_IMPORT: 1,
+  STAGING: 2,
+  ANALYTICS: 3,
+  COMPLETE: 4,
+};
+
+const STEP_STATUS_ORDER: Record<string, number> = {
+  ERROR: 0,
+  RUNNING: 1,
+  DONE: 2,
+  PENDING: 3,
+};
+
+function latestStep(steps: PipelineStep[]): string | null {
+  if (!steps.length) return null;
+  const sorted = [...steps].sort((a, b) => {
+    const aOrder = STEP_ORDER[a.etapa] ?? 99;
+    const bOrder = STEP_ORDER[b.etapa] ?? 99;
+    if (aOrder !== bOrder) return aOrder - bOrder;
+    const aStatus = STEP_STATUS_ORDER[a.status] ?? 99;
+    const bStatus = STEP_STATUS_ORDER[b.status] ?? 99;
+    return aStatus - bStatus;
+  });
+  return sorted[0]?.status ?? null;
+}
+
+function StatusBadge({ status, step }: { status: string; step?: string | null }) {
+  const classStatus = step ?? status;
+  const className = `${styles.badge} ${styles[`badge_${classStatus.toLowerCase()}`] || styles.badge_pending}`;
+  const animated = status === "RUNNING" || step === "RUNNING" ? styles.pulse : "";
+  return <span className={`${className} ${animated}`}>{step ? `${status} (${step})` : status}</span>;
 }
 
 export function Extrair() {
+  const navigate = useNavigate();
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [extracoes, setExtracoes] = useState<ExtracaoResult[]>([]);
   const [polling, setPolling] = useState(false);
-  const [modalExtracao, setModalExtracao] = useState<ExtracaoResult | null>(null);
 
   const fetchExtracoes = useCallback(async () => {
     try {
@@ -40,6 +69,21 @@ export function Extrair() {
     const id = setInterval(fetchExtracoes, 5000);
     return () => clearInterval(id);
   }, [polling, fetchExtracoes]);
+
+  const handleReprocess = async (id: number, ev: React.MouseEvent) => {
+    ev.stopPropagation();
+    setError(null);
+    try {
+      await reprocessarExtracao(id);
+      await fetchExtracoes();
+    } catch (err) {
+      const message =
+        err instanceof FetchError
+          ? err.message
+          : "Erro ao reprocessar extração";
+      setError(message);
+    }
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -114,86 +158,51 @@ export function Extrair() {
         ) : (
           <div className={styles.table}>
             <div className={styles.tableHeader}>
-              <span className={styles.colId}>#</span>
+              <span className={styles.colId}># / Empresa</span>
               <span className={styles.colData}>Data</span>
               <span className={styles.colStatus}>Status</span>
+              <span className={styles.colAction} />
             </div>
-            {extracoes.map((e) => (
+              {extracoes.map((e) => (
               <div
                 key={e.id_extracao}
                 className={styles.tableRow}
-                onClick={() => setModalExtracao(e)}
+                onClick={() => navigate(`/extracao/${e.id_extracao}`)}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(ev) => {
                   if (ev.key === "Enter" || ev.key === " ") {
                     ev.preventDefault();
-                    setModalExtracao(e);
+                    navigate(`/extracao/${e.id_extracao}`);
                   }
                 }}
               >
-                <span className={styles.colId}>{e.id_extracao}</span>
+                <span className={styles.colId}>
+                  <span className={styles.idNum}>#{e.id_extracao}</span>
+                  {e.empresa && <span className={styles.idEmpresa}>{e.empresa}</span>}
+                </span>
                 <span className={styles.colData}>
                   {new Date(e.created_at).toLocaleString("pt-BR")}
                 </span>
                 <span className={styles.colStatus}>
-                  <StatusBadge status={e.status} />
+                  <StatusBadge status={e.status} step={latestStep(e.steps)} />
+                </span>
+                <span className={styles.colAction}>
+                  {(e.status === "DONE" || e.status === "ERROR") && (
+                    <button
+                      type="button"
+                      className={styles.reprocessButton}
+                      onClick={(ev) => handleReprocess(e.id_extracao, ev)}
+                    >
+                      {e.status === "ERROR" ? "Reprocessar" : "Processar"}
+                    </button>
+                  )}
                 </span>
               </div>
             ))}
           </div>
         )}
       </div>
-
-      {modalExtracao && (
-        <div
-          className={styles.modalOverlay}
-          onClick={() => setModalExtracao(null)}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div
-            className={styles.modal}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className={styles.modalClose}
-              onClick={() => setModalExtracao(null)}
-              aria-label="Fechar"
-            >
-              &times;
-            </button>
-            <h3 className={styles.modalTitle}>
-              Extração #{modalExtracao.id_extracao}
-            </h3>
-            <dl className={styles.modalDetails}>
-              <dt>Status</dt>
-              <dd>
-                <StatusBadge status={modalExtracao.status} />
-              </dd>
-              <dt>Data</dt>
-              <dd>
-                {new Date(modalExtracao.created_at).toLocaleString("pt-BR")}
-              </dd>
-              {modalExtracao.url && (
-                <>
-                  <dt>URL</dt>
-                  <dd>
-                    <a
-                      href={modalExtracao.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.modalUrl}
-                    >
-                      {modalExtracao.url}
-                    </a>
-                  </dd>
-                </>
-              )}
-            </dl>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

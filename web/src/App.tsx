@@ -5,6 +5,7 @@ import { NavBar } from "./components/NavBar";
 import { Login } from "./pages/Login";
 import { Dashboard } from "./pages/Dashboard";
 import { Extrair } from "./pages/Extrair";
+import { ExtracaoDetalhe } from "./pages/ExtracaoDetalhe";
 import { NotaDetalhe } from "./pages/NotaDetalhe";
 import styles from "./App.module.css";
 
@@ -27,6 +28,14 @@ function AppLayout() {
             element={
               <ProtectedRoute>
                 <Extrair />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/extracao/:id"
+            element={
+              <ProtectedRoute>
+                <ExtracaoDetalhe />
               </ProtectedRoute>
             }
           />

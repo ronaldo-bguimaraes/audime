@@ -98,7 +98,7 @@ def hash_code(code: str) -> str:
 def create_access_token(sub: str) -> str:
     payload = {
         "sub": sub,
-        "exp": datetime.now(timezone.utc) + timedelta(hours=1),
+        "exp": datetime.now(timezone.utc) + timedelta(days=7),
         "iat": datetime.now(timezone.utc),
     }
     return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)

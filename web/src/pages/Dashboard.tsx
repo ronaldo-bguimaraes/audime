@@ -1,15 +1,15 @@
 import { Link } from "react-router";
 import { useFetch } from "../hooks/useFetch";
-import { listarNotas } from "../api/notas";
+import { listarDashboardNotas } from "../api/dashboard";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { formatBRL, maskChave, formatDate } from "../utils/format";
-import type { Nota } from "../types";
+import type { DashboardNota } from "../types";
 import styles from "./Dashboard.module.css";
 
 export function Dashboard() {
-  const { data: notas, loading, error, refetch } = useFetch<Nota[]>(
-    listarNotas,
+  const { data: notas, loading, error, refetch } = useFetch<DashboardNota[]>(
+    listarDashboardNotas,
     [],
   );
 
@@ -44,7 +44,7 @@ export function Dashboard() {
       ) : (
         <div className={styles.grid}>
           {notas.map((nota) => (
-            <NotaCard key={nota.id} nota={nota} />
+            <NotaCard key={nota.id_extracao} nota={nota} />
           ))}
         </div>
       )}
@@ -52,28 +52,28 @@ export function Dashboard() {
   );
 }
 
-function NotaCard({ nota }: { nota: Nota }) {
+function NotaCard({ nota }: { nota: DashboardNota }) {
   return (
     <div className={styles.card}>
       <div className={styles.cardHeader}>
         <h2 className={styles.empresa}>{nota.empresa}</h2>
-        <span className={styles.valor}>{formatBRL(nota.valor_total)}</span>
+        <span className={styles.valor}>{formatBRL(nota.valor_total ?? 0)}</span>
       </div>
       <div className={styles.cardBody}>
         <div className={styles.info}>
           <span className={styles.label}>Chave:</span>
-          <span className={styles.value}>{maskChave(nota.chave)}</span>
+          <span className={styles.value}>{maskChave(nota.chave_acesso ?? "")}</span>
         </div>
         <div className={styles.info}>
           <span className={styles.label}>Emissão:</span>
-          <span className={styles.value}>{formatDate(nota.emissao)}</span>
+          <span className={styles.value}>{nota.emissao ? formatDate(nota.emissao) : "-"}</span>
         </div>
         <div className={styles.info}>
           <span className={styles.label}>Itens:</span>
           <span className={styles.value}>{nota.items.length}</span>
         </div>
       </div>
-      <Link to={`/notas/${nota.id}`} className={styles.detailsButton}>
+      <Link to={`/notas/${nota.id_extracao}`} className={styles.detailsButton}>
         Ver detalhes
       </Link>
     </div>

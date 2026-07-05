@@ -26,6 +26,16 @@ async def startup(ctx: dict) -> None:
     ctx["r2_client"] = get_s3_client()
     ctx["bucket"] = settings.r2_storage_bucket
 
+    # ARQ pool so extraction task can enqueue transform jobs
+    ctx["arq_pool"] = await create_pool(
+        RedisSettings(
+            host=settings.redis_host,
+            port=settings.redis_port,
+            password=settings.redis_password,
+            database=settings.redis_db,
+        )
+    )
+
 
 async def shutdown(ctx: dict) -> None:
     """Clean up shared resources."""
@@ -33,11 +43,18 @@ async def shutdown(ctx: dict) -> None:
     if db_factory is not None:
         db_factory.close_all()
 
+    arq_pool = ctx.pop("arq_pool", None)
+    if arq_pool is not None:
+        await arq_pool.close()
+
 
 class WorkerSettings:
     """ARQ worker configuration — discovered by the ``arq`` CLI."""
 
-    functions = ["app.workers.tasks.executar_extracao"]
+    functions = [
+        "app.workers.tasks.executar_extracao",
+        "app.workers.tasks.transformar_extracao",
+    ]
 
     on_startup = startup
     on_shutdown = shutdown

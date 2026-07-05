@@ -45,6 +45,15 @@ export interface ExtracaoResponse {
   created_at: string;
 }
 
+export interface PipelineStep {
+  etapa: string;
+  status: string;
+  ordem: number;
+  iniciado_em: string | null;
+  concluido_em: string | null;
+  mensagem: string | null;
+}
+
 /* ---- Notas Fiscais ---- */
 
 export interface ItemNota {
@@ -108,7 +117,39 @@ export interface Nota {
   items: ItemNota[];
 }
 
-/* ---- Analytics ---- */
+/* ---- Analytics / Dashboard ---- */
+
+export interface DashboardNotaItem {
+  descricao: string;
+  quantidade: number | null;
+  unidade: string | null;
+  valor_unitario: number | null;
+  valor_total: number | null;
+}
+
+export interface DashboardNota {
+  id_nota_analytics: number;
+  id_extracao: number;
+  empresa: string | null;
+  chave_acesso: string | null;
+  numero: string | null;
+  serie: string | null;
+  emissao: string | null;
+  valor_total: number | null;
+  qtd_total_itens: number | null;
+  version: number;
+  valid_from: string;
+  items: DashboardNotaItem[];
+}
+
+export interface VersaoNota {
+  version: number;
+  valid_from: string;
+  valid_to: string | null;
+  is_current: boolean;
+  empresa: string | null;
+  valor_total: number | null;
+}
 
 export interface GastoMensal {
   mes_ano: string;

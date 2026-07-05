@@ -20,6 +20,7 @@ def br_to_float(text: str):
       - "2,39"  -> 2.39   (standard decimal)
       - "0,304" -> 0.304  (quantity with 3 decimals)
       - "1.234,56" -> 1234.56 (thousands sep)
+      - "9.000"  -> 9.0   (point as thousands sep, no comma)
       - "269,00" -> 269.0
       - "NaN", "", None -> None
     """
@@ -31,9 +32,15 @@ def br_to_float(text: str):
     text = re.sub(r"[^\d,.-]", "", text)
     if not text:
         return None
-    cleaned = text.replace(".", "").replace(",", ".")
+    if "," in text:
+        text = text.replace(".", "").replace(",", ".")
+    else:
+        # No comma → last dot is the decimal separator
+        parts = text.split(".")
+        if len(parts) > 1:
+            text = "".join(parts[:-1]) + "." + parts[-1]
     try:
-        return float(cleaned)
+        return float(text)
     except ValueError:
         return None
 

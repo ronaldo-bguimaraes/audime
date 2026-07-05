@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from arq import create_pool
 from arq.connections import RedisSettings
 from fastapi import FastAPI
-from app.api.v1.endpoints import analytics, auth, extracoes, faturas, notas
+from app.api.v1.endpoints import analytics, auth, dashboard, extracoes, faturas, notas
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -48,6 +48,7 @@ app.include_router(auth.router)
 app.include_router(extracoes.router)
 app.include_router(notas.router)
 app.include_router(faturas.router)
+app.include_router(dashboard.router)
 app.include_router(analytics.router)
 
 

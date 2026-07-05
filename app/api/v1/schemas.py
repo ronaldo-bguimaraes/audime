@@ -24,6 +24,38 @@ class ExtracaoStatusResponse(BaseModel):
     id_extracao: int
     status: str
     url: Optional[str] = None
+    reprocess_count: Optional[int] = None
+    reprocessed_at: Optional[datetime] = None
+
+
+class ParsingAttemptItem(BaseModel):
+    descricao: str
+    quantidade: Optional[float] = None
+    unidade: Optional[str] = None
+    valor_total: Optional[float] = None
+
+
+class ParsingAttemptResponse(BaseModel):
+    id_importacao: int
+    id_nota: Optional[int] = None
+    imported_at: datetime
+    empresa: Optional[str] = None
+    chave: Optional[str] = None
+    numero: Optional[str] = None
+    serie: Optional[str] = None
+    emissao: Optional[date] = None
+    valor_total: Optional[float] = None
+    qtd_total_itens: Optional[int] = None
+    items: list[ParsingAttemptItem] = []
+
+
+class PipelineStepResponse(BaseModel):
+    etapa: str
+    status: str
+    ordem: int
+    iniciado_em: Optional[datetime] = None
+    concluido_em: Optional[datetime] = None
+    mensagem: Optional[str] = None
 
 
 class ExtracaoResponse(BaseModel):
@@ -31,8 +63,29 @@ class ExtracaoResponse(BaseModel):
     status: str
     created_at: datetime
     url: Optional[str] = None
+    empresa: Optional[str] = None
+    reprocess_count: Optional[int] = None
+    reprocessed_at: Optional[datetime] = None
+    historico_parsing: list[ParsingAttemptResponse] = []
+    steps: list[PipelineStepResponse] = []
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ReprocessarExtracaoRequest(BaseModel):
+    url: Optional[HttpUrl] = None
+
+
+class ReprocessarExtracaoResponse(BaseModel):
+    id_extracao: int
+    status: str
+    job_id: str | None = None
+
+
+class BackfillResponse(BaseModel):
+    enqueued: int
+    total: int
+    message: str
 
 
 class ItemResponse(BaseModel):
@@ -41,7 +94,7 @@ class ItemResponse(BaseModel):
     item_descricao: str
     item_quantidade: float
     item_tipo_unidade: Optional[str]
-    item_valor_unidade: float
+    item_valor_unidade: float | None
     item_valor_total: float
     nota_id: int
 
@@ -61,6 +114,40 @@ class NotaResponse(BaseModel):
     items: list[ItemResponse]
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class DashboardNotaItem(BaseModel):
+    descricao: str
+    quantidade: Optional[float] = None
+    unidade: Optional[str] = None
+    valor_unitario: Optional[float] = None
+    valor_total: Optional[float] = None
+
+
+class DashboardNotaResponse(BaseModel):
+    id_nota_analytics: int
+    id_extracao: int
+    empresa: Optional[str] = None
+    chave_acesso: Optional[str] = None
+    numero: Optional[str] = None
+    serie: Optional[str] = None
+    emissao: Optional[date] = None
+    valor_total: Optional[float] = None
+    qtd_total_itens: Optional[int] = None
+    version: int
+    valid_from: datetime
+    items: list[DashboardNotaItem] = []
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class VersaoNotaResponse(BaseModel):
+    version: int
+    valid_from: datetime
+    valid_to: Optional[datetime] = None
+    is_current: bool
+    empresa: Optional[str] = None
+    valor_total: Optional[float] = None
 
 
 class FaturaRequest(BaseModel):

@@ -1,23 +1,32 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useFetch } from "../hooks/useFetch";
-import { obterNota } from "../api/notas";
+import { obterDashboardNota, obterHistoricoNota } from "../api/dashboard";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { formatBRL, formatDate } from "../utils/format";
-import type { Nota } from "../types";
+import type { DashboardNota, VersaoNota } from "../types";
 import styles from "./NotaDetalhe.module.css";
 
 export function NotaDetalhe() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const notaId = Number(id);
+  const idExtracao = Number(id);
 
   const {
     data: nota,
     loading,
     error,
     refetch,
-  } = useFetch<Nota>(() => obterNota(notaId), [notaId]);
+  } = useFetch<DashboardNota>(
+    () => obterDashboardNota(idExtracao),
+    [idExtracao],
+  );
+
+  const { data: versoes } = useFetch<VersaoNota[]>(
+    () => obterHistoricoNota(idExtracao),
+    [idExtracao],
+  );
 
   if (loading) {
     return <LoadingSpinner message="Carregando nota..." />;
@@ -49,44 +58,24 @@ export function NotaDetalhe() {
       <div className={styles.card}>
         <h1 className={styles.empresa}>{nota.empresa}</h1>
         <div className={styles.infoGrid}>
-          <InfoRow label="Chave" value={nota.chave} />
-          <InfoRow label="Número" value={nota.numero} />
-          <InfoRow label="Série" value={nota.serie} />
-          <InfoRow label="Emissão" value={formatDate(nota.emissao)} />
+          <InfoRow label="Chave" value={nota.chave_acesso ?? "-"} />
+          <InfoRow label="Número" value={nota.numero ?? "-"} />
+          <InfoRow label="Série" value={nota.serie ?? "-"} />
+          <InfoRow label="Emissão" value={nota.emissao ? formatDate(nota.emissao) : "-"} />
           <InfoRow
             label="Valor Total"
-            value={formatBRL(nota.valor_total)}
+            value={formatBRL(nota.valor_total ?? 0)}
           />
           {nota.qtd_total_itens != null && (
             <InfoRow label="Qtd. Itens" value={String(nota.qtd_total_itens)} />
           )}
-          {nota.extra?.emitente?.cnpj && (
-            <InfoRow label="CNPJ" value={nota.extra.emitente.cnpj} />
-          )}
-          {nota.extra?.emitente?.logradouro && (
-            <InfoRow
-              label="Endereço"
-              value={`${nota.extra.emitente.logradouro}, ${nota.extra.emitente.numero}${nota.extra.emitente.complemento ? ` - ${nota.extra.emitente.complemento}` : ""} - ${nota.extra.emitente.bairro}, ${nota.extra.emitente.cidade}/${nota.extra.emitente.uf}`}
-            />
-          )}
-          {nota.extra?.protocolo_autorizacao?.numero && (
-            <InfoRow
-              label="Protocolo"
-              value={`${nota.extra.protocolo_autorizacao.numero} (${nota.extra.protocolo_autorizacao.data_hora})`}
-            />
-          )}
-          {nota.extra?.consumidor && (
-            <InfoRow label="Consumidor" value={nota.extra.consumidor} />
-          )}
-          {nota.extra?.ambiente && (
-            <InfoRow label="Ambiente" value={nota.extra.ambiente} />
-          )}
+          <InfoRow label="Versão" value={`v${nota.version}`} />
         </div>
       </div>
 
       <div className={styles.itensSection}>
         <h2 className={styles.itensTitle}>
-          Itens ({nota.qtd_total_itens ?? nota.items.length})
+          Itens ({nota.items.length})
         </h2>
         {nota.items.length === 0 ? (
           <p className={styles.noItens}>Nenhum item encontrado.</p>
@@ -103,18 +92,18 @@ export function NotaDetalhe() {
                 </tr>
               </thead>
               <tbody>
-                {nota.items.map((item) => (
-                  <tr key={item.id}>
-                    <td data-label="Descrição">{item.item_descricao}</td>
-                    <td data-label="Qtd">{item.item_quantidade}</td>
+                {nota.items.map((item, idx) => (
+                  <tr key={idx}>
+                    <td data-label="Descrição">{item.descricao}</td>
+                    <td data-label="Qtd">{item.quantidade ?? "-"}</td>
                     <td data-label="Un.">
-                      {item.item_tipo_unidade ?? "-"}
+                      {item.unidade ?? "-"}
                     </td>
                     <td data-label="Valor Un.">
-                      {formatBRL(item.item_valor_unidade)}
+                      {item.valor_unitario != null ? formatBRL(item.valor_unitario) : "-"}
                     </td>
                     <td data-label="Valor Total">
-                      {formatBRL(item.item_valor_total)}
+                      {item.valor_total != null ? formatBRL(item.valor_total) : "-"}
                     </td>
                   </tr>
                 ))}
@@ -123,43 +112,44 @@ export function NotaDetalhe() {
           </div>
         )}
       </div>
-      {/* ── Formas de Pagamento ── */}
-      {nota.extra?.formas_pagamento && nota.extra.formas_pagamento.length > 0 && (
-        <div className={styles.card}>
-          <h2 className={styles.sectionTitle}>Formas de Pagamento</h2>
-          <div className={styles.infoGrid}>
-            {nota.extra.formas_pagamento.map((fp, idx) => (
-              <InfoRow
-                key={idx}
-                label={fp.tipo}
-                value={fp.valor != null ? formatBRL(fp.valor) : "—"}
-              />
-            ))}
-          </div>
-        </div>
-      )}
 
-      {/* ── Informações de Interesse ── */}
-      {nota.extra?.informacoes_interesse && (
-        <div className={styles.card}>
-          <h2 className={styles.sectionTitle}>Informações de Interesse</h2>
-          <div className={styles.infoGrid}>
-            {nota.extra.informacoes_interesse.tributos_federal != null && (
-              <InfoRow label="Trib. Federal" value={formatBRL(nota.extra.informacoes_interesse.tributos_federal)} />
-            )}
-            {nota.extra.informacoes_interesse.tributos_estadual != null && (
-              <InfoRow label="Trib. Estadual" value={formatBRL(nota.extra.informacoes_interesse.tributos_estadual)} />
-            )}
-            {nota.extra.informacoes_interesse.tributos_municipal != null && (
-              <InfoRow label="Trib. Municipal" value={formatBRL(nota.extra.informacoes_interesse.tributos_municipal)} />
-            )}
-            {nota.extra.informacoes_interesse.coo != null && (
-              <InfoRow label="COO" value={String(nota.extra.informacoes_interesse.coo)} />
-            )}
-            {nota.extra.informacoes_interesse.pdv != null && (
-              <InfoRow label="PDV" value={String(nota.extra.informacoes_interesse.pdv)} />
-            )}
-          </div>
+      {versoes && versoes.length > 1 && (
+        <HistoricoVersoes versoes={versoes} />
+      )}
+    </div>
+  );
+}
+
+function HistoricoVersoes({ versoes }: { versoes: VersaoNota[] }) {
+  const [aberto, setAberto] = useState(false);
+
+  return (
+    <div className={styles.card}>
+      <button
+        type="button"
+        className={styles.sectionTitle}
+        onClick={() => setAberto(!aberto)}
+        style={{ cursor: "pointer", background: "none", border: "none", display: "flex", alignItems: "center", gap: 8, padding: 0, width: "100%", textAlign: "left" }}
+      >
+        <span>{aberto ? "▾" : "▸"}</span>
+        Histórico de Versões ({versoes.length})
+      </button>
+      {aberto && (
+        <div className={styles.infoGrid} style={{ marginTop: 12 }}>
+          {versoes.map((v) => (
+            <div key={v.version} className={styles.infoRow} style={{ borderLeft: v.is_current ? "3px solid var(--accent)" : "3px solid var(--border)", paddingLeft: 8 }}>
+              <InfoRow
+                label={`Versão ${v.version}`}
+                value={v.is_current ? "Atual" : "Anterior"}
+              />
+              <InfoRow label="Empresa" value={v.empresa ?? "-"} />
+              <InfoRow label="Valor" value={formatBRL(v.valor_total ?? 0)} />
+              <InfoRow label="De" value={new Date(v.valid_from).toLocaleString("pt-BR")} />
+              {v.valid_to && (
+                <InfoRow label="Até" value={new Date(v.valid_to).toLocaleString("pt-BR")} />
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>

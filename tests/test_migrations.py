@@ -28,6 +28,7 @@ from abstract.base import Base
 from abstract.models import (  # noqa: F401 — registra modelos no metadata
     AuthCode,
     Extracao,
+    ExtracaoStep,
     Fatura,
     GastoCategoria,
     GastoMensal,
@@ -80,6 +81,7 @@ DOMAIN_TABLES = {
     "importacao", "fatura", "transacao", "nota", "item_nota",
     "nota_normalizada", "item_normalizado",
     "gasto_mensal", "gasto_categoria",
+    "extracao_step",
 }
 
 
@@ -157,6 +159,7 @@ def test_models_metadata_is_complete():
         "usuario",
         "extracao",
         "auth_code",
+        "extracao_step",
         # raw
         "importacao",
         "fatura",
@@ -169,6 +172,8 @@ def test_models_metadata_is_complete():
         # analytics
         "gasto_mensal",
         "gasto_categoria",
+        "nota_analytics",
+        "item_nota_analytics",
     }
 
     actual_tables = set(Base.metadata.tables.keys())
