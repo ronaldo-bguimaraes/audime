@@ -158,7 +158,7 @@ export function Extrair() {
         ) : (
           <div className={styles.table}>
             <div className={styles.tableHeader}>
-              <span className={styles.colId}># / Empresa</span>
+              <span className={styles.colId}>#</span>
               <span className={styles.colData}>Data</span>
               <span className={styles.colStatus}>Status</span>
               <span className={styles.colAction} />
@@ -177,10 +177,7 @@ export function Extrair() {
                   }
                 }}
               >
-                <span className={styles.colId}>
-                  <span className={styles.idNum}>#{e.id_extracao}</span>
-                  {e.empresa && <span className={styles.idEmpresa}>{e.empresa}</span>}
-                </span>
+                <span className={styles.colId}>{e.id_extracao}</span>
                 <span className={styles.colData}>
                   {new Date(e.created_at).toLocaleString("pt-BR")}
                 </span>

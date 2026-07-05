@@ -249,9 +249,10 @@ async def transformar_extracao(
         set_step_running(db, id_extracao, PipelineStep.ANALYTICS)
 
         # Analytics: SCD2 insert
-        # Close previous current version
+        # Close previous current version for this chave+user
         db.query(NotaAnalytics).filter(
-            NotaAnalytics.id_extracao == id_extracao,
+            NotaAnalytics.id_usuario == nota_raw.id_usuario,
+            NotaAnalytics.chave_acesso == nota_raw.chave,
             NotaAnalytics.is_current == True,  # noqa: E712
         ).update({"valid_to": now, "is_current": False})
 

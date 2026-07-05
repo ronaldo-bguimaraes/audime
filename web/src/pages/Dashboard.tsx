@@ -56,7 +56,7 @@ function NotaCard({ nota }: { nota: DashboardNota }) {
   return (
     <div className={styles.card}>
       <div className={styles.cardHeader}>
-        <h2 className={styles.empresa}>{nota.empresa}</h2>
+        <h2 className={styles.empresa}>#{nota.id_extracao} {nota.empresa}</h2>
         <span className={styles.valor}>{formatBRL(nota.valor_total ?? 0)}</span>
       </div>
       <div className={styles.cardBody}>

@@ -32,7 +32,16 @@ class GastoCategoria(Base):
 
 class NotaAnalytics(Base):
     __tablename__ = "nota_analytics"
-    __table_args__ = {"schema": "analytics"}
+    __table_args__ = (
+        sa.Index(
+            "ix_nota_analytics_current_unique",
+            "id_usuario",
+            "chave_acesso",
+            postgresql_where=sa.text("is_current = TRUE"),
+            unique=True,
+        ),
+        {"schema": "analytics"},
+    )
 
     id_nota_analytics = sa.Column(sa.BigInteger, primary_key=True)
     id_extracao = sa.Column(sa.BigInteger, nullable=False)
