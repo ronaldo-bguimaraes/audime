@@ -137,13 +137,11 @@ export interface DashboardNota {
   emissao: string | null;
   valor_total: number | null;
   qtd_total_itens: number | null;
-  version: number;
   valid_from: string;
   items: DashboardNotaItem[];
 }
 
 export interface VersaoNota {
-  version: number;
   valid_from: string;
   valid_to: string | null;
   is_current: boolean;

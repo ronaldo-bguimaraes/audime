@@ -248,21 +248,12 @@ async def transformar_extracao(
         set_step_done(db, id_extracao, PipelineStep.STAGING)
         set_step_running(db, id_extracao, PipelineStep.ANALYTICS)
 
-        # Analytics: SCD2 insert
-        # Close previous current version for this extraction
+        # Analytics: SCD2 insert — close current version for this chave+user
         db.query(NotaAnalytics).filter(
-            NotaAnalytics.id_extracao == id_extracao,
+            NotaAnalytics.id_usuario == nota_raw.id_usuario,
+            NotaAnalytics.chave_acesso == nota_raw.chave,
             NotaAnalytics.is_current == True,  # noqa: E712
         ).update({"valid_to": now, "is_current": False})
-
-        # Compute next version number
-        last_version = (
-            db.query(NotaAnalytics.version)
-            .filter(NotaAnalytics.id_extracao == id_extracao)
-            .order_by(NotaAnalytics.version.desc())
-            .first()
-        )
-        next_version = (last_version[0] if last_version else 0) + 1
 
         # Insert new current version
         nova_nota = NotaAnalytics(
@@ -276,7 +267,6 @@ async def transformar_extracao(
             valor_total=nota_raw.valor_total,
             qtd_total_itens=nota_raw.qtd_total_itens,
             extra=nota_raw.extra,
-            version=next_version,
             valid_from=now,
             is_current=True,
             id_importacao=importacao.id_importacao,
@@ -295,7 +285,6 @@ async def transformar_extracao(
                 unidade=item_raw.item_tipo_unidade,
                 valor_unitario=item_raw.item_valor_unidade,
                 valor_total=item_raw.item_valor_total,
-                version=next_version,
                 processado_em=now,
             )
             db.add(item)
@@ -307,7 +296,6 @@ async def transformar_extracao(
 
         return {
             "id_extracao": id_extracao,
-            "version": next_version,
             "id_nota_analytics": nova_nota.id_nota_analytics,
         }
 

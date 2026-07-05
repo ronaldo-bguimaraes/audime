@@ -134,7 +134,6 @@ class DashboardNotaResponse(BaseModel):
     emissao: Optional[date] = None
     valor_total: Optional[float] = None
     qtd_total_itens: Optional[int] = None
-    version: int
     valid_from: datetime
     items: list[DashboardNotaItem] = []
 
@@ -142,7 +141,6 @@ class DashboardNotaResponse(BaseModel):
 
 
 class VersaoNotaResponse(BaseModel):
-    version: int
     valid_from: datetime
     valid_to: Optional[datetime] = None
     is_current: bool

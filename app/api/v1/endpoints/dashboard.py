@@ -68,7 +68,6 @@ def _build_from_analytics(nota: NotaAnalytics) -> DashboardNotaResponse:
         emissao=nota.emissao,
         valor_total=float(nota.valor_total) if nota.valor_total else None,
         qtd_total_itens=nota.qtd_total_itens,
-        version=nota.version,
         valid_from=nota.valid_from,
         items=items,
     )
@@ -109,14 +108,26 @@ def historico_nota(
     db: Session = Depends(get_db),
     id_usuario: int = Depends(get_current_user_id),
 ) -> list[VersaoNotaResponse]:
-    """Return all SCD2 versions of a nota for a given extraction."""
-    versoes = (
-        db.query(NotaAnalytics)
+    """Return all SCD2 versions of a nota for the chave associated with this extraction."""
+    extra = (
+        db.query(NotaAnalytics.chave_acesso)
         .filter(
             NotaAnalytics.id_extracao == id_extracao,
             NotaAnalytics.id_usuario == id_usuario,
         )
-        .order_by(NotaAnalytics.version.desc())
+        .first()
+    )
+    if not extra:
+        raise HTTPException(status_code=404, detail="Extração não encontrada")
+
+    chave = extra.chave_acesso
+    versoes = (
+        db.query(NotaAnalytics)
+        .filter(
+            NotaAnalytics.chave_acesso == chave,
+            NotaAnalytics.id_usuario == id_usuario,
+        )
+        .order_by(NotaAnalytics.valid_from.desc())
         .all()
     )
     if not versoes:
@@ -124,7 +135,6 @@ def historico_nota(
 
     return [
         VersaoNotaResponse(
-            version=v.version,
             valid_from=v.valid_from,
             valid_to=v.valid_to,
             is_current=v.is_current,

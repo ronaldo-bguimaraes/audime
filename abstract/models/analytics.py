@@ -47,7 +47,6 @@ class NotaAnalytics(Base):
     extra = sa.Column(sa.JSON, nullable=True)
 
     # SCD Type 2 columns
-    version = sa.Column(sa.Integer, nullable=False, default=1)
     valid_from = sa.Column(sa.DateTime(timezone=True), nullable=False)
     valid_to = sa.Column(sa.DateTime(timezone=True), nullable=True)
     is_current = sa.Column(sa.Boolean, nullable=False, default=True)
@@ -71,5 +70,4 @@ class ItemNotaAnalytics(Base):
     unidade = sa.Column(sa.Text, nullable=True)
     valor_unitario = sa.Column(sa.Numeric(10, 2), nullable=True)
     valor_total = sa.Column(sa.Numeric(10, 2), nullable=True)
-    version = sa.Column(sa.Integer, nullable=False)
     processado_em = pg_timestampz()

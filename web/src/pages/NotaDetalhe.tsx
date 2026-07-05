@@ -68,7 +68,6 @@ export function NotaDetalhe() {
           {nota.qtd_total_itens != null && (
             <InfoRow label="Qtd. Itens" value={String(nota.qtd_total_itens)} />
           )}
-          <InfoRow label="Versão" value={`v${nota.version}`} />
         </div>
       </div>
 
@@ -128,12 +127,12 @@ function HistoricoVersoes({ versoes }: { versoes: VersaoNota[] }) {
       <div className={styles.historicoList}>
         {versoes.map((v) => (
           <div
-            key={v.version}
+            key={v.valid_from}
             className={styles.historicoItem}
             style={{ borderLeft: v.is_current ? "3px solid var(--accent)" : "3px solid var(--border)" }}
           >
             <InfoRow
-              label={`Versão ${v.version}`}
+              label="Status"
               value={v.is_current ? "Atual" : "Anterior"}
             />
             <InfoRow label="Empresa" value={v.empresa ?? "-"} />

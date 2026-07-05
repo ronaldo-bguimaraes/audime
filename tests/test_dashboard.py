@@ -164,7 +164,6 @@ class TestDashboardListFallback:
             emissao=now.date(),
             valor_total=200.75,
             qtd_total_itens=3,
-            version=1,
             valid_from=now,
             is_current=True,
             id_importacao=1,
@@ -182,7 +181,6 @@ class TestDashboardListFallback:
             unidade="UN",
             valor_unitario=200.75,
             valor_total=200.75,
-            version=1,
             processado_em=now,
         )
         db_session.add(item)
@@ -195,6 +193,8 @@ class TestDashboardListFallback:
         assert data[0]["id_nota_analytics"] == 1
         assert data[0]["empresa"] == "Analytics Empresa"
         assert data[0]["valor_total"] == 200.75
+        # version no longer returned
+        assert "version" not in data[0]
 
     def test_listar_notas_raw_only_returns_empty(self, client, db_session):
         """When only raw data exists (no analytics), returns empty list."""
@@ -232,7 +232,6 @@ class TestDashboardListFallback:
             emissao=now.date(),
             valor_total=200.75,
             qtd_total_itens=3,
-            version=1,
             valid_from=now,
             is_current=True,
             id_importacao=2,
@@ -261,7 +260,7 @@ class TestDashboardListFallback:
             chave_acesso="x", empresa="User1 Only",
             numero="1", serie="1", emissao=now.date(),
             valor_total=100, qtd_total_itens=1,
-            version=1, valid_from=now, is_current=True,
+            valid_from=now, is_current=True,
             id_importacao=1, id_nota_raw=1, processado_em=now,
         )
         db_session.add(nota_analytics)
@@ -292,7 +291,7 @@ class TestDashboardListFallback:
             chave_acesso="x", empresa="Analytics Only",
             numero="1", serie="1", emissao=now.date(),
             valor_total=999.99, qtd_total_itens=1,
-            version=1, valid_from=now, is_current=True,
+            valid_from=now, is_current=True,
             id_importacao=1, id_nota_raw=1, processado_em=now,
         )
         db_session.add(nota_analytics)
