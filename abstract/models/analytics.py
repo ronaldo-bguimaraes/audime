@@ -46,6 +46,9 @@ class NotaAnalytics(Base):
     qtd_total_itens = sa.Column(sa.Integer, nullable=True)
     extra = sa.Column(sa.JSON, nullable=True)
 
+    # Soft delete / ativo
+    is_active = sa.Column(sa.Boolean, nullable=False, default=True)
+
     # SCD Type 2 columns
     valid_from = sa.Column(sa.DateTime(timezone=True), nullable=False)
     valid_to = sa.Column(sa.DateTime(timezone=True), nullable=True)

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func as sa_func
 from sqlalchemy.orm import Session, joinedload
 
-from app.api.v1.schemas import DashboardNotaItem, DashboardNotaResponse, VersaoNotaResponse
+from app.api.v1.schemas import DashboardNotaItem, DashboardNotaResponse, NotaPatchRequest, VersaoNotaResponse
 from app.core.deps import get_current_user_id, get_db
 from abstract.models.analytics import NotaAnalytics
 
@@ -30,6 +30,7 @@ def listar_notas(
         .filter(
             NotaAnalytics.id_usuario == id_usuario,
             NotaAnalytics.is_current == True,  # noqa: E712
+            NotaAnalytics.is_active == True,  # noqa: E712
             NotaAnalytics.chave_acesso.isnot(None),
         )
         .group_by(NotaAnalytics.chave_acesso)
@@ -70,6 +71,7 @@ def _build_from_analytics(nota: NotaAnalytics) -> DashboardNotaResponse:
         qtd_total_itens=nota.qtd_total_itens,
         valid_from=nota.valid_from,
         items=items,
+        is_active=nota.is_active,
     )
 
 
@@ -90,6 +92,7 @@ def obter_nota(
             NotaAnalytics.id_extracao == id_extracao,
             NotaAnalytics.id_usuario == id_usuario,
             NotaAnalytics.is_current == True,  # noqa: E712
+            NotaAnalytics.is_active == True,  # noqa: E712
         )
         .first()
     )
@@ -143,3 +146,33 @@ def historico_nota(
         )
         for v in versoes
     ]
+
+
+@router.patch("/notas/{id_extracao}")
+def patch_nota(
+    id_extracao: int,
+    body: NotaPatchRequest,
+    db: Session = Depends(get_db),
+    id_usuario: int = Depends(get_current_user_id),
+) -> dict:
+    """Toggle is_active (soft-delete / reactivate) for all versions of a nota.
+
+    Sets is_active on ALL SCD2 rows for the given id_extracao and user.
+    Returns 404 if no rows exist for this extraction and user.
+    """
+    rows = (
+        db.query(NotaAnalytics)
+        .filter(
+            NotaAnalytics.id_extracao == id_extracao,
+            NotaAnalytics.id_usuario == id_usuario,
+        )
+        .all()
+    )
+    if not rows:
+        raise HTTPException(status_code=404, detail="Nota não encontrada")
+
+    for row in rows:
+        row.is_active = body.is_active
+    db.commit()
+
+    return {"status": "ativado" if body.is_active else "desativado"}

@@ -136,8 +136,13 @@ class DashboardNotaResponse(BaseModel):
     qtd_total_itens: Optional[int] = None
     valid_from: datetime
     items: list[DashboardNotaItem] = []
+    is_active: bool = True
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class NotaPatchRequest(BaseModel):
+    is_active: bool
 
 
 class VersaoNotaResponse(BaseModel):

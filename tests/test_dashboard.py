@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 
 import pytest
 from fastapi.testclient import TestClient
+import sqlalchemy as sa
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -335,3 +336,323 @@ class TestDashboardBackfill:
         data = r.json()
         assert "enqueued" in data
         assert isinstance(data["enqueued"], int)
+
+
+# ── Tests for soft-delete (is_active) ─────────────────────────────────
+
+
+class TestSoftDelete:
+    """Soft-delete (desativação) of analytics notas via is_active flag."""
+
+    def test_is_active_column_exists_on_model(self, client, db_session):
+        """Assert NotaAnalytics has column is_active with type Boolean."""
+        assert "is_active" in NotaAnalytics.__table__.columns
+        col = NotaAnalytics.__table__.columns["is_active"]
+        assert isinstance(col.type, sa.Boolean)
+
+    def test_is_active_defaults_to_true(self, client, db_session):
+        """Create NotaAnalytics without specifying is_active, assert it defaults to True."""
+        now = datetime.now(timezone.utc)
+        nota = NotaAnalytics(
+            id_nota_analytics=1,
+            id_extracao=1,
+            id_usuario=1,
+            chave_acesso="31200611222233300014455555555555555555555555",
+            empresa="Test Empresa",
+            numero="123456",
+            serie="1",
+            emissao=now.date(),
+            valor_total=100.00,
+            qtd_total_itens=1,
+            valid_from=now,
+            is_current=True,
+            id_importacao=1,
+            id_nota_raw=1,
+            processado_em=now,
+        )
+        db_session.add(nota)
+        db_session.commit()
+        assert nota.is_active is True
+
+    def test_listar_notas_filters_inactive(self, client, db_session):
+        """List endpoint should return only active notas (exclude is_active=False)."""
+        token = _auth_header(client)
+        now = datetime.now(timezone.utc)
+
+        _create_extracao_com_nota(db_session, id_extracao=1)
+        _create_extracao_com_nota(db_session, id_extracao=2)
+
+        nota_active = NotaAnalytics(
+            id_nota_analytics=1, id_extracao=1, id_usuario=1,
+            chave_acesso="31200611222233300014455555555555555555555555",
+            empresa="Active Empresa", numero="123456", serie="1",
+            emissao=now.date(), valor_total=100.00, qtd_total_itens=1,
+            valid_from=now, is_current=True,
+            id_importacao=1, id_nota_raw=1, processado_em=now,
+            is_active=True,
+        )
+        db_session.add(nota_active)
+
+        nota_inactive = NotaAnalytics(
+            id_nota_analytics=2, id_extracao=2, id_usuario=1,
+            chave_acesso="21200611222233300014455555555555555555555555",
+            empresa="Inactive Empresa", numero="654321", serie="2",
+            emissao=now.date(), valor_total=200.00, qtd_total_itens=2,
+            valid_from=now, is_current=True,
+            id_importacao=2, id_nota_raw=2, processado_em=now,
+            is_active=False,
+        )
+        db_session.add(nota_inactive)
+        db_session.commit()
+
+        r = client.get("/v1/dashboard/notas", headers={"Authorization": f"Bearer {token}"})
+        assert r.status_code == 200
+        data = r.json()
+        assert len(data) == 1
+        assert data[0]["empresa"] == "Active Empresa"
+        assert data[0]["id_extracao"] == 1
+
+    def test_obter_nota_inactive_returns_404(self, client, db_session):
+        """GET individual nota with is_active=False should return 404."""
+        token = _auth_header(client)
+        now = datetime.now(timezone.utc)
+
+        _create_extracao_com_nota(db_session, id_extracao=1)
+
+        nota = NotaAnalytics(
+            id_nota_analytics=1, id_extracao=1, id_usuario=1,
+            chave_acesso="31200611222233300014455555555555555555555555",
+            empresa="Test", numero="123456", serie="1",
+            emissao=now.date(), valor_total=100.00, qtd_total_itens=1,
+            valid_from=now, is_current=True,
+            id_importacao=1, id_nota_raw=1, processado_em=now,
+            is_active=False,
+        )
+        db_session.add(nota)
+        db_session.commit()
+
+        r = client.get(
+            "/v1/dashboard/notas/1",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert r.status_code == 404
+
+    def test_obter_nota_active_returns_200(self, client, db_session):
+        """GET individual nota with is_active=True should return 200."""
+        token = _auth_header(client)
+        now = datetime.now(timezone.utc)
+
+        _create_extracao_com_nota(db_session, id_extracao=1)
+
+        nota = NotaAnalytics(
+            id_nota_analytics=1, id_extracao=1, id_usuario=1,
+            chave_acesso="31200611222233300014455555555555555555555555",
+            empresa="Active Empresa", numero="123456", serie="1",
+            emissao=now.date(), valor_total=100.00, qtd_total_itens=1,
+            valid_from=now, is_current=True,
+            id_importacao=1, id_nota_raw=1, processado_em=now,
+            is_active=True,
+        )
+        db_session.add(nota)
+        db_session.commit()
+
+        r = client.get(
+            "/v1/dashboard/notas/1",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert r.status_code == 200
+        assert r.json()["empresa"] == "Active Empresa"
+
+    def test_historico_nota_shows_inactive(self, client, db_session):
+        """Historico endpoint should return versions even for inactive nota (no 404)."""
+        token = _auth_header(client)
+        now = datetime.now(timezone.utc)
+
+        _create_extracao_com_nota(db_session, id_extracao=1)
+
+        nota = NotaAnalytics(
+            id_nota_analytics=1, id_extracao=1, id_usuario=1,
+            chave_acesso="31200611222233300014455555555555555555555555",
+            empresa="Test Empresa", numero="123456", serie="1",
+            emissao=now.date(), valor_total=100.00, qtd_total_itens=1,
+            valid_from=now, is_current=True,
+            id_importacao=1, id_nota_raw=1, processado_em=now,
+            is_active=False,
+        )
+        db_session.add(nota)
+        db_session.commit()
+
+        r = client.get(
+            "/v1/dashboard/notas/1/historico",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert r.status_code == 200
+        data = r.json()
+        assert len(data) >= 1
+
+    def test_patch_desativar_sets_is_active_false(self, client, db_session):
+        """PATCH with is_active=false should update the nota and return 200."""
+        token = _auth_header(client)
+        now = datetime.now(timezone.utc)
+
+        _create_extracao_com_nota(db_session, id_extracao=1)
+
+        nota = NotaAnalytics(
+            id_nota_analytics=1, id_extracao=1, id_usuario=1,
+            chave_acesso="31200611222233300014455555555555555555555555",
+            empresa="Test Empresa", numero="123456", serie="1",
+            emissao=now.date(), valor_total=100.00, qtd_total_itens=1,
+            valid_from=now, is_current=True,
+            id_importacao=1, id_nota_raw=1, processado_em=now,
+            is_active=True,
+        )
+        db_session.add(nota)
+        db_session.commit()
+
+        r = client.patch(
+            "/v1/dashboard/notas/1",
+            json={"is_active": False},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert r.status_code == 200
+
+        db_session.refresh(nota)
+        assert nota.is_active is False
+
+    def test_patch_reativar_sets_is_active_true(self, client, db_session):
+        """PATCH with is_active=true should reactivate a previously inactive nota."""
+        token = _auth_header(client)
+        now = datetime.now(timezone.utc)
+
+        _create_extracao_com_nota(db_session, id_extracao=1)
+
+        nota = NotaAnalytics(
+            id_nota_analytics=1, id_extracao=1, id_usuario=1,
+            chave_acesso="31200611222233300014455555555555555555555555",
+            empresa="Test Empresa", numero="123456", serie="1",
+            emissao=now.date(), valor_total=100.00, qtd_total_itens=1,
+            valid_from=now, is_current=True,
+            id_importacao=1, id_nota_raw=1, processado_em=now,
+            is_active=False,
+        )
+        db_session.add(nota)
+        db_session.commit()
+
+        r = client.patch(
+            "/v1/dashboard/notas/1",
+            json={"is_active": True},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert r.status_code == 200
+
+        db_session.refresh(nota)
+        assert nota.is_active is True
+
+    def test_patch_idempotent(self, client, db_session):
+        """PATCH with is_active=false called twice should both return 200."""
+        token = _auth_header(client)
+        now = datetime.now(timezone.utc)
+
+        _create_extracao_com_nota(db_session, id_extracao=1)
+
+        nota = NotaAnalytics(
+            id_nota_analytics=1, id_extracao=1, id_usuario=1,
+            chave_acesso="31200611222233300014455555555555555555555555",
+            empresa="Test Empresa", numero="123456", serie="1",
+            emissao=now.date(), valor_total=100.00, qtd_total_itens=1,
+            valid_from=now, is_current=True,
+            id_importacao=1, id_nota_raw=1, processado_em=now,
+            is_active=True,
+        )
+        db_session.add(nota)
+        db_session.commit()
+
+        r1 = client.patch(
+            "/v1/dashboard/notas/1",
+            json={"is_active": False},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert r1.status_code == 200
+
+        r2 = client.patch(
+            "/v1/dashboard/notas/1",
+            json={"is_active": False},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert r2.status_code == 200
+
+    def test_patch_wrong_user_returns_404(self, client, db_session):
+        """PATCH with another user's token should return 404."""
+        token1 = _auth_header(client, email="user1@test.com")
+        token2 = _auth_header(client, email="user2@test.com")
+        now = datetime.now(timezone.utc)
+
+        _create_extracao_com_nota(db_session, id_extracao=1, id_usuario=1)
+
+        nota = NotaAnalytics(
+            id_nota_analytics=1, id_extracao=1, id_usuario=1,
+            chave_acesso="31200611222233300014455555555555555555555555",
+            empresa="Test Empresa", numero="123456", serie="1",
+            emissao=now.date(), valor_total=100.00, qtd_total_itens=1,
+            valid_from=now, is_current=True,
+            id_importacao=1, id_nota_raw=1, processado_em=now,
+            is_active=True,
+        )
+        db_session.add(nota)
+        db_session.commit()
+
+        r = client.patch(
+            "/v1/dashboard/notas/1",
+            json={"is_active": False},
+            headers={"Authorization": f"Bearer {token2}"},
+        )
+        assert r.status_code == 404
+
+    def test_patch_nonexistent_returns_404(self, client, db_session):
+        """PATCH on non-existent id_extracao should return 404."""
+        token = _auth_header(client)
+
+        r = client.patch(
+            "/v1/dashboard/notas/999",
+            json={"is_active": False},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert r.status_code == 404
+
+    def test_listar_notas_mixed_active_inactive_same_chave(self, client, db_session):
+        """With same chave_acesso, only active notas should appear in list."""
+        token = _auth_header(client)
+        now = datetime.now(timezone.utc)
+        chave = "31200611222233300014455555555555555555555555"
+
+        _create_extracao_com_nota(db_session, id_extracao=1)
+        _create_extracao_com_nota(db_session, id_extracao=2)
+
+        nota_active = NotaAnalytics(
+            id_nota_analytics=1, id_extracao=1, id_usuario=1,
+            chave_acesso=chave,
+            empresa="Active Empresa", numero="123456", serie="1",
+            emissao=now.date(), valor_total=100.00, qtd_total_itens=1,
+            valid_from=now, is_current=True,
+            id_importacao=1, id_nota_raw=1, processado_em=now,
+            is_active=True,
+        )
+        db_session.add(nota_active)
+
+        nota_inactive = NotaAnalytics(
+            id_nota_analytics=2, id_extracao=2, id_usuario=1,
+            chave_acesso=chave,
+            empresa="Inactive Empresa", numero="654321", serie="2",
+            emissao=now.date(), valor_total=200.00, qtd_total_itens=2,
+            valid_from=now, is_current=True,
+            id_importacao=2, id_nota_raw=2, processado_em=now,
+            is_active=False,
+        )
+        db_session.add(nota_inactive)
+        db_session.commit()
+
+        r = client.get("/v1/dashboard/notas", headers={"Authorization": f"Bearer {token}"})
+        assert r.status_code == 200
+        data = r.json()
+        assert len(data) == 1
+        assert data[0]["empresa"] == "Active Empresa"

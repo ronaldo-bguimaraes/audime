@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useFetch } from "../hooks/useFetch";
-import { obterDashboardNota, obterHistoricoNota } from "../api/dashboard";
+import { desativarNota, obterDashboardNota, obterHistoricoNota } from "../api/dashboard";
+import { FetchError } from "../api/client";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { formatBRL, formatDate } from "../utils/format";
@@ -11,6 +13,8 @@ export function NotaDetalhe() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const idExtracao = Number(id);
+  const [toggling, setToggling] = useState(false);
+  const [toggleMsg, setToggleMsg] = useState<string | null>(null);
 
   const {
     data: nota,
@@ -26,6 +30,23 @@ export function NotaDetalhe() {
     () => obterHistoricoNota(idExtracao),
     [idExtracao],
   );
+
+  async function handleToggleActive() {
+    if (!nota) return;
+    setToggling(true);
+    setToggleMsg(null);
+    try {
+      const newActive = !nota.is_active;
+      await desativarNota(idExtracao, newActive);
+      setToggleMsg(newActive ? "Nota reativada com sucesso" : "Nota desativada com sucesso");
+      refetch();
+    } catch (err) {
+      const msg = err instanceof FetchError ? err.message : "Erro ao alternar estado";
+      setToggleMsg(msg);
+    } finally {
+      setToggling(false);
+    }
+  }
 
   if (loading) {
     return <LoadingSpinner message="Carregando nota..." />;
@@ -67,6 +88,25 @@ export function NotaDetalhe() {
           />
           {nota.qtd_total_itens != null && (
             <InfoRow label="Qtd. Itens" value={String(nota.qtd_total_itens)} />
+          )}
+        </div>
+        <div className={styles.actions}>
+          <button
+            type="button"
+            className={nota.is_active ? styles.desativarBtn : styles.ativarBtn}
+            onClick={handleToggleActive}
+            disabled={toggling}
+          >
+            {toggling
+              ? "Aguarde..."
+              : nota.is_active
+                ? "Desativar Nota"
+                : "Reativar Nota"}
+          </button>
+          {toggleMsg && (
+            <span className={toggleMsg.includes("sucesso") ? styles.successMsg : styles.errorMsg}>
+              {toggleMsg}
+            </span>
           )}
         </div>
       </div>

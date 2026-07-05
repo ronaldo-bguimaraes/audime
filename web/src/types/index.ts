@@ -139,6 +139,7 @@ export interface DashboardNota {
   qtd_total_itens: number | null;
   valid_from: string;
   items: DashboardNotaItem[];
+  is_active: boolean;
 }
 
 export interface VersaoNota {

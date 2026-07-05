@@ -139,6 +139,58 @@
   gap: 6px;
 }
 
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.desativarBtn,
+.ativarBtn {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  color: #fff;
+}
+
+.desativarBtn {
+  background: #e53e3e;
+}
+
+.desativarBtn:hover {
+  opacity: 0.85;
+}
+
+.ativarBtn {
+  background: #38a169;
+}
+
+.ativarBtn:hover {
+  opacity: 0.85;
+}
+
+.desativarBtn:disabled,
+.ativarBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.successMsg {
+  font-size: 13px;
+  color: #38a169;
+}
+
+.errorMsg {
+  font-size: 13px;
+  color: #e53e3e;
+}
+
 @media (max-width: 600px) {
   .infoGrid {
     grid-template-columns: 1fr;
