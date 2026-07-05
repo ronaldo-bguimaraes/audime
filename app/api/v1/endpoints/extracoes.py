@@ -32,7 +32,11 @@ async def criar_extracao(
     background processing, and returns immediately with HTTP 202.
     """
     # 1. Create extraction record in PENDING status
-    extracao = Extracao(id_usuario=id_usuario, status=ExtracaoStatus.PENDING)
+    extracao = Extracao(
+        id_usuario=id_usuario,
+        status=ExtracaoStatus.PENDING,
+        url=str(body.url),  # HttpUrl → str
+    )
     db.add(extracao)
     db.commit()
     db.refresh(extracao)
@@ -90,6 +94,7 @@ def obter_status_extracao(
     return ExtracaoStatusResponse(
         id_extracao=extracao.id_extracao,
         status=extracao.status.value,
+        url=extracao.url,
     )
 
 

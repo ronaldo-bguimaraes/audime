@@ -135,6 +135,17 @@ def test_downgrade_idempotent(alembic_cfg, sqlite_engine):
         command.upgrade(alembic_cfg, "head")
 
 
+def test_migration_adds_url_column_to_extracao(alembic_cfg, sqlite_engine):
+    """Verifica que a migration add_url_to_extracao adiciona a coluna url."""
+    with sqlite_engine.connect() as conn:
+        alembic_cfg.attributes["connection"] = conn
+        command.upgrade(alembic_cfg, "head")
+
+    inspector = inspect(sqlite_engine)
+    columns = {c["name"] for c in inspector.get_columns("extracao")}
+    assert "url" in columns
+
+
 def test_models_metadata_is_complete():
     """Verifica que Base.metadata contém todos os 12 modelos esperados.
 

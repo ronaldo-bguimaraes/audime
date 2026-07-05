@@ -4,6 +4,7 @@ export interface ExtracaoResult {
   id_extracao: number;
   status: string;
   created_at: string;
+  url?: string;
 }
 
 export interface CriarExtracaoResult {

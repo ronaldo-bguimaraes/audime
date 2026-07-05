@@ -102,10 +102,18 @@ def test_list_extracao_returns_user_extracoes(client, db_session):
     ids1 = {d["id_extracao"] for d in data}
     assert ids1 == {1, 2}
 
+    # Verify url field is present and nullable
+    for d in data:
+        assert "url" in d
+
     r2 = client.get("/v1/extracoes", headers={"Authorization": f"Bearer {token2}"})
     assert r2.status_code == 200
-    assert len(r2.json()) == 1
-    assert r2.json()[0]["id_extracao"] == 3
+    r2_data = r2.json()
+    assert len(r2_data) == 1
+    assert r2_data[0]["id_extracao"] == 3
+    # Verify url field for user2
+    for d in r2_data:
+        assert "url" in d
 
 
 def test_list_extracao_limit(client, db_session):

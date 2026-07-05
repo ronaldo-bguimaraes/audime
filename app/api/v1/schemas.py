@@ -15,6 +15,7 @@ class ExtracaoJobResponse(BaseModel):
     id_extracao: int
     status: str = "PENDING"
     job_id: str | None = None
+    url: Optional[str] = None
 
 
 class ExtracaoStatusResponse(BaseModel):
@@ -22,12 +23,14 @@ class ExtracaoStatusResponse(BaseModel):
 
     id_extracao: int
     status: str
+    url: Optional[str] = None
 
 
 class ExtracaoResponse(BaseModel):
     id_extracao: int
     status: str
     created_at: datetime
+    url: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 

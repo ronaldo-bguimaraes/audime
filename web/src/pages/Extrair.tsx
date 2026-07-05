@@ -18,6 +18,7 @@ export function Extrair() {
   const [success, setSuccess] = useState<string | null>(null);
   const [extracoes, setExtracoes] = useState<ExtracaoResult[]>([]);
   const [polling, setPolling] = useState(false);
+  const [modalExtracao, setModalExtracao] = useState<ExtracaoResult | null>(null);
 
   const fetchExtracoes = useCallback(async () => {
     try {
@@ -118,7 +119,19 @@ export function Extrair() {
               <span className={styles.colStatus}>Status</span>
             </div>
             {extracoes.map((e) => (
-              <div key={e.id_extracao} className={styles.tableRow}>
+              <div
+                key={e.id_extracao}
+                className={styles.tableRow}
+                onClick={() => setModalExtracao(e)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(ev) => {
+                  if (ev.key === "Enter" || ev.key === " ") {
+                    ev.preventDefault();
+                    setModalExtracao(e);
+                  }
+                }}
+              >
                 <span className={styles.colId}>{e.id_extracao}</span>
                 <span className={styles.colData}>
                   {new Date(e.created_at).toLocaleString("pt-BR")}
@@ -131,6 +144,56 @@ export function Extrair() {
           </div>
         )}
       </div>
+
+      {modalExtracao && (
+        <div
+          className={styles.modalOverlay}
+          onClick={() => setModalExtracao(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className={styles.modal}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className={styles.modalClose}
+              onClick={() => setModalExtracao(null)}
+              aria-label="Fechar"
+            >
+              &times;
+            </button>
+            <h3 className={styles.modalTitle}>
+              Extração #{modalExtracao.id_extracao}
+            </h3>
+            <dl className={styles.modalDetails}>
+              <dt>Status</dt>
+              <dd>
+                <StatusBadge status={modalExtracao.status} />
+              </dd>
+              <dt>Data</dt>
+              <dd>
+                {new Date(modalExtracao.created_at).toLocaleString("pt-BR")}
+              </dd>
+              {modalExtracao.url && (
+                <>
+                  <dt>URL</dt>
+                  <dd>
+                    <a
+                      href={modalExtracao.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.modalUrl}
+                    >
+                      {modalExtracao.url}
+                    </a>
+                  </dd>
+                </>
+              )}
+            </dl>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

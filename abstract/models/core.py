@@ -27,7 +27,10 @@ class Extracao(Base):
     __tablename__ = "extracao"
     __table_args__ = {"schema": "core"}
 
-    id_extracao = sa.Column(sa.BigInteger, primary_key=True)
+    id_extracao = sa.Column(
+        sa.BigInteger().with_variant(sa.Integer(), "sqlite"), primary_key=True
+    )
+    url = sa.Column(sa.Text, nullable=True)
     status = sa.Column(
         sa.Enum(ExtracaoStatus, name="extracao_status", schema="core", create_type=False),
         nullable=False,
