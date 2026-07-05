@@ -75,34 +75,34 @@ def sqlite_engine():
 # ── Testes ──────────────────────────────────────────────────────────
 
 
+DOMAIN_TABLES = {
+    "usuario", "auth_code", "extracao",
+    "importacao", "fatura", "transacao", "nota", "item_nota",
+    "nota_normalizada", "item_normalizado",
+    "gasto_mensal", "gasto_categoria",
+}
+
+
 def test_upgrade_creates_tables(alembic_cfg, sqlite_engine):
-    """CAT-009: upgrade head executa sem erro e cria tabela alembic_version.
+    """CAT-009: upgrade head executa sem erro e cria todas as tabelas.
 
-    Usamos config.attributes["connection"] para compartilhar a conexão
-    com o Alembic, garantindo que o SQLite in-memory seja o mesmo.
-
-    Também cria as tabelas de domínio (Base.metadata.create_all) antes
-    de executar migrações reais, já que a migration inicial é vazia.
+    A migration ``9ae2f5b1c3d4`` cria schemas + todas as 12 tabelas
+    de domínio. Este teste verifica que a cadeia completa funciona.
     """
-    # Cria tabelas de domínio primeiro (a migration inicial é vazia)
-    Base.metadata.create_all(bind=sqlite_engine)
-
     with sqlite_engine.connect() as conn:
         alembic_cfg.attributes["connection"] = conn
         command.upgrade(alembic_cfg, "head")
 
-    # Verifica que alembic_version existe (agora no mesmo engine)
     inspector = inspect(sqlite_engine)
-    tables = inspector.get_table_names()
-    assert "alembic_version" in tables, (
-        "Tabela alembic_version deveria existir após upgrade head"
+    tables = set(inspector.get_table_names())
+    assert "alembic_version" in tables
+    assert DOMAIN_TABLES.issubset(tables), (
+        f"Tabelas faltando: {DOMAIN_TABLES - tables}"
     )
 
 
 def test_upgrade_idempotent(alembic_cfg, sqlite_engine):
     """CAT-021: upgrade duas vezes seguidas não causa erro."""
-    Base.metadata.create_all(bind=sqlite_engine)
-
     with sqlite_engine.connect() as conn:
         alembic_cfg.attributes["connection"] = conn
         command.upgrade(alembic_cfg, "head")
@@ -115,11 +115,9 @@ def test_upgrade_idempotent(alembic_cfg, sqlite_engine):
 def test_downgrade_idempotent(alembic_cfg, sqlite_engine):
     """CAT-010: downgrade + upgrade não causa erro.
 
-    Como a migration inicial é vazia e stamp, o downgrade retorna
-    ao estado base (sem revisão). O upgrade subsequente reaplica
-    a migration vazia.
+    A migration ``9ae2f5b1c3d4`` cria tabelas no upgrade e as remove
+    no downgrade. O upgrade subsequente as recria.
     """
-    Base.metadata.create_all(bind=sqlite_engine)
 
     # Upgrade primeira vez
     with sqlite_engine.connect() as conn:

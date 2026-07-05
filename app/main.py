@@ -5,7 +5,6 @@ from contextlib import asynccontextmanager
 from arq import create_pool
 from arq.connections import RedisSettings
 from fastapi import FastAPI
-
 from app.api.v1.endpoints import analytics, auth, extracoes, faturas, notas
 from app.core.config import settings
 

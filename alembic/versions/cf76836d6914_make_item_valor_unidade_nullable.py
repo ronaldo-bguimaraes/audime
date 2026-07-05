@@ -20,16 +20,10 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    bind = op.get_context().bind
-    is_sqlite = bind.dialect.name == "sqlite" if bind else False
-    schema = None if is_sqlite else "raw"
-    with op.batch_alter_table("item_nota", schema=schema) as batch_op:
-        batch_op.alter_column("item_valor_unidade", nullable=True)
+    """No-op: ``item_valor_unidade`` is already nullable in ``9ae2f5b1c3d4``."""
+    return
 
 
 def downgrade() -> None:
-    bind = op.get_context().bind
-    is_sqlite = bind.dialect.name == "sqlite" if bind else False
-    schema = None if is_sqlite else "raw"
-    with op.batch_alter_table("item_nota", schema=schema) as batch_op:
-        batch_op.alter_column("item_valor_unidade", nullable=False)
+    """No-op: the column definition lives in the ``9ae2f5b1c3d4`` CREATE TABLE."""
+    return

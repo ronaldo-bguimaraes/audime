@@ -18,7 +18,6 @@ from app.services.storage_service import get_s3_client
 
 async def startup(ctx: dict) -> None:
     """Initialise shared resources for the worker."""
-    # Database session factory (reuses the project's SessionLocal)
     from abstract.engine import SessionLocal
 
     ctx["db_session_factory"] = SessionLocal
