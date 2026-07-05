@@ -44,6 +44,7 @@ async def criar_extracao(
         id_extracao=extracao.id_extracao,
         id_usuario=id_usuario,
         _job_id=f"extracao:{extracao.id_extracao}",
+        _queue="audime:extracoes",
     )
 
     return ExtracaoJobResponse(
