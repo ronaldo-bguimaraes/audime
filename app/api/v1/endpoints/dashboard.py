@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import func as sa_func
 from sqlalchemy.orm import Session, joinedload
 
 from app.api.v1.schemas import DashboardNotaItem, DashboardNotaResponse, VersaoNotaResponse
@@ -16,48 +17,34 @@ def listar_notas(
     db: Session = Depends(get_db),
     id_usuario: int = Depends(get_current_user_id),
 ) -> list[DashboardNotaResponse]:
-    """List all current analytics notas for the user."""
-    notas = (
-        db.query(NotaAnalytics)
-        .options(joinedload(NotaAnalytics.items))
+    """List the latest current analytics nota per chave_acesso for the user.
+
+    If the same nota (same chave_acesso) was extracted multiple times,
+    only the most recent version (highest valid_from) is returned.
+    """
+    # Latest id_nota_analytics per chave_acesso (non-null chave only)
+    latest = (
+        db.query(
+            sa_func.max(NotaAnalytics.id_nota_analytics).label("max_id"),
+        )
         .filter(
             NotaAnalytics.id_usuario == id_usuario,
             NotaAnalytics.is_current == True,  # noqa: E712
+            NotaAnalytics.chave_acesso.isnot(None),
         )
+        .group_by(NotaAnalytics.chave_acesso)
+        .subquery()
+    )
+
+    notas = (
+        db.query(NotaAnalytics)
+        .options(joinedload(NotaAnalytics.items))
+        .join(latest, NotaAnalytics.id_nota_analytics == latest.c.max_id)
         .order_by(NotaAnalytics.valid_from.desc())
         .all()
     )
 
-    result = []
-    for n in notas:
-        items = [
-            DashboardNotaItem(
-                descricao=i.descricao or "",
-                quantidade=float(i.quantidade) if i.quantidade else None,
-                unidade=i.unidade,
-                valor_unitario=float(i.valor_unitario) if i.valor_unitario else None,
-                valor_total=float(i.valor_total) if i.valor_total else None,
-            )
-            for i in n.items
-        ]
-        result.append(
-            DashboardNotaResponse(
-                id_nota_analytics=n.id_nota_analytics,
-                id_extracao=n.id_extracao,
-                empresa=n.empresa,
-                chave_acesso=n.chave_acesso,
-                numero=n.numero,
-                serie=n.serie,
-                emissao=n.emissao,
-                valor_total=float(n.valor_total) if n.valor_total else None,
-                qtd_total_itens=n.qtd_total_itens,
-                version=n.version,
-                valid_from=n.valid_from,
-                items=items,
-            )
-        )
-
-    return result
+    return [_build_from_analytics(n) for n in notas]
 
 
 def _build_from_analytics(nota: NotaAnalytics) -> DashboardNotaResponse:
