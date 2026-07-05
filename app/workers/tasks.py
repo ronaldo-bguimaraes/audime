@@ -40,7 +40,7 @@ async def executar_extracao(
     Notes
     -----
     *   Only scalar parameters are passed — no SQLAlchemy model instances.
-    *   The job is idempotent: ``Nota.chave`` is UNIQUE in the database.
+    *   The job is idempotent: ``(Nota.chave, Nota.id_usuario)`` is UNIQUE.
     *   Synchronous calls (boto3 ``put_object``, ``parse_nfce``) are
         offloaded via ``asyncio.to_thread`` so they don't block the
         worker's event loop.

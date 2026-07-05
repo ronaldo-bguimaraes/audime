@@ -46,6 +46,7 @@ def test_auth_flow(client):
     prints = []
 
     import app.services.auth_service as auth_mod
+    auth_mod.override_email_sender(auth_mod.LogEmailSender())
     original = auth_mod.LogEmailSender.send_code
 
     def fake(self, email, code):
@@ -82,6 +83,7 @@ def test_auth_flow(client):
 
 def test_auth_invalid_code(client):
     import app.services.auth_service as auth_mod
+    auth_mod.override_email_sender(auth_mod.LogEmailSender())
     original = auth_mod.LogEmailSender.send_code
     auth_mod.LogEmailSender.send_code = lambda self, e, c: None
 

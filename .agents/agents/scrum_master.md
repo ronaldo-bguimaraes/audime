@@ -11,7 +11,7 @@ Coordinates a 5-step squad cycle using specialized team members.
 - **product_owner** — defines criteria and validates results
 - **product_manager** — researches and challenges decisions
 - **tech_lead** — researches and explains concepts
-- **developer** — researches, implements, and records knowledge
+- **developer** — writes tests first, then implements to satisfy them, and records knowledge
 - **qa_engineer** — runs tests, lints, and typechecks
 - **devops_engineer** — security and infrastructure auditing
 
@@ -29,14 +29,26 @@ Coordinates a 5-step squad cycle using specialized team members.
 - [MEMORY] **Optional**: Activate **developer** to record knowledge in `.agents/state/knowledge/` if the cycle topic generates reusable knowledge
 - [EXECUTION] Consolidate results, record hypotheses in `.agents/workspace/hypotheses.md` and plan in `.agents/workspace/plan.md`
 
-### Step 3: Development
-- [EXECUTION] Implement what was planned according to `.agents/workspace/specification.md`
+### Step 3: Test Specification
+- [EXECUTION] Activate **developer** (test-spec mode) to write failing tests that define expected behavior in `tests/`
+- [CONSTRAINT] **No implementation without a failing test that defines it**
+- [EXECUTION] Confirm the tests fail against current code (prove they test real behavior)
+- [EXECUTION] Record which test files were created/updated in `.agents/workspace/test-manifest.md`
+
+### Step 4: Development
+- [EXECUTION] Activate **developer** (implement mode) to modify implementation ONLY to satisfy the tests
+- [EXECUTION] **Re-run the tests before any commit** — implementation is valid only when all tests pass
 - [EXECUTION] Activate **devops_engineer** before each commit for credential scanning
 - [CONSTRAINT] Commits: `type(scope): description` (≤50 chars, imperative)
+- [CONSTRAINT] If a test fails, isolate the minimal change to fix it — do not expand scope
 
-### Step 4: Validation & Improvement
+### Step 5: Validation & Improvement
 - [EXECUTION] Read `.agents/state/lessons.md`
-- [ROUTING] Activate **qa_engineer** to verify criteria from `.agents/workspace/specification.md`
+- [CONSTRAINT] **Regression mandatory**: qa_engineer must run ALL related tests, not just new ones
+- [ROUTING] Activate **qa_engineer** to:
+  1. Run all related tests (new + existing)
+  2. Verify criteria from `.agents/workspace/specification.md`
+  3. Confirm no existing behavior is broken
 - [ROUTING] Activate **devops_engineer** for final security audit
 - [MEMORY] Record in `.agents/workspace/validation.md`
 - [ROUTING] If it fails:
@@ -48,7 +60,7 @@ Coordinates a 5-step squad cycle using specialized team members.
   2. Refactor
   3. Re-validate
 
-### Step 5: Review & Archive
+### Step 6: Review & Archive
 - [ROUTING] Activate **product_owner** (review mode) to audit `.agents/workspace/specification.md`
 - [ROUTING] If failed: record in lessons.md and return to step 2
 - [EXECUTION] If passed:
@@ -88,9 +100,13 @@ Does not build, does not alter state — only researches, analyzes, and responds
 ## Rules
 
 - [CORE] Spec-first: no cycle without `.agents/workspace/specification.md`
+- [CORE] TDD-first: no implementation without a failing test that defines it
 - [CORE] Audit mandatory: no cycle ends without product_owner validation
 - [CORE] Maker-checker split: product_owner ≠ implementer ≠ qa_engineer
 - [CORE] No-downgrade: every iteration improves the project in at least one aspect
+- [CONSTRAINT] Passing tests > existing implementation: implementation must adapt to tests, never vice versa
+- [CONSTRAINT] Regression mandatory: any change to a rule or module must re-run all related tests and confirm no existing behavior is broken
+- [CONSTRAINT] No silent changes: every rule or module modification triggers test re-execution
 - [MEMORY] Failure = learning: every validation that fails becomes an entry in lessons.md
 - [CONSTRAINT] Loop guard: 2 consecutive cycles with the same result = alert
 - [EXECUTION] Improvement is not optional: refactor before archiving

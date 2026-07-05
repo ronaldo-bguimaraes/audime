@@ -11,3 +11,10 @@ docs/analise-loopback.md
 
 # Test database
 test.db
+
+# Playwright test artifacts
+web/playwright-report/
+web/test-results/
+
+# Python build artifacts
+*.egg-info/

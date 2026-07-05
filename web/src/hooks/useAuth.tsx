@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { requestCode, verifyCode, fetchMe } from "../api/auth";
+import { FetchError } from "../api/client";
 import type { AuthState } from "../types";
 
 interface AuthContextType extends AuthState {
@@ -50,10 +51,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             email: user.email,
           }));
         })
-        .catch(() => {
-          // Token inválido ou expirado
-          clearStoredAuth();
-          setAuth({ token: null, idUsuario: null, nome: null, email: null });
+        .catch((err) => {
+          // Só limpa o token se for 401 (invalido/expirado)
+          // Erros de rede (backend reiniciando) mantém o token
+          if (err instanceof FetchError && err.status === 401) {
+            clearStoredAuth();
+            setAuth({ token: null, idUsuario: null, nome: null, email: null });
+          }
         });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

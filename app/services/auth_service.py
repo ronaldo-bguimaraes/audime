@@ -1,8 +1,11 @@
 import hashlib
 import logging
 import secrets
+import smtplib
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from typing import Optional
 
 import jwt
@@ -26,14 +29,62 @@ class LogEmailSender(EmailSender):
         print(f"[DEV] Código de verificação para {email}: {code}")
 
 
+class SmtpEmailSender(EmailSender):
+    def send_code(self, email: str, code: str) -> None:
+        html = f"""\
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family:sans-serif;color:#333;max-width:480px;margin:0 auto">
+<div style="text-align:center;padding:32px 0">
+<img src="https://www.gstatic.com/mobilesdk/200426_mobilesdk/auth_service_illustration/1x/illustration_2x.png" alt="" width="72" height="72" style="border-radius:12px">
+<h1 style="font-size:20px;margin:16px 0 8px">Código de verificação</h1>
+<p style="color:#666;font-size:14px;margin:0">Use o código abaixo para acessar sua conta</p>
+</div>
+<div style="background:#f5f5f5;border-radius:12px;padding:24px;text-align:center">
+<span style="font-size:36px;letter-spacing:8px;font-weight:700;color:#1a1a1a">{code}</span>
+<p style="color:#999;font-size:12px;margin:16px 0 0">Válido por 5 minutos</p>
+</div>
+<p style="color:#999;font-size:12px;text-align:center;margin-top:24px">Se você não solicitou este código, ignore este email.</p>
+<p style="color:#bbb;font-size:11px;text-align:center">Audime — Gestão Financeira</p>
+</body>
+</html>"""
+
+        text = f"Seu código de verificação: {code}\n\nVálido por 5 minutos.\n\nSe você não solicitou este código, ignore este email."
+
+        msg = MIMEMultipart("alternative")
+        msg.attach(MIMEText(text, "plain"))
+        msg.attach(MIMEText(html, "html"))
+
+        msg["Subject"] = f"Seu código de verificação Audime: {code}"
+        msg["From"] = f"{settings.mail_from_name} <{settings.mail_from}>"
+        msg["To"] = email
+        msg["X-Mailer"] = "Audime"
+
+        with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=10) as server:
+            server.starttls()
+            server.login(settings.smtp_user, settings.smtp_password)
+            server.send_message(msg)
+
+        logger.info(f"Verification code sent to {email}")
+
+
 _email_sender: Optional[EmailSender] = None
 
 
 def get_email_sender() -> EmailSender:
     global _email_sender
     if _email_sender is None:
-        _email_sender = LogEmailSender()
+        if settings.smtp_password and settings.app_env == "production":
+            _email_sender = SmtpEmailSender()
+        else:
+            _email_sender = LogEmailSender()
     return _email_sender
+
+
+def override_email_sender(sender: EmailSender) -> None:
+    global _email_sender
+    _email_sender = sender
 
 
 def generate_code() -> str:

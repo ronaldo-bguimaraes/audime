@@ -51,11 +51,14 @@ class Transacao(Base):
 
 class Nota(Base):
     __tablename__ = "nota"
-    __table_args__ = {"schema": "raw"}
+    __table_args__ = (
+        sa.UniqueConstraint("chave", "id_usuario", name="uq_nota_chave_usuario"),
+        {"schema": "raw"},
+    )
 
     id_nota = sa.Column(sa.BigInteger, primary_key=True)
     empresa = sa.Column(sa.Text, nullable=False)
-    chave = sa.Column(sa.String(44), nullable=False, unique=True)
+    chave = sa.Column(sa.String(44), nullable=False)
     numero = sa.Column(sa.Text, nullable=False)
     serie = sa.Column(sa.Text, nullable=False)
     emissao = sa.Column(sa.Date, nullable=False)

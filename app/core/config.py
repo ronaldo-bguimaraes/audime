@@ -18,8 +18,17 @@ class Settings(BaseSettings):
     r2_access_key_id: str
     r2_secret_access_key: str
 
+    app_env: str = "production"
+
     jwt_secret: str = "dev-secret-change-in-production-min-32-chars!!"
     jwt_algorithm: str = "HS256"
+
+    smtp_host: str = "smtp.gmail.com"
+    smtp_port: int = 587
+    smtp_user: str = "guimaraes.ronaldob@gmail.com"
+    smtp_password: str = ""
+    mail_from: str = "guimaraes.ronaldob@gmail.com"
+    mail_from_name: str = "Audime"
 
     redis_host: str = "localhost"
     redis_port: int = 6379

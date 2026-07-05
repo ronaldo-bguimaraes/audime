@@ -91,7 +91,7 @@ CREATE TABLE raw.transacao (
 CREATE TABLE raw.nota (
     id_nota       BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     empresa       TEXT NOT NULL,
-    chave         CHAR(44) NOT NULL UNIQUE,
+    chave         CHAR(44) NOT NULL,
     numero        TEXT NOT NULL,
     serie         TEXT NOT NULL,
     emissao       DATE NOT NULL,
@@ -100,7 +100,8 @@ CREATE TABLE raw.nota (
     imported_at   TIMESTAMPTZ DEFAULT NOW(),
     id_usuario    BIGINT NOT NULL REFERENCES core.usuario(id_usuario),
     id_fatura     BIGINT REFERENCES raw.fatura(id_fatura),
-    id_importacao BIGINT REFERENCES raw.importacao(id_importacao)
+    id_importacao BIGINT REFERENCES raw.importacao(id_importacao),
+    UNIQUE (chave, id_usuario)
 );
 
 CREATE TABLE raw.item_nota (
@@ -122,6 +123,13 @@ CREATE TABLE raw.item_nota (
 -- ============================================================
 
 ALTER TABLE raw.nota ADD COLUMN IF NOT EXISTS qtd_total_itens INTEGER;
+
+-- ============================================================
+-- Migration: Unique constraint per user (2026-07-01)
+-- ============================================================
+
+ALTER TABLE raw.nota DROP CONSTRAINT IF EXISTS raw.nota_chave_key;
+ALTER TABLE raw.nota ADD CONSTRAINT uq_nota_chave_usuario UNIQUE (chave, id_usuario);
 
 -- ============================================================
 -- staging e analytics serão criados em implementação futura.

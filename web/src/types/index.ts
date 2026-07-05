@@ -58,6 +58,43 @@ export interface ItemNota {
   nota_id: number;
 }
 
+export interface Emitente {
+  cnpj: string;
+  logradouro: string;
+  numero: string;
+  complemento: string | null;
+  bairro: string;
+  cidade: string;
+  uf: string;
+}
+
+export interface ProtocoloAutorizacao {
+  numero: string;
+  data_hora: string;
+}
+
+export interface FormaPagamento {
+  tipo: string;
+  valor: number | null;
+}
+
+export interface InformacoesInteresse {
+  tributos_federal: number | null;
+  tributos_estadual: number | null;
+  tributos_municipal: number | null;
+  coo: number | null;
+  pdv: number | null;
+}
+
+export interface NotaExtra {
+  emitente?: Emitente;
+  protocolo_autorizacao?: ProtocoloAutorizacao;
+  formas_pagamento?: FormaPagamento[];
+  informacoes_interesse?: InformacoesInteresse;
+  consumidor?: string;
+  ambiente?: string;
+}
+
 export interface Nota {
   id: number;
   empresa: string;
@@ -67,7 +104,7 @@ export interface Nota {
   emissao: string;
   valor_total: number;
   qtd_total_itens: number | null;
-  extra: Record<string, unknown> | null;
+  extra: NotaExtra | null;
   items: ItemNota[];
 }
 
