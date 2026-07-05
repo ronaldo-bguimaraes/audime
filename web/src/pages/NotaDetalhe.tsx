@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useFetch } from "../hooks/useFetch";
 import { obterDashboardNota, obterHistoricoNota } from "../api/dashboard";
@@ -121,37 +120,31 @@ export function NotaDetalhe() {
 }
 
 function HistoricoVersoes({ versoes }: { versoes: VersaoNota[] }) {
-  const [aberto, setAberto] = useState(false);
-
   return (
-    <div className={styles.card}>
-      <button
-        type="button"
-        className={styles.sectionTitle}
-        onClick={() => setAberto(!aberto)}
-        style={{ cursor: "pointer", background: "none", border: "none", display: "flex", alignItems: "center", gap: 8, padding: 0, width: "100%", textAlign: "left" }}
-      >
-        <span>{aberto ? "▾" : "▸"}</span>
+    <div className={styles.historicoCard}>
+      <h2 className={styles.sectionTitle}>
         Histórico de Versões ({versoes.length})
-      </button>
-      {aberto && (
-        <div className={styles.infoGrid} style={{ marginTop: 12 }}>
-          {versoes.map((v) => (
-            <div key={v.version} className={styles.infoRow} style={{ borderLeft: v.is_current ? "3px solid var(--accent)" : "3px solid var(--border)", paddingLeft: 8 }}>
-              <InfoRow
-                label={`Versão ${v.version}`}
-                value={v.is_current ? "Atual" : "Anterior"}
-              />
-              <InfoRow label="Empresa" value={v.empresa ?? "-"} />
-              <InfoRow label="Valor" value={formatBRL(v.valor_total ?? 0)} />
-              <InfoRow label="De" value={new Date(v.valid_from).toLocaleString("pt-BR")} />
-              {v.valid_to && (
-                <InfoRow label="Até" value={new Date(v.valid_to).toLocaleString("pt-BR")} />
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+      </h2>
+      <div className={styles.historicoList}>
+        {versoes.map((v) => (
+          <div
+            key={v.version}
+            className={styles.historicoItem}
+            style={{ borderLeft: v.is_current ? "3px solid var(--accent)" : "3px solid var(--border)" }}
+          >
+            <InfoRow
+              label={`Versão ${v.version}`}
+              value={v.is_current ? "Atual" : "Anterior"}
+            />
+            <InfoRow label="Empresa" value={v.empresa ?? "-"} />
+            <InfoRow label="Valor" value={formatBRL(v.valor_total ?? 0)} />
+            <InfoRow label="De" value={new Date(v.valid_from).toLocaleString("pt-BR")} />
+            {v.valid_to && (
+              <InfoRow label="Até" value={new Date(v.valid_to).toLocaleString("pt-BR")} />
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
