@@ -1,44 +1,44 @@
-# Política de Segurança — Tool-Agnostic
-# Esta política é a fonte da verdade para permissões.
-# Nenhuma iteração pode reduzir estas restrições (no-downgrade).
+# Security Policy — Tool-Agnostic
+# This policy is the source of truth for permissions.
+# No iteration may reduce these restrictions (no-downgrade).
 
 version: 1.0.0
 
 rules:
-  # Arquivos que agentes podem modificar
+  # Files agents may modify
   - path: "docs/*"
     action: allow_write
-    reason: "Documentação do ciclo"
+    reason: "Cycle documentation"
 
   - path: ".agents/state/*"
     action: allow_write
-    reason: "Estado persistente entre ciclos"
+    reason: "Persistent state between cycles"
 
   - path: "src/*"
     action: allow_write
-    reason: "Código fonte do projeto"
+    reason: "Project source code"
 
   - path: ".agents/policies/*"
     action: deny_write
-    reason: "Políticas de segurança são imutáveis entre ciclos"
+    reason: "Security policies are immutable between cycles"
 
-  # Comandos bloqueados
+  # Blocked commands
   - command: "rm *"
     action: deny
-    reason: "Proteger contra remoção acidental"
+    reason: "Prevent accidental removal"
 
   - command: "sudo *"
     action: deny
-    reason: "Sem privilégios elevados"
+    reason: "No elevated privileges"
 
   - command: "chmod *"
     action: deny
-    reason: "Sem modificação de permissões"
+    reason: "No permission modification"
 
   - command: "curl * | bash"
     action: deny
-    reason: "Sem execução de scripts remotos"
+    reason: "No remote script execution"
 
-  # Garantia de no-downgrade
-  - rule: "qualquer relaxamento de deny → allow em policies/ é proibido"
+  # No-downgrade guarantee
+  - rule: "any relaxation from deny → allow in policies/ is prohibited"
     severity: critical
