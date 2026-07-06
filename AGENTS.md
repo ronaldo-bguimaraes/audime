@@ -10,10 +10,22 @@ Entry point for the squad-based incremental development agent system.
   policies/         ← Security policies
   workspace/        ← Sprint artifacts (specification, validation, plan)
   state/            ← Persistent state (lessons.md, lessons_technical.md) and records/
+  templates/        ← Templates (future use)
 .cursor/
   agents/           ← Cursor adapter layer (references .agents/agents/)
+  rules/            ← Cursor-specific rules (future use)
+docs/               ← Project documentation (sprint workflow, CLI, commits, architecture)
 AGENTS.md           ← Entry point for the agent system
 ```
+
+## Quick Reference
+
+| Document | Purpose |
+|----------|---------|
+| `docs/workflow-sprint.md` | Sprint lifecycle: refinement → discovery → test spec → development → validation → review |
+| `docs/github-cli-workflow.md` | Creating issues, managing project board #5, moving cards |
+| `docs/commit-flow.md` | Commit conventions, pre-commit security scan, git workflow |
+| `docs/token-scopes.md` | Required GitHub token scopes (repo, project, read:org, gist) |
 
 ## Usage
 
@@ -28,6 +40,23 @@ The scrum_master agent coordinates TDD sprints:
 For quick queries without altering files, use **Discovery Mode**.
 
 In Cursor, invoke squad subagents from `.cursor/agents/` with `/name` or the Task tool. Each adapter references its canonical definition in `.agents/agents/`.
+
+## GitHub Workflow
+
+### Issues
+- Create issues via `gh issue create` for each feature/bug/enhancement
+- Use labels: `bug`, `enhancement`, `epic`, `documentation`
+- Each sprint typically corresponds to one issue
+
+### Project Board (#5 — "audime")
+- Add issues to the board via `gh project item-add 5`
+- Move cards through statuses: `Backlog` → `In Progress` → `In Review` → `Done`
+- Sprint step ↔ board status mapping is documented in `docs/github-cli-workflow.md`
+
+### Commits
+- Format: `<type>(<scope>): <description>` (Conventional Commits)
+- Pre-commit: always run `@devops_engineer` for credential scanning
+- See `docs/commit-flow.md` for the full process
 
 ## Core Rules
 
