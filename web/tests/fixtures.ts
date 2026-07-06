@@ -122,13 +122,47 @@ async function setupApiMocks(page: Page) {
     await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(mockNotas[0]) });
   });
 
-  await page.route("**/v1/extracoes", async (route) => {
-    const body = route.request().postDataJSON();
-    if (body?.url?.startsWith("http")) {
-      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ id_extracao: 42, status: "concluido", created_at: "2025-01-15T10:00:00" }) });
+  await page.route("**/v1/dashboard/notas", async (route) => {
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(mockNotas) });
+  });
+
+  const mockExtracao = {
+    id_extracao: 1,
+    status: "CONCLUIDO",
+    created_at: "2025-01-15T10:00:00",
+    url: "https://www.sefaz.mt.gov.br/nfce/consultanfce?p=51260509477652008413651230002620731725445443|2|1|1|8D8C7A538544E4EF09D4749A4D5E4C70DA94863C",
+    empresa: "SDB COMERCIO DE ALIMENTOS LTDA",
+    reprocess_count: 0,
+    steps: [],
+  };
+
+  const mockExtracaoSemUrl = {
+    id_extracao: 2,
+    status: "CONCLUIDO",
+    created_at: "2025-01-16T10:00:00",
+    url: null,
+    empresa: "MERCADINHO DO POVO LTDA",
+    reprocess_count: 0,
+    steps: [],
+  };
+
+  await page.route("**/v1/extracoes*", async (route) => {
+    if (route.request().method() === "GET") {
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([mockExtracao, mockExtracaoSemUrl]) });
+    } else if (route.request().method() === "POST") {
+      const body = route.request().postDataJSON();
+      if (body?.url?.startsWith("http")) {
+        await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ id_extracao: 42, status: "concluido", created_at: "2025-01-15T10:00:00" }) });
+      } else {
+        await route.fulfill({ status: 400, contentType: "application/json", body: JSON.stringify({ detail: "URL inválida" }) });
+      }
     } else {
-      await route.fulfill({ status: 400, contentType: "application/json", body: JSON.stringify({ detail: "URL inválida" }) });
+      await route.fulfill({ status: 405, contentType: "application/json", body: JSON.stringify({ detail: "Method not allowed" }) });
     }
+  });
+
+  await page.route("**/v1/extracoes/*", async (route) => {
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(mockExtracao) });
   });
 }
 

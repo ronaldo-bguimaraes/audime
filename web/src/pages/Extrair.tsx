@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, type FormEvent } from "react";
 import { useNavigate } from "react-router";
 import { criarExtracao, listarExtracoes, reprocessarExtracao, type ExtracaoResult, type PipelineStep } from "../api/extracoes";
 import { FetchError } from "../api/client";
+import { QrCodeScanner } from "../components/QrCodeScanner";
 import styles from "./Extrair.module.css";
 
 const STATUS_ATIVOS = new Set(["PENDING", "RUNNING"]);
@@ -48,6 +49,7 @@ export function Extrair() {
   const [success, setSuccess] = useState<string | null>(null);
   const [extracoes, setExtracoes] = useState<ExtracaoResult[]>([]);
   const [polling, setPolling] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
 
   const fetchExtracoes = useCallback(async () => {
     try {
@@ -84,6 +86,11 @@ export function Extrair() {
       setError(message);
     }
   };
+
+  const handleQrScan = useCallback((scannedUrl: string) => {
+    setUrl(scannedUrl);
+    setScannerOpen(false);
+  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -131,16 +138,27 @@ export function Extrair() {
           <label htmlFor="extracao-url" className={styles.label}>
             URL do QR Code NFC-e
           </label>
-          <input
-            id="extracao-url"
-            type="url"
-            required
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://www.sefaz.mt.gov.br/nfce/consultanfce?p=..."
-            className={styles.input}
-            disabled={loading}
-          />
+          <div className={styles.inputRow}>
+            <input
+              id="extracao-url"
+              type="url"
+              required
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://www.sefaz.mt.gov.br/nfce/consultanfce?p=..."
+              className={styles.input}
+              disabled={loading}
+            />
+            <button
+              type="button"
+              onClick={() => setScannerOpen(true)}
+              className={styles.cameraButton}
+              aria-label="Escanear QR Code"
+              disabled={loading}
+            >
+              📷
+            </button>
+          </div>
           <button
             type="submit"
             className={styles.button}
@@ -149,6 +167,12 @@ export function Extrair() {
             {loading ? "Extraindo..." : "Extrair"}
           </button>
         </form>
+
+        <QrCodeScanner
+          open={scannerOpen}
+          onScan={handleQrScan}
+          onClose={() => setScannerOpen(false)}
+        />
       </div>
 
       <div className={styles.listCard}>

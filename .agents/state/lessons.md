@@ -2,6 +2,37 @@
 
 <!-- Accumulated across cycles. Every failure becomes a lesson here. -->
 
+## Cycle 9 — Leitura de QR Code via câmera na tela de Nova Extração (#20)
+
+### What worked
+- **Component + Hook separation** (`QrCodeScanner` + `useQrCodeScanner`) kept the logic testable and the UI clean. The hook manages all scanner state while the component only handles rendering.
+- **`qr-scanner` library** was the right choice — built-in camera management, Web Worker decoding, TypeScript types, and a simple constructor-based API.
+- **Test seam pattern** (`window.__injectQrResult`) made QR decode testing deterministic without needing real camera hardware or QR code images.
+- **Canvas `captureStream` mock** for `getUserMedia` worked reliably in Playwright — no flaky test issues.
+
+### What we learned
+- **`qr-scanner` lifecycle**: `new QrScanner(video, onDecode, options)` → `scanner.start()` → `scanner.stop()` → `scanner.destroy()`. The `destroy()` call is critical to release camera resources. [EXECUTION]
+- **`playsInline` + `muted` are mandatory** on the `<video>` element for iOS Safari camera playback. Without these, the video feed stays black on iOS. [CONSTRAINT]
+- **`getUserMedia` DOMException handling**: Each error type (`NotAllowedError`, `NotFoundError`, `NotReadableError`, `AbortError`, `OverconstrainedError`) has a distinct cause and needs a specific user-friendly message. [EXECUTION]
+- **`page.addInitScript` runs before navigation** — it must be called before `page.goto()` to mock `navigator.mediaDevices.getUserMedia` effectively. [EXECUTION]
+- **`OverconstrainedError` fallback**: If `facingMode: "environment"` fails (device has no rear camera), fall back to `{ video: true }` without constraints. [CONSTRAINT]
+- **`qr-scanner` vs alternatives**: `jsqr` is abandoned (5 years without updates) and requires manual camera management. `html5-qrcode` has 440+ open issues and a 2.63 MB bundle. `qr-scanner` is the best maintained and most performant option. [DECISION]
+
+## Cycle 8 — Substituir URL por QR Code na tela de Detalhes da Extração (#19)
+
+### What worked
+- **Dedicated component (`QrCodeDisplay`)** kept the component clean and testable — separation from `ExtracaoDetalhe.tsx` made the Playwright tests simpler (just query the URL row)
+- **CSS Module in a separate file** (`QrCodeDisplay.module.css`) kept styles scoped and reusable
+- **Method-differentiated route handler** in the mock fixture (`GET` vs `POST` for `**/v1/extracoes*`) allowed existing upload mocks to coexist with the new QR Code mocks
+- **Dual mock extractions** (one with URL, one with `url: null`) made it easy to test both the "happy path" and the null-fallback path
+
+### What we learned
+- **The `qrcode` NPM package works well with React**: `QRCode.toDataURL(url, { width, margin })` returns a base64 PNG data URL that can be set directly as an `<img>` `src`. The `@types/qrcode` package provides TypeScript types. [EXECUTION]
+- **Playwright's `context().waitForEvent("page")` is the correct way to test `target="_blank"` navigation**: clicking an `<a target="_blank">` opens a new page in the browser context; waiting for the "page" event and asserting `newPage.url()` verifies the link works. [EXECUTION]
+- **`navigator.clipboard` requires permissions in Playwright**: `context.grantPermissions(["clipboard-read", "clipboard-write"])` must be called before the test. This is only needed for the clipboard test, so it's scoped to that single test. [EXECUTION]
+- **The clipboard fallback pattern** (try `navigator.clipboard.writeText`, fall back to `document.execCommand('copy')` with a temp `<textarea>`) remains the standard approach for non-HTTPS contexts. [CONSTRAINT]
+- **Pre-existing test failures don't block new features**: The 5 failing tests in `auth-flow.spec.ts` and `dashboard-and-nota-detalhe.spec.ts` are unrelated to QR Code changes and have been failing since earlier cycles. [PROCESS]
+
 ## Cycle 7 — Fix Dashboard Empty (Transform Pipeline & Raw Fallback)
 
 ### Discovery

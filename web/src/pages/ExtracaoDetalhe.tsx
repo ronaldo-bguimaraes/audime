@@ -4,6 +4,7 @@ import { usePolling } from "../hooks/usePolling";
 import { listarExtracoes, type ExtracaoResult, type PipelineStep } from "../api/extracoes";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { ErrorMessage } from "../components/ErrorMessage";
+import { QrCodeDisplay } from "../components/QrCodeDisplay";
 
 import styles from "./ExtracaoDetalhe.module.css";
 
@@ -127,8 +128,8 @@ export function ExtracaoDetalhe() {
         </div>
         <div className={styles.infoRow}>
           <span className={styles.infoLabel}>URL</span>
-          <span className={styles.infoValue} style={{ fontSize: "0.8rem", wordBreak: "break-all" }}>
-            {data.url ?? "-"}
+          <span className={styles.infoValue}>
+            <QrCodeDisplay url={data.url} />
           </span>
         </div>
         {data.reprocess_count != null && data.reprocess_count > 0 && (

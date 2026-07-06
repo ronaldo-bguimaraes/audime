@@ -252,8 +252,8 @@ async def transformar_extracao(
         db.query(NotaAnalytics).filter(
             NotaAnalytics.id_usuario == nota_raw.id_usuario,
             NotaAnalytics.chave_acesso == nota_raw.chave,
-            NotaAnalytics.is_current == True,  # noqa: E712
-        ).update({"valid_to": now, "is_current": False})
+            NotaAnalytics.valid_to.is_(None),
+        ).update({"valid_to": now})
 
         # Insert new current version
         nova_nota = NotaAnalytics(
@@ -268,7 +268,6 @@ async def transformar_extracao(
             qtd_total_itens=nota_raw.qtd_total_itens,
             extra=nota_raw.extra,
             valid_from=now,
-            is_current=True,
             id_importacao=importacao.id_importacao,
             id_nota_raw=nota_raw.id_nota,
             processado_em=now,
