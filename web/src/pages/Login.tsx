@@ -97,6 +97,16 @@ export function Login() {
     setTimeLeft(0);
   };
 
+  const handleChangeEmail = () => {
+    clearTimer();
+    localStorage.removeItem("pending_email");
+    setPhase("idle");
+    setEmail("");
+    setCode("");
+    setError(null);
+    setTimeLeft(0);
+  };
+
   const handleCodeChange = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 6);
     setCode(digits);
@@ -188,6 +198,14 @@ export function Login() {
                 </button>
               )}
             </div>
+            <button
+              type="button"
+              className={styles.changeEmailBtn}
+              onClick={handleChangeEmail}
+              disabled={loading}
+            >
+              Usar outro e-mail
+            </button>
           </form>
         )}
       </div>

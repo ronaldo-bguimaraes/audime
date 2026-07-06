@@ -52,7 +52,6 @@ class NotaAnalytics(Base):
     # SCD Type 2 columns
     valid_from = sa.Column(sa.DateTime(timezone=True), nullable=False)
     valid_to = sa.Column(sa.DateTime(timezone=True), nullable=True)
-    is_current = sa.Column(sa.Boolean, nullable=False, default=True)
 
     # Lineage
     id_importacao = sa.Column(sa.BigInteger, nullable=True)

@@ -148,8 +148,7 @@
   border-top: 1px solid var(--border);
 }
 
-.desativarBtn,
-.ativarBtn {
+.desativarBtn {
   padding: 8px 18px;
   border: none;
   border-radius: 6px;
@@ -157,9 +156,6 @@
   cursor: pointer;
   transition: opacity 0.15s;
   color: #fff;
-}
-
-.desativarBtn {
   background: #e53e3e;
 }
 
@@ -167,16 +163,7 @@
   opacity: 0.85;
 }
 
-.ativarBtn {
-  background: #38a169;
-}
-
-.ativarBtn:hover {
-  opacity: 0.85;
-}
-
-.desativarBtn:disabled,
-.ativarBtn:disabled {
+.desativarBtn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

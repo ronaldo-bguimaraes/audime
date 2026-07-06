@@ -6,10 +6,12 @@ Entry point for the squad-based incremental development agent system.
 
 ```
 .agents/
-  agents/           ← Team member definitions (scrum_master, product_owner, developer, etc.)
+  agents/           ← Team member definitions (scrum_master, product_owner, developer, etc.) — canonical source of truth
   policies/         ← Security policies
   workspace/        ← Sprint artifacts (specification, validation, plan)
   state/            ← Persistent state (lessons.md, lessons_technical.md) and records/
+.cursor/
+  agents/           ← Cursor adapter layer (references .agents/agents/)
 AGENTS.md           ← Entry point for the agent system
 ```
 
@@ -24,6 +26,8 @@ The scrum_master agent coordinates TDD sprints:
 6. **Review & Archive** — records in `.agents/state/records/`
 
 For quick queries without altering files, use **Discovery Mode**.
+
+In Cursor, invoke squad subagents from `.cursor/agents/` with `/name` or the Task tool. Each adapter references its canonical definition in `.agents/agents/`.
 
 ## Core Rules
 

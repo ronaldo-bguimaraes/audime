@@ -31,17 +31,16 @@ export function NotaDetalhe() {
     [idExtracao],
   );
 
-  async function handleToggleActive() {
+  async function handleDesativar() {
     if (!nota) return;
     setToggling(true);
     setToggleMsg(null);
     try {
-      const newActive = !nota.is_active;
-      await desativarNota(idExtracao, newActive);
-      setToggleMsg(newActive ? "Nota reativada com sucesso" : "Nota desativada com sucesso");
+      await desativarNota(idExtracao, false);
+      setToggleMsg("Nota desativada com sucesso");
       refetch();
     } catch (err) {
-      const msg = err instanceof FetchError ? err.message : "Erro ao alternar estado";
+      const msg = err instanceof FetchError ? err.message : "Erro ao desativar";
       setToggleMsg(msg);
     } finally {
       setToggling(false);
@@ -93,15 +92,11 @@ export function NotaDetalhe() {
         <div className={styles.actions}>
           <button
             type="button"
-            className={nota.is_active ? styles.desativarBtn : styles.ativarBtn}
-            onClick={handleToggleActive}
+            className={styles.desativarBtn}
+            onClick={handleDesativar}
             disabled={toggling}
           >
-            {toggling
-              ? "Aguarde..."
-              : nota.is_active
-                ? "Desativar Nota"
-                : "Reativar Nota"}
+            {toggling ? "Aguarde..." : "Desativar Nota"}
           </button>
           {toggleMsg && (
             <span className={toggleMsg.includes("sucesso") ? styles.successMsg : styles.errorMsg}>

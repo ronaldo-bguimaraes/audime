@@ -29,7 +29,7 @@ def listar_notas(
         )
         .filter(
             NotaAnalytics.id_usuario == id_usuario,
-            NotaAnalytics.is_current == True,  # noqa: E712
+            NotaAnalytics.valid_to.is_(None),
             NotaAnalytics.is_active == True,  # noqa: E712
             NotaAnalytics.chave_acesso.isnot(None),
         )
@@ -91,7 +91,7 @@ def obter_nota(
         .filter(
             NotaAnalytics.id_extracao == id_extracao,
             NotaAnalytics.id_usuario == id_usuario,
-            NotaAnalytics.is_current == True,  # noqa: E712
+            NotaAnalytics.valid_to.is_(None),
             NotaAnalytics.is_active == True,  # noqa: E712
         )
         .first()
@@ -140,7 +140,7 @@ def historico_nota(
         VersaoNotaResponse(
             valid_from=v.valid_from,
             valid_to=v.valid_to,
-            is_current=v.is_current,
+            is_current=v.valid_to.is_(None),
             empresa=v.empresa,
             valor_total=float(v.valor_total) if v.valor_total else None,
         )

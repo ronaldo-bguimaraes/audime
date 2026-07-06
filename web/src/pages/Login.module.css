@@ -137,3 +137,25 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.changeEmailBtn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 13px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  margin-top: 8px;
+}
+
+.changeEmailBtn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.changeEmailBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
