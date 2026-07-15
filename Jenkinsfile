@@ -8,10 +8,9 @@ pipeline {
     stages {
         stage('Deploy') {
             steps {
-                dir('/opt/apps/audime') {
+                withCredentials([file(credentialsId: 'audime_env', variable: 'ENV_FILE')]) {
                     sh '''
-                        git fetch origin
-                        git reset --hard origin/main
+                        cp "$ENV_FILE" .env
                         docker compose up -d --build
                     '''
                 }
