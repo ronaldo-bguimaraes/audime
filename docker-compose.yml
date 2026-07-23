@@ -51,19 +51,7 @@ services:
     depends_on:
       - backend
 
-  portainer:
-    container_name: audime-portainer
-    image: portainer/portainer-ce:lts
-    restart: unless-stopped
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - portainer_data:/data
-    ports:
-      - 9443:9443
-
 volumes:
-  portainer_data:
-    name: portainer_data
 
 networks:
   default:
