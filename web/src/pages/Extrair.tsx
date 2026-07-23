@@ -37,8 +37,12 @@ function latestStep(steps: PipelineStep[]): string | null {
 function StatusBadge({ status, step }: { status: string; step?: string | null }) {
   const classStatus = step ?? status;
   const className = `${styles.badge} ${styles[`badge_${classStatus.toLowerCase()}`] || styles.badge_pending}`;
-  const animated = status === "RUNNING" || step === "RUNNING" ? styles.pulse : "";
-  return <span className={`${className} ${animated}`}>{step ? `${status} (${step})` : status}</span>;
+  return (
+    <span className={className}>
+      <span className={styles.badgeDot} />
+      {step ? `${status} (${step})` : status}
+    </span>
+  );
 }
 
 export function Extrair() {

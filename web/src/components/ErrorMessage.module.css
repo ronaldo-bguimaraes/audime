@@ -1,29 +1,53 @@
 .container {
-  padding: 16px;
+  padding: 20px;
   margin: 16px 0;
-  border-radius: 8px;
-  background: var(--error-bg, #fef2f2);
-  border: 1px solid var(--error-border, #fecaca);
+  border-radius: var(--radius-lg);
+  background: var(--error-bg);
+  border: 1px solid var(--error-border);
   text-align: center;
+  animation: fadeInUp 0.3s var(--ease-out) both;
+}
+
+.icon {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--error-border);
+  border-radius: 50%;
+  color: var(--error-text);
 }
 
 .message {
-  color: var(--error-text, #dc2626);
+  color: var(--error-text);
   font-size: 14px;
-  margin: 0 0 12px;
+  font-weight: 500;
+  margin: 0 0 16px;
 }
 
 .retry {
   display: inline-flex;
-  padding: 8px 16px;
-  border: 1px solid var(--error-border, #fecaca);
-  border-radius: 6px;
-  background: var(--error-bg, #fef2f2);
-  color: var(--error-text, #dc2626);
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border: 1px solid var(--error-border);
+  border-radius: var(--radius-md);
+  background: var(--bg-elevated);
+  color: var(--error-text);
   cursor: pointer;
   font-size: 13px;
+  font-weight: 600;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
 }
 
 .retry:hover {
-  background: var(--error-border, #fecaca);
+  background: var(--error-bg);
+}
+
+.retry:active {
+  transform: scale(0.98);
 }

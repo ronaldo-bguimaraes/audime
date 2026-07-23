@@ -115,10 +115,17 @@ export function Login() {
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <h1 className={styles.title}>audime</h1>
-        <p className={styles.subtitle}>
-          Gestão de gastos pessoais com NFC-e
-        </p>
+        <div className={styles.logoArea}>
+          <div className={styles.logoIcon}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor" />
+            </svg>
+          </div>
+          <h1 className={styles.title}>audime</h1>
+          <p className={styles.subtitle}>
+            Gestão de gastos pessoais com NFC-e
+          </p>
+        </div>
 
         {error && (
           <div className={styles.error} role="alert">
@@ -129,20 +136,22 @@ export function Login() {
         {phase !== "codeSent" && phase !== "verifying" ? (
           /* Etapa 1: solicitar email */
           <form onSubmit={handleSendCode} className={styles.form}>
-            <label htmlFor="login-email" className={styles.label}>
-              Seu e-mail
-            </label>
-            <input
-              id="login-email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="seu@email.com"
-              className={styles.input}
-              autoComplete="email"
-              disabled={loading}
-            />
+            <div className={styles.field}>
+              <label htmlFor="login-email" className={styles.label}>
+                Seu e-mail
+              </label>
+              <input
+                id="login-email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="seu@email.com"
+                className={styles.input}
+                autoComplete="email"
+                disabled={loading}
+              />
+            </div>
             <button
               type="submit"
               className={styles.button}
@@ -158,23 +167,25 @@ export function Login() {
               Código enviado para <strong>{email}</strong>
             </p>
             <p className={styles.spamHint}>
-              Não recebeu? Verifique a caixa de <strong>spam</strong>.
+              Não recebeu? Verifique a caixa de spam.
             </p>
-            <label htmlFor="login-code" className={styles.label}>
-              Código de verificação
-            </label>
-            <input
-              id="login-code"
-              type="text"
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              maxLength={6}
-              value={code}
-              onChange={(e) => handleCodeChange(e.target.value)}
-              placeholder="000000"
-              className={styles.codeInput}
-              disabled={loading}
-            />
+            <div className={styles.field}>
+              <label htmlFor="login-code" className={styles.label}>
+                Código de verificação
+              </label>
+              <input
+                id="login-code"
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                value={code}
+                onChange={(e) => handleCodeChange(e.target.value)}
+                placeholder="000000"
+                className={styles.codeInput}
+                disabled={loading}
+              />
+            </div>
             <button
               type="submit"
               className={styles.button}

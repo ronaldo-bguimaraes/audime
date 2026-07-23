@@ -1,43 +1,115 @@
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
+  /* ── Typography ── */
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "SF Mono", ui-monospace, Consolas, monospace;
+
+  /* ── Brand ── */
   --accent: #7c3aed;
-  --accent-bg: rgba(124, 58, 237, 0.1);
-  --accent-border: rgba(124, 58, 237, 0.5);
-  --shadow: rgba(0, 0, 0, 0.08) 0 4px 12px;
+  --accent-hover: #6d28d9;
+  --accent-light: rgba(124, 58, 237, 0.08);
+  --accent-border: rgba(124, 58, 237, 0.35);
+
+  /* ── Surfaces ── */
+  --bg: #fafafa;
+  --bg-elevated: #fff;
+  --bg-subtle: #f4f4f5;
+  --bg-hover: rgba(0, 0, 0, 0.03);
+  --border: #e4e4e7;
+  --border-strong: #d4d4d8;
+
+  /* ── Text ── */
+  --text: #71717a;
+  --text-h: #18181b;
+  --text-muted: #a1a1aa;
+
+  /* ── Shadows ── */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  --shadow-accent: 0 4px 14px rgba(124, 58, 237, 0.25);
+
+  /* ── Semantic: Error ── */
   --error-bg: #fef2f2;
   --error-border: #fecaca;
   --error-text: #dc2626;
 
-  --sans: system-ui, "Segoe UI", Roboto, sans-serif;
-  --heading: system-ui, "Segoe UI", Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  /* ── Semantic: Success ── */
+  --success-bg: #f0fdf4;
+  --success-border: #bbf7d0;
+  --success-text: #16a34a;
 
-  font: 16px/1.5 var(--sans);
+  /* ── Semantic: Warning ── */
+  --warning-bg: #fefce8;
+  --warning-border: #fef08a;
+  --warning-text: #a16207;
+
+  /* ── Semantic: Info ── */
+  --info-bg: #eff6ff;
+  --info-border: #bfdbfe;
+  --info-text: #1d4ed8;
+
+  /* ── Radii ── */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* ── Transitions ── */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 120ms;
+  --duration-normal: 200ms;
+
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
   color-scheme: light dark;
   color: var(--text);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
     --accent: #a78bfa;
-    --accent-bg: rgba(167, 139, 250, 0.15);
-    --accent-border: rgba(167, 139, 250, 0.5);
-    --shadow: rgba(0, 0, 0, 0.4) 0 4px 12px;
+    --accent-hover: #c4b5fd;
+    --accent-light: rgba(167, 139, 250, 0.12);
+    --accent-border: rgba(167, 139, 250, 0.3);
+
+    --bg: #12131a;
+    --bg-elevated: #1a1b23;
+    --bg-subtle: #1f2028;
+    --bg-hover: rgba(255, 255, 255, 0.04);
+    --border: #27272a;
+    --border-strong: #3f3f46;
+
+    --text: #a1a1aa;
+    --text-h: #f4f4f5;
+    --text-muted: #52525b;
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.35), 0 2px 4px -2px rgba(0, 0, 0, 0.25);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+    --shadow-accent: 0 4px 14px rgba(167, 139, 250, 0.2);
+
     --error-bg: #451a1a;
     --error-border: #7f1d1d;
     --error-text: #fca5a5;
+
+    --success-bg: #14352a;
+    --success-border: #166534;
+    --success-text: #4ade80;
+
+    --warning-bg: #422006;
+    --warning-border: #854d0e;
+    --warning-text: #fde047;
+
+    --info-bg: #172554;
+    --info-border: #1e40af;
+    --info-text: #93c5fd;
   }
 }
 
@@ -64,23 +136,77 @@ body {
 h1,
 h2,
 h3 {
-  font-family: var(--heading);
-  font-weight: 500;
+  font-family: var(--font-sans);
+  font-weight: 600;
   color: var(--text-h);
+  letter-spacing: -0.01em;
 }
 
 a {
   color: var(--accent);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+a:hover {
+  color: var(--accent-hover);
 }
 
 code {
-  font-family: var(--mono);
+  font-family: var(--font-mono);
 }
 
 button {
-  font-family: var(--sans);
+  font-family: var(--font-sans);
 }
 
 input {
-  font-family: var(--sans);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--accent-light);
+  color: var(--text-h);
+}
+
+/* ── Global Animations ── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

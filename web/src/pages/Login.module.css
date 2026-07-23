@@ -4,36 +4,77 @@
   justify-content: center;
   min-height: 100vh;
   padding: 16px;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(124, 58, 237, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(167, 139, 250, 0.05) 0%, transparent 50%),
+    var(--bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  .container {
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(167, 139, 250, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(124, 58, 237, 0.05) 0%, transparent 50%),
+      var(--bg);
+  }
 }
 
 .card {
   width: 100%;
   max-width: 400px;
-  padding: 32px 24px;
+  padding: 40px 32px 32px;
   border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--bg);
+  border-radius: var(--radius-xl);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-lg);
+  animation: fadeInUp 0.4s var(--ease-out) both;
+}
+
+.logoArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.logoIcon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-light);
+  border-radius: var(--radius-lg);
+  color: var(--accent);
+  margin-bottom: 16px;
 }
 
 .title {
-  font-size: 28px;
-  font-weight: 600;
-  color: var(--accent);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-h);
   text-align: center;
   margin: 0 0 4px;
+  letter-spacing: -0.02em;
 }
 
 .subtitle {
   font-size: 14px;
-  color: var(--text);
+  color: var(--text-muted);
   text-align: center;
-  margin: 0 0 24px;
+  margin: 0;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .label {
@@ -45,36 +86,48 @@
 .input {
   padding: 10px 14px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-size: 15px;
   color: var(--text-h);
   background: var(--bg);
   outline: none;
-  transition: border-color 0.15s;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.input::placeholder {
+  color: var(--text-muted);
 }
 
 .input:focus {
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
 }
 
 .codeInput {
   composes: input;
   text-align: center;
-  font-size: 24px;
-  letter-spacing: 8px;
-  font-family: var(--mono);
+  font-size: 28px;
+  letter-spacing: 12px;
+  font-family: var(--font-mono);
+  padding: 12px 14px;
+  font-weight: 600;
 }
 
 .button {
-  padding: 10px 16px;
+  padding: 11px 16px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: var(--accent);
   color: #fff;
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
   margin-top: 4px;
 }
 
@@ -84,44 +137,51 @@
 }
 
 .button:hover:not(:disabled) {
-  opacity: 0.9;
+  background: var(--accent-hover);
+  box-shadow: var(--shadow-accent);
+}
+
+.button:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .error {
   padding: 10px 14px;
-  margin-bottom: 16px;
-  border-radius: 8px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
+  border-radius: var(--radius-md);
+  background: var(--error-bg);
+  border: 1px solid var(--error-border);
+  color: var(--error-text);
   font-size: 13px;
+  font-weight: 500;
   text-align: center;
 }
 
 .codeSentMsg {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text);
   text-align: center;
-  margin: 0 0 4px;
+  margin: 0;
+}
+
+.codeSentMsg strong {
+  color: var(--text-h);
 }
 
 .spamHint {
   font-size: 12px;
-  color: var(--text);
+  color: var(--text-muted);
   text-align: center;
-  margin: 0 0 12px;
-  opacity: 0.7;
+  margin: -8px 0 0;
 }
 
 .resendArea {
   display: flex;
   justify-content: center;
-  margin-top: 4px;
 }
 
 .cooldown {
-  font-size: 12px;
-  color: var(--text);
+  font-size: 13px;
+  color: var(--text-muted);
 }
 
 .resendBtn {
@@ -129,8 +189,14 @@
   border: none;
   color: var(--accent);
   font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.resendBtn:hover {
+  color: var(--accent-hover);
 }
 
 .resendBtn:disabled {
@@ -141,13 +207,16 @@
 .changeEmailBtn {
   background: none;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   color: var(--text);
   font-size: 13px;
-  padding: 8px 16px;
+  font-weight: 500;
+  padding: 9px 16px;
   cursor: pointer;
-  transition: border-color 0.15s;
-  margin-top: 8px;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+  margin-top: 4px;
 }
 
 .changeEmailBtn:hover:not(:disabled) {

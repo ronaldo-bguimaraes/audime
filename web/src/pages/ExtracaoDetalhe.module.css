@@ -1,64 +1,82 @@
 .container {
   max-width: 720px;
   margin: 0 auto;
-  padding: 24px 16px;
+  padding: 32px 24px;
+  animation: fadeIn 0.3s var(--ease-out) both;
 }
 
 .backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: none;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 6px 14px;
   cursor: pointer;
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  margin-bottom: 16px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
 }
 
 .backButton:hover {
-  background: var(--hover-bg);
-  color: var(--text);
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+  color: var(--text-h);
 }
 
 .card {
-  background: var(--surface);
+  background: var(--bg-elevated);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 24px;
   margin-bottom: 20px;
+  box-shadow: var(--shadow-xs);
 }
 
 .title {
-  font-size: 1.25rem;
-  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
 }
 
 .subtitle {
-  color: var(--text-secondary);
-  font-size: 0.875rem;
+  color: var(--text-muted);
+  font-size: 14px;
   margin: 0 0 16px;
 }
 
 .infoRow {
   display: flex;
   justify-content: space-between;
-  padding: 6px 0;
+  padding: 8px 0;
   border-bottom: 1px solid var(--border);
-  font-size: 0.875rem;
+  font-size: 14px;
+}
+
+.infoRow:last-child {
+  border-bottom: none;
 }
 
 .infoLabel {
-  color: var(--text-secondary);
+  color: var(--text-muted);
 }
 
 .infoValue {
   font-weight: 500;
+  color: var(--text-h);
 }
 
 /* Timeline */
 .timeline {
   position: relative;
-  padding-left: 36px;
+  padding-left: 40px;
   margin: 0;
 }
 
@@ -66,17 +84,24 @@
   content: "";
   position: absolute;
   left: 15px;
-  top: 8px;
-  bottom: 8px;
+  top: 12px;
+  bottom: 12px;
   width: 2px;
   background: var(--border);
+  border-radius: 1px;
 }
 
 .step {
   position: relative;
   padding: 0 0 28px 16px;
   list-style: none;
+  animation: slideInLeft 0.3s var(--ease-out) both;
 }
+
+.step:nth-child(1) { animation-delay: 0ms; }
+.step:nth-child(2) { animation-delay: 80ms; }
+.step:nth-child(3) { animation-delay: 160ms; }
+.step:nth-child(4) { animation-delay: 240ms; }
 
 .step:last-child {
   padding-bottom: 0;
@@ -84,7 +109,7 @@
 
 .stepIcon {
   position: absolute;
-  left: -29px;
+  left: -33px;
   top: 0;
   width: 28px;
   height: 28px;
@@ -92,32 +117,32 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
+  font-size: 12px;
   font-weight: 700;
   z-index: 1;
 }
 
 .stepPENDING {
-  background: var(--surface);
+  background: var(--bg-elevated);
   border: 2px solid var(--border);
-  color: var(--text-secondary);
+  color: var(--text-muted);
 }
 
 .stepRUNNING {
-  background: #3b82f6;
-  border: 2px solid #3b82f6;
+  background: var(--info-text);
+  border: 2px solid var(--info-text);
   color: #fff;
 }
 
 .stepDONE {
-  background: #22c55e;
-  border: 2px solid #22c55e;
+  background: var(--success-text);
+  border: 2px solid var(--success-text);
   color: #fff;
 }
 
 .stepERROR {
-  background: #ef4444;
-  border: 2px solid #ef4444;
+  background: var(--error-text);
+  border: 2px solid var(--error-text);
   color: #fff;
 }
 
@@ -130,52 +155,55 @@
 
 .stepName {
   font-weight: 600;
-  font-size: 0.9375rem;
+  font-size: 14px;
+  color: var(--text-h);
 }
 
 .stepBadge {
-  font-size: 0.7rem;
+  font-size: 11px;
   padding: 2px 8px;
-  border-radius: 10px;
+  border-radius: 100px;
   font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .badgePENDING {
-  background: var(--surface);
+  background: var(--bg-subtle);
   border: 1px solid var(--border);
-  color: var(--text-secondary);
+  color: var(--text-muted);
 }
 
 .badgeRUNNING {
-  background: rgba(59, 130, 246, 0.15);
-  border: 1px solid #3b82f6;
-  color: #3b82f6;
+  background: var(--info-bg);
+  border: 1px solid var(--info-border);
+  color: var(--info-text);
 }
 
 .badgeDONE {
-  background: rgba(34, 197, 94, 0.15);
-  border: 1px solid #22c55e;
-  color: #22c55e;
+  background: var(--success-bg);
+  border: 1px solid var(--success-border);
+  color: var(--success-text);
 }
 
 .badgeERROR {
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid #ef4444;
-  color: #ef4444;
+  background: var(--error-bg);
+  border: 1px solid var(--error-border);
+  color: var(--error-text);
 }
 
 .stepMeta {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
+  font-size: 12px;
+  color: var(--text-muted);
   margin: 0;
 }
 
 .stepMessage {
-  font-size: 0.8rem;
-  color: #ef4444;
-  margin: 4px 0 0;
-  background: rgba(239, 68, 68, 0.08);
-  padding: 6px 10px;
-  border-radius: 6px;
+  font-size: 12px;
+  color: var(--error-text);
+  margin: 6px 0 0;
+  background: var(--error-bg);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--error-border);
 }

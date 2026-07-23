@@ -141,9 +141,9 @@ export function ExtracaoDetalhe() {
       </div>
 
       <div className={styles.card}>
-        <h2 style={{ margin: "0 0 16px", fontSize: "1.1rem" }}>Pipeline</h2>
+        <h2 className={styles.title} style={{ fontSize: "16px", margin: "0 0 16px" }}>Pipeline</h2>
         {stepsOrdenados.length === 0 ? (
-          <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem" }}>
+          <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>
             Nenhuma etapa encontrada.
           </p>
         ) : (
