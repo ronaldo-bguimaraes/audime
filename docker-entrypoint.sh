@@ -12,10 +12,20 @@ else
     # If domain tables exist, this is an old DB with a broken migration chain.
     # Stamp head to sync the version, then re-run upgrade (should be no-op).
     HAS_TABLES=$(python -c "
+import sys; sys.path.insert(0, '.')
 from sqlalchemy import create_engine, inspect
-import os
-url = os.environ.get('ALEMBIC_DB_URL', os.environ.get('DATABASE_URL', ''))
-eng = create_engine(url)
+from app.core.config import settings
+from sqlalchemy import URL
+
+url = URL.create(
+    drivername='postgresql+psycopg',
+    username=settings.db_postgres_user,
+    password=settings.db_postgres_password,
+    host=settings.db_postgres_host,
+    database=settings.db_postgres_name,
+    port=settings.db_postgres_port,
+)
+eng = create_engine(url.render_as_string(hide_password=False))
 with eng.connect() as c:
     tables = inspect(c).get_table_names(schema='core')
     print('yes' if 'usuario' in tables else 'no')
