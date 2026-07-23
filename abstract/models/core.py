@@ -50,11 +50,12 @@ class Extracao(Base):
         sa.Enum(ExtracaoStatus, name="extracao_status", schema="core", create_type=False),
         nullable=False,
         default=ExtracaoStatus.PENDING,
+        server_default="PENDING",
     )
     created_at = pg_timestampz()
-    reprocess_count = sa.Column(sa.Integer, default=0, nullable=True)
+    reprocess_count = sa.Column(sa.Integer, default=0, nullable=True, server_default="0")
     reprocessed_at = sa.Column(sa.DateTime(timezone=True), nullable=True)
-    id_usuario = sa.Column(sa.BigInteger, sa.ForeignKey("core.usuario.id_usuario"))
+    id_usuario = sa.Column(sa.BigInteger, sa.ForeignKey("core.usuario.id_usuario"), nullable=False)
 
     steps = relationship("ExtracaoStep", backref="extracao", lazy="selectin",
                          order_by="ExtracaoStep.ordem")

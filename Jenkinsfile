@@ -6,14 +6,28 @@ pipeline {
     }
 
     stages {
-        stage('Deploy') {
+        stage('Build') {
             steps {
                 withCredentials([file(credentialsId: 'audime_env', variable: 'ENV_FILE')]) {
                     sh '''
                         cp "$ENV_FILE" .env
-                        docker compose up -d --build
+                        docker compose build backend
                     '''
                 }
+            }
+        }
+
+        stage('Migrate') {
+            steps {
+                withCredentials([file(credentialsId: 'audime_env', variable: 'ENV_FILE')]) {
+                    sh 'docker compose run --rm backend alembic upgrade head'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh 'docker compose up -d'
             }
         }
     }

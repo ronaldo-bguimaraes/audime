@@ -35,7 +35,7 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator:
     _app.state.arq_pool = pool
     yield
     if pool is not None:
-        await pool.close()
+        await pool.aclose()
 
 
 app = FastAPI(

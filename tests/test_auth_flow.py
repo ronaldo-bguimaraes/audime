@@ -1,48 +1,7 @@
 import re
 
-import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
-from abstract.base import Base
-from app.main import app
-from app.core.deps import get_db
-
-TEST_DATABASE_URL = "sqlite:///./test.db"
-
-
-@pytest.fixture
-def db_session():
-    engine = create_engine(
-        TEST_DATABASE_URL,
-        connect_args={"check_same_thread": False},
-        execution_options={"schema_translate_map": {"raw": None, "core": None, "staging": None, "analytics": None}},
-    )
-    Base.metadata.create_all(bind=engine)
-    TestSession = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    session = TestSession()
-    try:
-        yield session
-    finally:
-        session.close()
-        Base.metadata.drop_all(bind=engine)
-
-
-@pytest.fixture
-def client(db_session):
-    def override_get_db():
-        try:
-            yield db_session
-        finally:
-            pass
-    app.dependency_overrides[get_db] = override_get_db
-    with TestClient(app) as c:
-        yield c
-    app.dependency_overrides.clear()
-
-
-def test_auth_flow(client):
+def test_auth_flow(client, auth_header):
     prints = []
 
     import app.services.auth_service as auth_mod
@@ -81,7 +40,7 @@ def test_auth_flow(client):
     auth_mod.LogEmailSender.send_code = original
 
 
-def test_auth_invalid_code(client):
+def test_auth_invalid_code(client, auth_header):
     import app.services.auth_service as auth_mod
     auth_mod.override_email_sender(auth_mod.LogEmailSender())
     original = auth_mod.LogEmailSender.send_code

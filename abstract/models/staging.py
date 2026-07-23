@@ -9,8 +9,8 @@ class NotaNormalizada(Base):
 
     id_nota_normalizada = sa.Column(sa.BigInteger, primary_key=True)
     id_nota = sa.Column(sa.BigInteger, sa.ForeignKey("raw.nota.id_nota"))
-    id_importacao = sa.Column(sa.BigInteger, sa.ForeignKey("raw.importacao.id_importacao"), nullable=True)
-    id_extracao = sa.Column(sa.BigInteger, sa.ForeignKey("core.extracao.id_extracao"))
+    id_importacao = sa.Column(sa.BigInteger, nullable=True)
+    id_extracao = sa.Column(sa.BigInteger, nullable=True)
     id_usuario = sa.Column(sa.BigInteger, sa.ForeignKey("core.usuario.id_usuario"))
     valor_total = sa.Column(sa.Numeric(10, 2), nullable=False)
     emitente = sa.Column(sa.Text, nullable=False)
@@ -24,6 +24,7 @@ class ItemNormalizado(Base):
     __table_args__ = {"schema": "staging"}
 
     id_item_normalizado = sa.Column(sa.BigInteger, primary_key=True)
+    id_item_nota = sa.Column(sa.BigInteger, sa.ForeignKey("raw.item_nota.id_item_nota"), nullable=True)
     id_nota_normalizada = sa.Column(sa.BigInteger, sa.ForeignKey("staging.nota_normalizada.id_nota_normalizada"))
     id_usuario = sa.Column(sa.BigInteger, sa.ForeignKey("core.usuario.id_usuario"))
     descricao = sa.Column(sa.Text, nullable=False)

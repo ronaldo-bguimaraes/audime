@@ -140,7 +140,7 @@ def historico_nota(
         VersaoNotaResponse(
             valid_from=v.valid_from,
             valid_to=v.valid_to,
-            is_current=v.valid_to.is_(None),
+                is_current=v.valid_to is None,
             empresa=v.empresa,
             valor_total=float(v.valor_total) if v.valor_total else None,
         )
