@@ -51,8 +51,6 @@ services:
     depends_on:
       - backend
 
-volumes:
-
 networks:
   default:
     name: audime_network
