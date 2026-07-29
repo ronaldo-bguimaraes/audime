@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router";
+import { ArrowLeft, Loader2, Check, X, Circle } from "lucide-react";
 import { useFetch } from "../hooks/useFetch";
 import { usePolling } from "../hooks/usePolling";
 import { listarExtracoes, type ExtracaoResult, type PipelineStep } from "../api/extracoes";
@@ -15,17 +16,10 @@ const STEP_LABELS: Record<string, string> = {
   COMPLETE: "Concluído",
 };
 
-const STEP_ICONS: Record<string, string> = {
-  PENDING: "○",
-  RUNNING: "◌",
-  DONE: "✓",
-  ERROR: "✗",
-};
-
 const STATUS_ATIVOS = new Set(["PENDING", "RUNNING"]);
 
 function StepIcon({ status }: { status: string }) {
-  const icon = STEP_ICONS[status] || "○";
+  const icon = status === "DONE" ? <Check size={14} /> : status === "ERROR" ? <X size={14} /> : status === "RUNNING" ? <Loader2 size={14} className={styles.spinIcon} /> : <Circle size={14} />;
   return <div className={`${styles.stepIcon} ${styles[`step${status}`] || ""}`}>{icon}</div>;
 }
 
@@ -114,7 +108,7 @@ export function ExtracaoDetalhe() {
         className={styles.backButton}
         onClick={() => navigate("/extrair")}
       >
-        ← Voltar
+        <ArrowLeft size={16} /> Voltar
       </button>
 
       <div className={styles.card}>

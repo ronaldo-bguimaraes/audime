@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router";
+import { FileText } from "lucide-react";
 import { useFetch } from "../hooks/useFetch";
 import { listarDashboardNotas, obterDashboardResumo } from "../api/dashboard";
 import { LoadingSpinner } from "../components/LoadingSpinner";
@@ -8,7 +9,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pi
 import type { DashboardNota, DashboardResumo } from "../types";
 import styles from "./Dashboard.module.css";
 
-const PIE_COLORS = ["#6366f1", "#8b5cf6", "#a78bfa", "#c4b5fd", "#ddd6fe"];
+const PIE_COLORS = ["#059669", "#34d399", "#6ee7b7", "#a7f3d0", "#d1fae5"];
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -72,7 +73,7 @@ export function Dashboard() {
                     <XAxis dataKey="name" fontSize={11} />
                     <YAxis fontSize={11} tickFormatter={(v: number) => `R$${v}`} />
                     <Tooltip formatter={(value: any) => formatBRL(Number(value))} />
-                    <Bar dataKey="valor" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="valor" fill="#059669" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -111,13 +112,7 @@ export function Dashboard() {
       {!notas || notas.length === 0 ? (
         <div className={styles.empty}>
           <div className={styles.emptyIcon}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <polyline points="14 2 14 8 20 8" />
-              <line x1="16" y1="13" x2="8" y2="13" />
-              <line x1="16" y1="17" x2="8" y2="17" />
-              <polyline points="10 9 9 9 8 9" />
-            </svg>
+            <FileText size={28} />
           </div>
           <p>Nenhuma nota fiscal encontrada.</p>
           <p>

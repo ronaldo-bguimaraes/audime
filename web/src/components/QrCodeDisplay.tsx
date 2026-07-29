@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
+import { ExternalLink, Copy, CheckCircle2 } from "lucide-react";
 import QRCode from "qrcode";
 import styles from "./QrCodeDisplay.module.css";
 
@@ -102,8 +103,10 @@ export function QrCodeDisplay({ url }: Props) {
           target="_blank"
           rel="noopener noreferrer"
           className={styles.actionButton}
+          aria-label="Abrir URL"
         >
-          Abrir
+          <ExternalLink size={16} />
+          <span>Abrir</span>
         </a>
         <button
           type="button"
@@ -111,7 +114,8 @@ export function QrCodeDisplay({ url }: Props) {
           className={styles.actionButton}
           aria-label="Copiar URL para a área de transferência"
         >
-          {copied ? "Copiado!" : "Copiar"}
+          {copied ? <CheckCircle2 size={16} /> : <Copy size={16} />}
+          <span>{copied ? "Copiado!" : "Copiar"}</span>
         </button>
       </div>
 

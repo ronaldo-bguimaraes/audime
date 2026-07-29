@@ -173,12 +173,34 @@ git push
 
 ## Convenção de Branches
 
-| Tipo | Formato | Exemplo |
-|------|---------|---------|
-| Feature | `feat/<descricao>` | `feat/add-qrcode-scanner` |
-| Bug fix | `fix/<descricao>` | `fix/dashboard-empty-state` |
-| Docs | `docs/<descricao>` | `docs/sprint-workflow` |
-| Refactor | `refactor/<descricao>` | `refactor/parser-architecture` |
+### Formato
+
+```
+<tipo>/#<numeroIssue>-<alias>
+```
+
+### Tipos
+
+| Tipo | Uso |
+|------|-----|
+| `feat` | Nova funcionalidade |
+| `fix` | Correção de bug |
+| `docs` | Documentação |
+| `refactor` | Refatoração |
+| `style` | Formatação/design |
+| `test` | Testes |
+| `chore` | Manutenção |
+
+### Exemplos
+
+| Branch | Descrição |
+|--------|-----------|
+| `feat/#21-remodelagem-design` | Remodelagem visual do frontend |
+| `fix/#12-url-truncada` | Correção de URL truncada |
+| `docs/#10-workflow-sprint` | Documentação do fluxo de sprint |
+| `style/#8-refresh-login` | Ajuste de estilo na tela de login |
+
+**Regra:** Toda branch deve estar associada a uma issue. O número da issue é obrigatório no nome.
 
 ---
 

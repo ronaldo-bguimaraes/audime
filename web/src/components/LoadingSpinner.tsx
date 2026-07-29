@@ -1,3 +1,4 @@
+import { Loader2 } from "lucide-react";
 import styles from "./LoadingSpinner.module.css";
 
 interface Props {
@@ -7,7 +8,7 @@ interface Props {
 export function LoadingSpinner({ message = "Carregando..." }: Props) {
   return (
     <div className={styles.container}>
-      <div className={styles.spinner} />
+      <Loader2 size={32} className={styles.spinner} />
       <p className={styles.message}>{message}</p>
     </div>
   );

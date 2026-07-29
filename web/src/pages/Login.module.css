@@ -5,16 +5,16 @@
   min-height: 100vh;
   padding: 16px;
   background:
-    radial-gradient(ellipse at 20% 50%, rgba(124, 58, 237, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(167, 139, 250, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 50%, rgba(5, 150, 105, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(52, 211, 153, 0.05) 0%, transparent 50%),
     var(--bg);
 }
 
 @media (prefers-color-scheme: dark) {
   .container {
     background:
-      radial-gradient(ellipse at 20% 50%, rgba(167, 139, 250, 0.08) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 20%, rgba(124, 58, 237, 0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 20% 50%, rgba(52, 211, 153, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(5, 150, 105, 0.05) 0%, transparent 50%),
       var(--bg);
   }
 }

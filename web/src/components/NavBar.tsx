@@ -1,4 +1,5 @@
 import { Link, useNavigate, useLocation } from "react-router";
+import { Zap } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import styles from "./NavBar.module.css";
 
@@ -18,9 +19,7 @@ export function NavBar() {
     <header className={styles.header}>
       <nav className={styles.nav}>
         <Link to="/dashboard" className={styles.logo}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className={styles.logoIcon}>
-            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor" />
-          </svg>
+          <Zap size={20} className={styles.logoIcon} />
           audime
         </Link>
         <div className={styles.links}>

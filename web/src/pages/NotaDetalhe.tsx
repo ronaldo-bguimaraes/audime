@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router";
+import { ArrowLeft } from "lucide-react";
 import { useFetch } from "../hooks/useFetch";
 import { desativarNota, obterDashboardNota, obterHistoricoNota } from "../api/dashboard";
 import { FetchError } from "../api/client";
@@ -71,7 +72,7 @@ export function NotaDetalhe() {
         className={styles.backButton}
         onClick={() => navigate("/dashboard")}
       >
-        ← Voltar
+        <ArrowLeft size={16} /> Voltar
       </button>
 
       <div className={styles.card}>
