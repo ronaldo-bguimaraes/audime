@@ -1,12 +1,129 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import func as sa_func
+from sqlalchemy import func as sa_func, extract
 from sqlalchemy.orm import Session, joinedload
 
-from app.api.v1.schemas import DashboardNotaItem, DashboardNotaResponse, NotaPatchRequest, VersaoNotaResponse
+from app.api.v1.schemas import (
+    DashboardNotaItem,
+    DashboardNotaResponse,
+    DashboardResumoResponse,
+    EmpresaResumoItem,
+    MesResumoItem,
+    NotaPatchRequest,
+    VersaoNotaResponse,
+)
 from app.core.deps import get_current_user_id, get_db
 from abstract.models.analytics import NotaAnalytics
 
 router = APIRouter(prefix="/v1/dashboard", tags=["dashboard"])
+
+
+@router.get(
+    "/resumo",
+    response_model=DashboardResumoResponse,
+)
+def resumo_dashboard(
+    db: Session = Depends(get_db),
+    id_usuario: int = Depends(get_current_user_id),
+) -> DashboardResumoResponse:
+    """Return aggregated financial summary for the dashboard.
+
+    Computes totals, monthly breakdown, and per-company breakdown
+    from active NotaAnalytics rows.
+    """
+    # Base query: active, current notas with non-null chave
+    base = db.query(NotaAnalytics).filter(
+        NotaAnalytics.id_usuario == id_usuario,
+        NotaAnalytics.valid_to.is_(None),
+        NotaAnalytics.is_active == True,  # noqa: E712
+        NotaAnalytics.chave_acesso.isnot(None),
+    )
+
+    # ── Totals ──
+    total_notas = base.count()
+    valor_total_row = (
+        db.query(sa_func.sum(NotaAnalytics.valor_total))
+        .filter(
+            NotaAnalytics.id_usuario == id_usuario,
+            NotaAnalytics.valid_to.is_(None),
+            NotaAnalytics.is_active == True,  # noqa: E712
+            NotaAnalytics.chave_acesso.isnot(None),
+        )
+        .scalar()
+    )
+    valor_total = float(valor_total_row) if valor_total_row else 0.0
+    media_por_nota = round(valor_total / total_notas, 2) if total_notas > 0 else None
+
+    ultima = (
+        base.order_by(NotaAnalytics.valid_from.desc()).first()
+    )
+    ultima_extracao = ultima.valid_from if ultima else None
+
+    # ── Monthly breakdown ──
+    mes_rows = (
+        db.query(
+            extract("month", NotaAnalytics.emissao).label("mes"),
+            extract("year", NotaAnalytics.emissao).label("ano"),
+            sa_func.sum(NotaAnalytics.valor_total).label("valor"),
+            sa_func.count(NotaAnalytics.id_nota_analytics).label("quantidade"),
+        )
+        .filter(
+            NotaAnalytics.id_usuario == id_usuario,
+            NotaAnalytics.valid_to.is_(None),
+            NotaAnalytics.is_active == True,  # noqa: E712
+            NotaAnalytics.chave_acesso.isnot(None),
+            NotaAnalytics.emissao.isnot(None),
+        )
+        .group_by("mes", "ano")
+        .order_by("ano", "mes")
+        .all()
+    )
+    por_mes = [
+        MesResumoItem(
+            mes=int(r.mes),
+            ano=int(r.ano),
+            valor=float(r.valor) if r.valor else 0.0,
+            quantidade=int(r.quantidade),
+        )
+        for r in mes_rows
+    ]
+
+    # ── Per-company breakdown ──
+    empresa_rows = (
+        db.query(
+            NotaAnalytics.empresa,
+            sa_func.sum(NotaAnalytics.valor_total).label("valor"),
+            sa_func.count(NotaAnalytics.id_nota_analytics).label("quantidade"),
+        )
+        .filter(
+            NotaAnalytics.id_usuario == id_usuario,
+            NotaAnalytics.valid_to.is_(None),
+            NotaAnalytics.is_active == True,  # noqa: E712
+            NotaAnalytics.chave_acesso.isnot(None),
+            NotaAnalytics.empresa.isnot(None),
+        )
+        .group_by(NotaAnalytics.empresa)
+        .order_by(sa_func.sum(NotaAnalytics.valor_total).desc())
+        .all()
+    )
+    por_empresa = [
+        EmpresaResumoItem(
+            empresa=r.empresa or "Desconhecida",
+            valor=float(r.valor) if r.valor else 0.0,
+            quantidade=int(r.quantidade),
+        )
+        for r in empresa_rows
+    ]
+
+    return DashboardResumoResponse(
+        total_notas=total_notas,
+        valor_total=valor_total,
+        media_por_nota=media_por_nota,
+        ultima_extracao=ultima_extracao,
+        por_mes=por_mes,
+        por_empresa=por_empresa,
+    )
 
 
 @router.get(

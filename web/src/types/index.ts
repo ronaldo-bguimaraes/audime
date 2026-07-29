@@ -164,6 +164,30 @@ export interface GastoCategoria {
   qtd_itens: number;
 }
 
+/* ---- Dashboard Resumo (Issue #4) ---- */
+
+export interface MesResumoItem {
+  mes: number;
+  ano: number;
+  valor: number;
+  quantidade: number;
+}
+
+export interface EmpresaResumoItem {
+  empresa: string;
+  valor: number;
+  quantidade: number;
+}
+
+export interface DashboardResumo {
+  total_notas: number;
+  valor_total: number;
+  media_por_nota: number | null;
+  ultima_extracao: string | null;
+  por_mes: MesResumoItem[];
+  por_empresa: EmpresaResumoItem[];
+}
+
 /* ---- Genérico ---- */
 
 export interface ApiError {

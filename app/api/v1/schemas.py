@@ -206,3 +206,25 @@ class GastoCategoriaResponse(BaseModel):
     mes_ano: date
     total_gasto: float
     qtd_itens: int
+
+
+class MesResumoItem(BaseModel):
+    mes: int
+    ano: int
+    valor: float
+    quantidade: int
+
+
+class EmpresaResumoItem(BaseModel):
+    empresa: str
+    valor: float
+    quantidade: int
+
+
+class DashboardResumoResponse(BaseModel):
+    total_notas: int
+    valor_total: float
+    media_por_nota: Optional[float] = None
+    ultima_extracao: Optional[datetime] = None
+    por_mes: list[MesResumoItem]
+    por_empresa: list[EmpresaResumoItem]

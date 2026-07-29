@@ -1,17 +1,24 @@
 import { Link, useNavigate } from "react-router";
 import { useFetch } from "../hooks/useFetch";
-import { listarDashboardNotas } from "../api/dashboard";
+import { listarDashboardNotas, obterDashboardResumo } from "../api/dashboard";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { formatBRL, maskChave, formatDate } from "../utils/format";
-import type { DashboardNota } from "../types";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
+import type { DashboardNota, DashboardResumo } from "../types";
 import styles from "./Dashboard.module.css";
+
+const PIE_COLORS = ["#6366f1", "#8b5cf6", "#a78bfa", "#c4b5fd", "#ddd6fe"];
 
 export function Dashboard() {
   const navigate = useNavigate();
   const { data: notas, loading, error, refetch } = useFetch<DashboardNota[]>(
     listarDashboardNotas,
     [],
+  );
+  const { data: resumo } = useFetch<DashboardResumo>(
+    obterDashboardResumo,
+    null,
   );
 
   if (loading) {
@@ -30,6 +37,76 @@ export function Dashboard() {
           + Nova Extração
         </Link>
       </div>
+
+      {resumo && resumo.total_notas > 0 && (
+        <section className={styles.resumoSection}>
+          <h2 className={styles.sectionTitle}>Resumo Financeiro</h2>
+
+          {/* Summary cards */}
+          <div className={styles.summaryCards}>
+            <div className={styles.summaryCard}>
+              <span className={styles.summaryLabel}>Total de Notas</span>
+              <span className={styles.summaryValue}>{resumo.total_notas}</span>
+            </div>
+            <div className={styles.summaryCard}>
+              <span className={styles.summaryLabel}>Valor Total</span>
+              <span className={styles.summaryValue}>{formatBRL(resumo.valor_total)}</span>
+            </div>
+            <div className={styles.summaryCard}>
+              <span className={styles.summaryLabel}>Média por Nota</span>
+              <span className={styles.summaryValue}>{formatBRL(resumo.media_por_nota ?? 0)}</span>
+            </div>
+          </div>
+
+          {/* Charts row */}
+          <div className={styles.chartsRow}>
+            {/* Monthly bar chart */}
+            {resumo.por_mes.length > 0 && (
+              <div className={styles.chartBox}>
+                <h3 className={styles.chartTitle}>Gastos por Mês</h3>
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart data={resumo.por_mes.map((m) => ({
+                    name: `${String(m.mes).padStart(2, "0")}/${m.ano}`,
+                    valor: m.valor,
+                  }))}>
+                    <XAxis dataKey="name" fontSize={11} />
+                    <YAxis fontSize={11} tickFormatter={(v: number) => `R$${v}`} />
+                    <Tooltip formatter={(value: number) => formatBRL(value)} />
+                    <Bar dataKey="valor" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+
+            {/* Per-company pie chart */}
+            {resumo.por_empresa.length > 0 && (
+              <div className={styles.chartBox}>
+                <h3 className={styles.chartTitle}>Gastos por Empresa</h3>
+                <ResponsiveContainer width="100%" height={220}>
+                  <PieChart>
+                    <Pie
+                      data={resumo.por_empresa}
+                      dataKey="valor"
+                      nameKey="empresa"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      label={({ empresa, percent }: { empresa: string; percent: number }) =>
+                        `${empresa.substring(0, 12)}… ${(percent * 100).toFixed(0)}%`
+                      }
+                    >
+                      {resumo.por_empresa.map((_, idx) => (
+                        <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value: number) => formatBRL(value)} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {!notas || notas.length === 0 ? (
         <div className={styles.empty}>

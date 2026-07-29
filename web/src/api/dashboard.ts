@@ -1,8 +1,12 @@
 import { api } from "./client";
-import type { DashboardNota, VersaoNota } from "../types";
+import type { DashboardNota, DashboardResumo, VersaoNota } from "../types";
 
 export async function listarDashboardNotas(): Promise<DashboardNota[]> {
   return api.get<DashboardNota[]>("/v1/dashboard/notas");
+}
+
+export async function obterDashboardResumo(): Promise<DashboardResumo> {
+  return api.get<DashboardResumo>("/v1/dashboard/resumo");
 }
 
 export async function obterDashboardNota(idExtracao: number): Promise<DashboardNota> {

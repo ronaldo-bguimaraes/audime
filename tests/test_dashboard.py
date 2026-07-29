@@ -500,6 +500,102 @@ class TestSoftDelete:
         )
         assert r.status_code == 404
 
+
+# ── Tests for Dashboard Resumo (Issue #4) ────────────────────────────
+
+
+class TestDashboardResumo:
+
+    def _seed_user_notas(self, db_session, uid):
+        """Helper to seed 3 notas with varied dates and values."""
+        from datetime import timedelta
+        now = datetime.now(timezone.utc)
+        notas_data = [
+            dict(id_nota_analytics=1, id_extracao=1, empresa="Loja A",
+                 chave_acesso="11111111111111111111111111111111111111111111",
+                 emissao=now.date(), valor_total=100.00, qtd_total_itens=1),
+            dict(id_nota_analytics=2, id_extracao=2, empresa="Loja B",
+                 chave_acesso="22222222222222222222222222222222222222222222",
+                 emissao=now.date() - timedelta(days=30), valor_total=200.00, qtd_total_itens=2),
+            dict(id_nota_analytics=3, id_extracao=3, empresa="Loja A",
+                 chave_acesso="33333333333333333333333333333333333333333333",
+                 emissao=now.date() - timedelta(days=60), valor_total=300.00, qtd_total_itens=3),
+        ]
+        for nd in notas_data:
+            db_session.add(NotaAnalytics(
+                id_usuario=uid,
+                valid_from=now,
+                id_importacao=nd["id_extracao"],
+                id_nota_raw=nd["id_extracao"],
+                processado_em=now,
+                **nd,
+            ))
+        db_session.commit()
+
+    def test_resumo_basic(self, client, auth_header, db_session):
+        headers, uid = auth_header()
+        self._seed_user_notas(db_session, uid)
+
+        r = client.get("/v1/dashboard/resumo", headers=headers)
+        assert r.status_code == 200
+        data = r.json()
+
+        assert data["total_notas"] == 3
+        assert data["valor_total"] == 600.00
+        assert data["media_por_nota"] == 200.0
+        assert data["ultima_extracao"] is not None
+
+    def test_resumo_por_mes(self, client, auth_header, db_session):
+        headers, uid = auth_header()
+        self._seed_user_notas(db_session, uid)
+
+        r = client.get("/v1/dashboard/resumo", headers=headers)
+        data = r.json()
+        assert len(data["por_mes"]) >= 1
+        for item in data["por_mes"]:
+            assert "mes" in item
+            assert "ano" in item
+            assert "valor" in item
+            assert "quantidade" in item
+
+    def test_resumo_por_empresa(self, client, auth_header, db_session):
+        headers, uid = auth_header()
+        self._seed_user_notas(db_session, uid)
+
+        r = client.get("/v1/dashboard/resumo", headers=headers)
+        data = r.json()
+        # Loja A has 2 notas (100+300), Loja B has 1 (200)
+        assert len(data["por_empresa"]) == 2
+        loja_a = [e for e in data["por_empresa"] if e["empresa"] == "Loja A"][0]
+        assert loja_a["quantidade"] == 2
+        assert loja_a["valor"] == 400.00
+
+    def test_resumo_no_notas(self, client, auth_header, db_session):
+        headers, _ = auth_header()
+
+        r = client.get("/v1/dashboard/resumo", headers=headers)
+        assert r.status_code == 200
+        data = r.json()
+
+        assert data["total_notas"] == 0
+        assert data["valor_total"] == 0.0
+        assert data["media_por_nota"] is None
+        assert data["ultima_extracao"] is None
+        assert data["por_mes"] == []
+        assert data["por_empresa"] == []
+
+    def test_resumo_isolates_users(self, client, auth_header, db_session):
+        headers1, uid1 = auth_header(email="user1@test.com")
+        _, uid2 = auth_header(email="user2@test.com")
+        self._seed_user_notas(db_session, uid1)
+
+        r = client.get("/v1/dashboard/resumo", headers=headers1)
+        assert r.status_code == 200
+        assert r.json()["total_notas"] == 3
+
+
+class TestSoftDeleteMixedActiveInactive:
+
     def test_listar_notas_mixed_active_inactive_same_chave(self, client, auth_header, db_session):
         headers, uid = auth_header()
         now = datetime.now(timezone.utc)
