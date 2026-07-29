@@ -1,13 +1,6 @@
-import { useCallback } from "react"
-import {
-  View,
-  Text,
-  ScrollView,
-  RefreshControl,
-  StyleSheet,
-  Platform,
-} from "react-native"
-import { useLocalSearchParams } from "expo-router"
+import { useCallback, useEffect, useRef } from "react"
+import { View, Text, ScrollView, RefreshControl, StyleSheet } from "react-native"
+import { useLocalSearchParams, router } from "expo-router"
 import { useAuth } from "../../../src/contexts/AuthContext"
 import { useFetch } from "../../../src/hooks/useFetch"
 import { LoadingSpinner } from "../../../src/components/LoadingSpinner"
@@ -15,9 +8,12 @@ import { ErrorMessage } from "../../../src/components/ErrorMessage"
 import { createExtracoesApi, createDashboardApi } from "shared"
 import { formatDate } from "shared"
 
+const POLL_INTERVAL = 5000
+
 export default function ExtracaoDetail() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const { api } = useAuth()
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const fetchDetails = useCallback(async () => {
     const extr = createExtracoesApi(api)
@@ -31,14 +27,33 @@ export default function ExtracaoDetail() {
 
   const { data, error, isLoading, refetch } = useFetch(fetchDetails)
 
+  const extracao = data?.extracao
+  const shouldPoll = extracao && (extracao.status === "PENDING" || extracao.status === "RUNNING")
+
+  useEffect(() => {
+    if (shouldPoll) {
+      pollRef.current = setInterval(refetch, POLL_INTERVAL)
+    }
+    return () => {
+      if (pollRef.current) {
+        clearInterval(pollRef.current)
+        pollRef.current = null
+      }
+    }
+  }, [shouldPoll, refetch])
+
   if (isLoading && !data) return <LoadingSpinner message="Carregando..." />
   if (error) return <ErrorMessage message={error} onRetry={refetch} />
 
-  const { extracao, nota } = data ?? { extracao: null, nota: null }
+  const nota = data?.nota ?? null
 
   if (!extracao) {
     return <ErrorMessage message="Extração não encontrada" />
   }
+
+  const totalSteps = extracao.steps?.length ?? 0
+  const doneSteps = extracao.steps?.filter((s) => s.status === "CONCLUIDO").length ?? 0
+  const progress = totalSteps > 0 ? doneSteps / totalSteps : 0
 
   return (
     <ScrollView
@@ -49,14 +64,33 @@ export default function ExtracaoDetail() {
     >
       <View style={styles.header}>
         <Text style={styles.title}>Extração #{extracao.id_extracao}</Text>
-        <Text style={styles.status}>{extracao.status}</Text>
+        <Text style={styles.status}>
+          {extracao.status === "PENDING" ? "Pendente" :
+           extracao.status === "RUNNING" ? "Processando" :
+           extracao.status === "CONCLUIDO" ? "Concluído" :
+           extracao.status === "ERRO" ? "Erro" : extracao.status}
+        </Text>
         {extracao.url && (
           <Text style={styles.url}>{extracao.url}</Text>
         )}
         {extracao.created_at && (
           <Text style={styles.date}>{formatDate(extracao.created_at)}</Text>
         )}
+        {shouldPoll && (
+          <Text style={styles.polling}>Atualizando automaticamente...</Text>
+        )}
       </View>
+
+      {totalSteps > 0 && (
+        <View style={styles.progressCard}>
+          <Text style={styles.progressLabel}>
+            Progresso: {doneSteps}/{totalSteps} etapas
+          </Text>
+          <View style={styles.progressBar}>
+            <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
+          </View>
+        </View>
+      )}
 
       {nota && (
         <View style={styles.notaCard}>
@@ -91,6 +125,12 @@ export default function ExtracaoDetail() {
           ))}
         </View>
       )}
+
+      <View style={styles.backContainer}>
+        <Text style={styles.backLink} onPress={() => router.back()}>
+          ← Voltar
+        </Text>
+      </View>
     </ScrollView>
   )
 }
@@ -131,6 +171,39 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#9CA3AF",
     marginTop: 4,
+  },
+  polling: {
+    fontSize: 12,
+    color: "#F59E0B",
+    marginTop: 8,
+    fontStyle: "italic",
+  },
+  progressCard: {
+    backgroundColor: "#FFF",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  progressLabel: {
+    fontSize: 14,
+    color: "#374151",
+    marginBottom: 8,
+  },
+  progressBar: {
+    height: 8,
+    backgroundColor: "#E5E7EB",
+    borderRadius: 4,
+    overflow: "hidden",
+  },
+  progressFill: {
+    height: "100%",
+    backgroundColor: "#2563EB",
+    borderRadius: 4,
   },
   notaCard: {
     backgroundColor: "#FFF",
@@ -209,5 +282,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#6B7280",
     marginTop: 2,
+  },
+  backContainer: {
+    paddingVertical: 16,
+    alignItems: "center",
+  },
+  backLink: {
+    color: "#2563EB",
+    fontSize: 14,
+    fontWeight: "600",
   },
 })

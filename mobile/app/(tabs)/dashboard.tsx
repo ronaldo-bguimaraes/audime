@@ -4,14 +4,16 @@ import {
   Text,
   FlatList,
   RefreshControl,
+  TouchableOpacity,
   StyleSheet,
 } from "react-native"
+import { router } from "expo-router"
 import { useAuth } from "../../src/contexts/AuthContext"
 import { useFetch } from "../../src/hooks/useFetch"
 import { LoadingSpinner } from "../../src/components/LoadingSpinner"
 import { ErrorMessage } from "../../src/components/ErrorMessage"
 import { createDashboardApi, createExtracoesApi } from "shared"
-import { formatBRL, formatDate } from "shared"
+import { formatBRL, maskChave, formatDate } from "shared"
 
 export default function Dashboard() {
   const { api } = useAuth()
@@ -19,11 +21,12 @@ export default function Dashboard() {
   const fetchData = useCallback(async () => {
     const dash = createDashboardApi(api)
     const extr = createExtracoesApi(api)
-    const [resumo, extracoes] = await Promise.all([
+    const [resumo, notas, extracoes] = await Promise.all([
       dash.obterResumo(),
+      dash.listarNotas(),
       extr.listar(10),
     ])
-    return { resumo, extracoes }
+    return { resumo, notas, extracoes }
   }, [api])
 
   const { data, error, isLoading, refetch } = useFetch(fetchData)
@@ -31,13 +34,19 @@ export default function Dashboard() {
   if (isLoading && !data) return <LoadingSpinner message="Carregando..." />
   if (error) return <ErrorMessage message={error} onRetry={refetch} />
 
-  const { resumo, extracoes } = data ?? { resumo: null, extracoes: [] }
+  const { resumo, notas, extracoes } = data ?? { resumo: null, notas: [], extracoes: [] }
+
+  const sections: { key: string; type: "resumo" | "notas" | "extracoes" }[] = [
+    ...(resumo ? [{ key: "resumo", type: "resumo" as const }] : []),
+    ...(notas.length > 0 ? [{ key: "notas", type: "notas" as const }] : []),
+    ...(extracoes.length > 0 ? [{ key: "extracoes-header", type: "extracoes" as const }] : []),
+  ]
 
   return (
     <FlatList
       style={styles.container}
-      data={extracoes}
-      keyExtractor={(item) => String(item.id_extracao)}
+      data={notas}
+      keyExtractor={(item) => String(item.id_nota_analytics)}
       refreshControl={
         <RefreshControl refreshing={isLoading} onRefresh={refetch} />
       }
@@ -60,20 +69,57 @@ export default function Dashboard() {
               </View>
             </View>
           )}
-          <Text style={styles.sectionTitle}>Extrações recentes</Text>
+          {notas.length > 0 && (
+            <Text style={styles.sectionTitle}>Notas</Text>
+          )}
         </>
       )}
       renderItem={({ item }) => (
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Extração #{item.id_extracao}</Text>
-          <Text style={styles.cardStatus}>{item.status}</Text>
-          <Text style={styles.cardDate}>
-            {item.created_at ? formatDate(item.created_at) : ""}
+          <Text style={styles.cardTitle}>{item.empresa ?? "Sem empresa"}</Text>
+          {item.chave_acesso && (
+            <Text style={styles.cardSub}>{maskChave(item.chave_acesso)}</Text>
+          )}
+          {item.emissao && (
+            <Text style={styles.cardDate}>{formatDate(item.emissao)}</Text>
+          )}
+          <Text style={styles.cardValue}>
+            {item.valor_total != null ? formatBRL(item.valor_total) : "—"}
           </Text>
         </View>
       )}
+      ListFooterComponent={() => (
+        <>
+          {extracoes.length > 0 && (
+            <>
+              <Text style={styles.sectionTitle}>Extrações recentes</Text>
+              {extracoes.map((item) => (
+                <TouchableOpacity
+                  key={item.id_extracao}
+                  style={styles.card}
+                  onPress={() => router.push(`/extracao/${item.id_extracao}`)}
+                >
+                  <Text style={styles.cardTitle}>Extração #{item.id_extracao}</Text>
+                  <Text style={styles.cardStatus}>{item.status}</Text>
+                  <Text style={styles.cardDate}>
+                    {item.created_at ? formatDate(item.created_at) : ""}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </>
+          )}
+        </>
+      )}
       ListEmptyComponent={() => (
-        <Text style={styles.empty}>Nenhuma extração encontrada</Text>
+        <View style={styles.emptyContainer}>
+          <Text style={styles.empty}>Nenhuma nota encontrada</Text>
+          <TouchableOpacity
+            style={styles.emptyButton}
+            onPress={() => router.push("/(tabs)/extrair")}
+          >
+            <Text style={styles.emptyButtonText}>Nova Extração</Text>
+          </TouchableOpacity>
+        </View>
       )}
     />
   )
@@ -128,6 +174,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#374151",
     marginBottom: 12,
+    marginTop: 8,
   },
   card: {
     backgroundColor: "#FFF",
@@ -150,15 +197,42 @@ const styles = StyleSheet.create({
     color: "#6B7280",
     marginTop: 4,
   },
+  cardSub: {
+    fontSize: 12,
+    color: "#9CA3AF",
+    fontFamily: "monospace",
+    marginTop: 4,
+  },
   cardDate: {
     fontSize: 12,
     color: "#9CA3AF",
     marginTop: 4,
   },
+  cardValue: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#2563EB",
+    marginTop: 4,
+  },
+  emptyContainer: {
+    alignItems: "center",
+    paddingTop: 48,
+  },
   empty: {
     textAlign: "center",
     color: "#9CA3AF",
-    marginTop: 32,
     fontSize: 14,
+    marginBottom: 16,
+  },
+  emptyButton: {
+    backgroundColor: "#2563EB",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  emptyButtonText: {
+    color: "#FFF",
+    fontSize: 14,
+    fontWeight: "600",
   },
 })

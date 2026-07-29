@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import { useAuth } from "../src/contexts/AuthContext"
 import { createApiClient } from "shared"
 
 const API_BASE = process.env.EXPO_PUBLIC_API_BASE_URL ?? ""
+const COOLDOWN_SECONDS = 60
 
 export default function Login() {
   const { signIn } = useAuth()
@@ -21,15 +22,37 @@ export default function Login() {
   const [code, setCode] = useState("")
   const [step, setStep] = useState<"email" | "code">("email")
   const [isLoading, setIsLoading] = useState(false)
+  const [cooldown, setCooldown] = useState(0)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const api = createApiClient(API_BASE)
 
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
+  }, [])
+
+  function startCooldown() {
+    setCooldown(COOLDOWN_SECONDS)
+    timerRef.current = setInterval(() => {
+      setCooldown((prev) => {
+        if (prev <= 1) {
+          if (timerRef.current) clearInterval(timerRef.current)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }
+
   async function handleSendCode() {
-    if (!email.trim()) return
+    if (!email.trim() || cooldown > 0) return
     setIsLoading(true)
     try {
       await api.post("/v1/auth/login", { email: email.trim() })
       setStep("code")
+      startCooldown()
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Erro ao enviar código"
       Alert.alert("Erro", msg)
@@ -42,11 +65,11 @@ export default function Login() {
     if (!code.trim()) return
     setIsLoading(true)
     try {
-      const result = await api.post<{ token: string; user_id: string }>(
+      const result = await api.post<{ access_token: string; id_usuario: number }>(
         "/v1/auth/verify",
         { email: email.trim(), code: code.trim() },
       )
-      await signIn(result.token, result.user_id)
+      await signIn(result.access_token, String(result.id_usuario))
       router.replace("/(tabs)/dashboard")
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Código inválido"
@@ -63,11 +86,7 @@ export default function Login() {
     >
       <View style={styles.card}>
         <Text style={styles.title}>Audime</Text>
-        <Text style={styles.subtitle}>
-          {step === "email"
-            ? "Digite seu email para receber o código"
-            : "Digite o código recebido no email"}
-        </Text>
+        <Text style={styles.subtitle}>Gestão de gastos pessoais com NFC-e</Text>
 
         {step === "email" ? (
           <>
@@ -82,11 +101,13 @@ export default function Login() {
               editable={!isLoading}
             />
             <TouchableOpacity
-              style={[styles.button, isLoading && styles.buttonDisabled]}
+              style={[styles.button, (isLoading || cooldown > 0) && styles.buttonDisabled]}
               onPress={handleSendCode}
-              disabled={isLoading}
+              disabled={isLoading || cooldown > 0}
             >
-              <Text style={styles.buttonText}>Enviar código</Text>
+              <Text style={styles.buttonText}>
+                {cooldown > 0 ? `Reenviar em ${cooldown}s` : "Enviar código"}
+              </Text>
             </TouchableOpacity>
           </>
         ) : (
