@@ -4,7 +4,7 @@ import { listarDashboardNotas, obterDashboardResumo } from "../api/dashboard";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { formatBRL, maskChave, formatDate } from "../utils/format";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import type { DashboardNota, DashboardResumo } from "../types";
 import styles from "./Dashboard.module.css";
 
@@ -18,7 +18,7 @@ export function Dashboard() {
   );
   const { data: resumo } = useFetch<DashboardResumo>(
     obterDashboardResumo,
-    null,
+    [],
   );
 
   if (loading) {
@@ -71,7 +71,7 @@ export function Dashboard() {
                   }))}>
                     <XAxis dataKey="name" fontSize={11} />
                     <YAxis fontSize={11} tickFormatter={(v: number) => `R$${v}`} />
-                    <Tooltip formatter={(value: number) => formatBRL(value)} />
+                    <Tooltip formatter={(value: any) => formatBRL(Number(value))} />
                     <Bar dataKey="valor" fill="#6366f1" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
@@ -91,15 +91,15 @@ export function Dashboard() {
                       cx="50%"
                       cy="50%"
                       outerRadius={80}
-                      label={({ empresa, percent }: { empresa: string; percent: number }) =>
-                        `${empresa.substring(0, 12)}… ${(percent * 100).toFixed(0)}%`
+                      label={(entry: any) =>
+                        `${String(entry.empresa).substring(0, 12)}… ${(entry.percent * 100).toFixed(0)}%`
                       }
                     >
                       {resumo.por_empresa.map((_, idx) => (
                         <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value: number) => formatBRL(value)} />
+                    <Tooltip formatter={(value: any) => formatBRL(Number(value))} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
