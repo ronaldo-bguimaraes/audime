@@ -33,6 +33,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   min-width: 100px;
   padding: 8px 16px;
   border: 1px solid var(--border);
