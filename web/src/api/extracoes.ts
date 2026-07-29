@@ -1,35 +1,15 @@
 import { api } from "./client";
 
-export interface PipelineStep {
-  etapa: string;
-  status: string;
-  ordem: number;
-  iniciado_em: string | null;
-  concluido_em: string | null;
-  mensagem: string | null;
-}
+import type {
+  CriarExtracaoResult,
+  ExtracaoResult,
+  PipelineStep,
+} from "shared";
 
-export interface ExtracaoResult {
-  id_extracao: number;
-  status: string;
-  created_at: string;
-  url?: string;
-  empresa?: string | null;
-  reprocess_count?: number;
-  steps: PipelineStep[];
-}
-
-export interface CriarExtracaoResult {
-  id_extracao: number;
-  status: string;
-  job_id: string | null;
-}
+export type { CriarExtracaoResult, ExtracaoResult, PipelineStep };
 
 export async function criarExtracao(url: string): Promise<CriarExtracaoResult> {
-  return api.post<CriarExtracaoResult>("/v1/extracoes", {
-    url,
-    tipo: "NFCE",
-  });
+  return api.post<CriarExtracaoResult>("/v1/extracoes", { url, tipo: "NFCE" });
 }
 
 export async function listarExtracoes(limit = 10): Promise<ExtracaoResult[]> {
@@ -39,6 +19,6 @@ export async function listarExtracoes(limit = 10): Promise<ExtracaoResult[]> {
 export async function reprocessarExtracao(
   id: number,
   url?: string,
-): Promise<{ id_extracao: number; status: string; job_id: string | null }> {
+): Promise<CriarExtracaoResult> {
   return api.post(`/v1/extracoes/${id}/reprocessar`, url ? { url } : undefined);
 }

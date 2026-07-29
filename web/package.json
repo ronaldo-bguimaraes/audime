@@ -12,6 +12,7 @@
     "test:ui": "npx playwright test --ui"
   },
   "dependencies": {
+    "shared": "*",
     "lucide-react": "^1.27.0",
     "qr-scanner": "^1.4.2",
     "qrcode": "^1.5.4",
