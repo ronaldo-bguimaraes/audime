@@ -1,8 +1,19 @@
 .container {
-  max-width: 720px;
+  max-width: 600px;
   margin: 0 auto;
   padding: 32px 24px;
   animation: fadeIn 0.3s var(--ease-out) both;
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 20px 12px;
+  }
+
+  .card,
+  .progressCard {
+    padding: 16px;
+  }
 }
 
 .backButton {
@@ -54,7 +65,7 @@
 
 .infoRow {
   display: flex;
-  justify-content: space-between;
+  gap: 8px;
   padding: 8px 0;
   border-bottom: 1px solid var(--border);
   font-size: 14px;
@@ -65,6 +76,7 @@
 }
 
 .infoLabel {
+  flex-shrink: 0;
   color: var(--text-muted);
 }
 
@@ -73,141 +85,285 @@
   color: var(--text-h);
 }
 
-/* Timeline */
-.timeline {
-  position: relative;
-  padding-left: 40px;
-  margin: 0;
-}
-
-.timeline::before {
-  content: "";
-  position: absolute;
-  left: 15px;
-  top: 12px;
-  bottom: 12px;
-  width: 2px;
-  background: var(--border);
-  border-radius: 1px;
-}
-
-.step {
-  position: relative;
-  padding: 0 0 28px 16px;
-  list-style: none;
-  animation: slideInLeft 0.3s var(--ease-out) both;
-}
-
-.step:nth-child(1) { animation-delay: 0ms; }
-.step:nth-child(2) { animation-delay: 80ms; }
-.step:nth-child(3) { animation-delay: 160ms; }
-.step:nth-child(4) { animation-delay: 240ms; }
-
-.step:last-child {
-  padding-bottom: 0;
-}
-
-.stepIcon {
-  position: absolute;
-  left: -33px;
-  top: 0;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+.urlValue {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 700;
-  z-index: 1;
-}
-
-.stepPENDING {
-  background: var(--bg-elevated);
-  border: 2px solid var(--border);
-  color: var(--text-muted);
-}
-
-.stepRUNNING {
-  background: var(--info-text);
-  border: 2px solid var(--info-text);
-  color: #fff;
-}
-
-.stepDONE {
-  background: var(--success-text);
-  border: 2px solid var(--success-text);
-  color: #fff;
-}
-
-.stepERROR {
-  background: var(--error-text);
-  border: 2px solid var(--error-text);
-  color: #fff;
-}
-
-.stepHeader {
-  display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.urlLink {
+  color: var(--accent);
+  font-size: 13px;
+  font-family: var(--font-mono);
+  text-decoration: none;
+  word-break: break-all;
+  line-height: 1.4;
+}
+
+.urlLink:hover {
+  text-decoration: underline;
+}
+
+
+
+.copyButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 12px;
+  flex-shrink: 0;
+  position: relative;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.copyButton:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.copyFeedback {
+  font-size: 11px;
+  color: var(--success-text);
+  font-weight: 500;
+}
+
+/* Progress Card */
+.progressCard {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-xs);
+}
+
+.progressHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 4px;
 }
 
-.stepName {
+.progressTitle {
+  font-size: 16px;
   font-weight: 600;
-  font-size: 14px;
   color: var(--text-h);
 }
 
-.stepBadge {
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 100px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.badgePENDING {
-  background: var(--bg-subtle);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-}
-
-.badgeRUNNING {
-  background: var(--info-bg);
-  border: 1px solid var(--info-border);
-  color: var(--info-text);
-}
-
-.badgeDONE {
-  background: var(--success-bg);
-  border: 1px solid var(--success-border);
-  color: var(--success-text);
-}
-
-.badgeERROR {
-  background: var(--error-bg);
-  border: 1px solid var(--error-border);
-  color: var(--error-text);
-}
-
-.stepMeta {
+.progressStatus {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 12px;
   color: var(--text-muted);
-  margin: 0;
+}
+
+.progressDesc {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+}
+
+/* Progress Bar */
+.progressTrack {
+  height: 4px;
+  background: var(--bg-subtle);
+  border-radius: 2px;
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.5s var(--ease-out);
+}
+
+.progressLabel {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  margin-bottom: 24px;
+}
+
+/* Steps */
+.steps {
+  display: flex;
+  flex-direction: column;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 0;
+  min-height: 32px;
+  border-radius: var(--radius-sm);
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+.step.running {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--accent-light) 50%,
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+  margin: 0 -12px;
+  padding: 8px 12px;
+}
+
+.step.waiting {
+  opacity: 0.5;
+}
+
+.step.errored {
+  background: var(--error-bg);
+  margin: 0 -12px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+}
+
+.stepIcon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.stepBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.stepRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.stepName {
+  font-size: 14px;
+  color: var(--text-h);
+  font-weight: 500;
+}
+
+.step.running .stepName {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.stepTime {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .stepMessage {
   font-size: 12px;
   color: var(--error-text);
-  margin: 6px 0 0;
-  background: var(--error-bg);
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--error-border);
+  margin: 4px 0 0;
+}
+
+/* Icons */
+.iconDone {
+  color: var(--success-text);
+}
+
+.iconError {
+  color: var(--error-text);
+}
+
+.iconWaiting {
+  color: var(--text-muted);
+  opacity: 0.3;
 }
 
 .spinIcon {
-  animation: spin 0.7s linear infinite;
+  animation: spinIcon 0.7s linear infinite;
+}
+
+@keyframes spinIcon {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Empty state */
+.empty {
+  color: var(--text-muted);
+  font-size: 14px;
+  text-align: center;
+  padding: 24px 0;
+}
+
+/* Collapsible log */
+.log {
+  margin-top: 20px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.logSummary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-muted);
+  user-select: none;
+}
+
+.logSummary::-webkit-details-marker {
+  display: none;
+}
+
+.logSummary svg {
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.log[open] .logSummary svg {
+  transform: rotate(180deg);
+}
+
+.logEntries {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.logEntry {
+  display: flex;
+  gap: 12px;
+  color: var(--text-muted);
+}
+
+.logTime {
+  opacity: 0.5;
 }

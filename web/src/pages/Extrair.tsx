@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, type FormEvent } from "react";
 import { useNavigate } from "react-router";
-import { ScanLine } from "lucide-react";
+import { ScanLine, RotateCw } from "lucide-react";
 import { criarExtracao, listarExtracoes, reprocessarExtracao, type ExtracaoResult, type PipelineStep } from "../api/extracoes";
 import { FetchError } from "../api/client";
 import { QrCodeScanner } from "../components/QrCodeScanner";
@@ -8,40 +8,28 @@ import styles from "./Extrair.module.css";
 
 const STATUS_ATIVOS = new Set(["PENDING", "RUNNING"]);
 
-const STEP_ORDER: Record<string, number> = {
-  RAW_IMPORT: 1,
-  STAGING: 2,
-  ANALYTICS: 3,
-  COMPLETE: 4,
+const STEP_LABELS: Record<string, string> = {
+  RAW_IMPORT: "Importação",
+  STAGING: "Normalização",
+  ANALYTICS: "Analytics",
+  COMPLETE: "Concluído",
 };
 
-const STEP_STATUS_ORDER: Record<string, number> = {
-  ERROR: 0,
-  RUNNING: 1,
-  DONE: 2,
-  PENDING: 3,
-};
-
-function latestStep(steps: PipelineStep[]): string | null {
+function activeStep(steps: PipelineStep[]): { etapa: string; status: string } | null {
   if (!steps.length) return null;
-  const sorted = [...steps].sort((a, b) => {
-    const aOrder = STEP_ORDER[a.etapa] ?? 99;
-    const bOrder = STEP_ORDER[b.etapa] ?? 99;
-    if (aOrder !== bOrder) return aOrder - bOrder;
-    const aStatus = STEP_STATUS_ORDER[a.status] ?? 99;
-    const bStatus = STEP_STATUS_ORDER[b.status] ?? 99;
-    return aStatus - bStatus;
-  });
-  return sorted[0]?.status ?? null;
+  const ordenados = [...steps].sort((a, b) => a.ordem - b.ordem);
+  const ativo = ordenados.find((s) => s.status !== "DONE");
+  return ativo
+    ? { etapa: STEP_LABELS[ativo.etapa] || ativo.etapa, status: ativo.status }
+    : { etapa: STEP_LABELS[ordenados[ordenados.length - 1].etapa] || ordenados[ordenados.length - 1].etapa, status: "DONE" };
 }
 
-function StatusBadge({ status, step }: { status: string; step?: string | null }) {
-  const classStatus = step ?? status;
-  const className = `${styles.badge} ${styles[`badge_${classStatus.toLowerCase()}`] || styles.badge_pending}`;
+function StatusBadge({ status }: { status: string }) {
+  const cls = `${styles.badge} ${styles[`badge_${status.toLowerCase()}`] || styles.badge_pending}`;
   return (
-    <span className={className}>
+    <span className={cls}>
       <span className={styles.badgeDot} />
-      {step ? `${status} (${step})` : status}
+      {status}
     </span>
   );
 }
@@ -180,22 +168,16 @@ export function Extrair() {
         />
       </div>
 
-      <div className={styles.listCard}>
+      <div className={styles.listSection}>
         <h2 className={styles.listTitle}>Extrações Recentes</h2>
         {extracoes.length === 0 ? (
           <p className={styles.empty}>Nenhuma extração encontrada.</p>
         ) : (
-          <div className={styles.table}>
-            <div className={styles.tableHeader}>
-              <span className={styles.colId}>#</span>
-              <span className={styles.colData}>Data</span>
-              <span className={styles.colStatus}>Status</span>
-              <span className={styles.colAction} />
-            </div>
-              {extracoes.map((e) => (
+          <div className={styles.list}>
+            {extracoes.map((e) => (
               <div
                 key={e.id_extracao}
-                className={styles.tableRow}
+                className={styles.historyCard}
                 onClick={() => navigate(`/extracao/${e.id_extracao}`)}
                 role="button"
                 tabIndex={0}
@@ -206,24 +188,38 @@ export function Extrair() {
                   }
                 }}
               >
-                <span className={styles.colId}>{e.id_extracao}</span>
-                <span className={styles.colData}>
-                  {new Date(e.created_at).toLocaleString("pt-BR")}
-                </span>
-                <span className={styles.colStatus}>
-                  <StatusBadge status={e.status} step={latestStep(e.steps)} />
-                </span>
-                <span className={styles.colAction}>
-                  {(e.status === "DONE" || e.status === "ERROR") && (
+                <div className={styles.historyCardTop}>
+                  <div>
+                    <h3 className={styles.historyCardTitle}>
+                      Extração #{e.id_extracao}
+                    </h3>
+                    <p className={styles.historyCardDate}>
+                      Criada em {new Date(e.created_at).toLocaleString("pt-BR")}
+                    </p>
+                  </div>
+                    {(e.status === "DONE" || e.status === "ERROR") && (
                     <button
                       type="button"
                       className={styles.reprocessButton}
                       onClick={(ev) => handleReprocess(e.id_extracao, ev)}
                     >
-                      {e.status === "ERROR" ? "Reprocessar" : "Processar"}
+                      <RotateCw size={12} />
+                      Reprocessar
                     </button>
                   )}
-                </span>
+                </div>
+                <div className={styles.historyCardStatus}>
+                  {(() => {
+                    const s = activeStep(e.steps);
+                    if (!s) return <StatusBadge status="—" />;
+                    return (
+                      <>
+                        <span className={styles.historyCardStep}>{s.etapa}</span>
+                        <StatusBadge status={s.status} />
+                      </>
+                    );
+                  })()}
+                </div>
               </div>
             ))}
           </div>

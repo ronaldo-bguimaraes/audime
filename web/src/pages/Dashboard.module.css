@@ -251,4 +251,9 @@
     flex-direction: column;
     gap: 4px;
   }
+
+  .summaryCards {
+    flex-direction: column;
+    gap: 10px;
+  }
 }
