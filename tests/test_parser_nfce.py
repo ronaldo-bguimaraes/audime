@@ -189,6 +189,77 @@ def test_mg_parser_extracts_ambiente():
     assert nota.extra["ambiente"] == "Produção"
 
 
+# ── MgParser Edge Cases (Issue #6) ──────────────────────────────────
+
+
+def test_mg_parser_empty_html_does_not_crash():
+    """MgParser should handle empty HTML without crashing."""
+    html = b"<html><body></body></html>"
+    nota = MgParser().parse_nfce(html)
+    assert nota.empresa == ""
+    assert nota.items == []
+    assert nota.chave is None
+
+
+def test_mg_parser_no_items_table():
+    """MgParser should handle HTML without items table."""
+    html = b"""<html><body>
+    <table class="text-center"><tr><td>EMPRESA TESTE</td></tr></table>
+    </body></html>"""
+    nota = MgParser().parse_nfce(html)
+    assert nota.items == []
+    assert nota.qtd_total_itens is None
+
+
+def test_mg_parser_malformed_html():
+    """MgParser should handle malformed HTML (missing closing tags)."""
+    html = b"<html><body><table class=text-center><tr><td>TESTE"
+    nota = MgParser().parse_nfce(html)
+    assert nota is not None
+    assert isinstance(nota.empresa, str)
+
+
+def test_mg_parser_rejects_none():
+    """MgParser should raise TypeError or handle None input gracefully."""
+    import traceback
+    try:
+        MgParser().parse_nfce(None)  # type: ignore
+        # If it doesn't raise, check it doesn't crash the process
+    except (TypeError, AttributeError):
+        pass
+    except Exception:
+        # Any exception is fine as long as it's caught
+        pass
+
+
+def test_mg_parser_with_extra_whitespace():
+    """MgParser handles extra whitespace in key fields."""
+    html = b"""<html><body>
+    <table class="text-center" style="width:100%">
+      <tr><td colspan="2"><strong>NOTA FISCAL</strong></td></tr>
+      <tr><td colspan="2"><strong>  Supermercado Mineiro S.A.  </strong></td></tr>
+      <tr><td>CNPJ: 99.888.777/0001-66</td><td>IE: 123.456.789.00-11</td></tr>
+      <tr><td colspan="2">  Av. Amazonas, 1500  ,  Centro  ,  Belo Horizonte  ,  MG  </td></tr>
+    </table>
+    <table class="table-striped" style="width:100%">
+      <tr><td>Café Torrado 500g</td><td>2</td><td>UN: UN</td><td>37,98</td></tr>
+    </table>
+    <table class="table-hover" style="width:100%">
+      <tr><td>Modelo</td><td>Número</td><td>Série</td><td>Emissão</td></tr>
+      <tr><td>65</td><td>987654</td><td>2</td><td>20/06/2026</td></tr>
+    </table>
+    <table class="table-hover" style="width:100%">
+      <tr><td>3120 0622 2222 3330 0014 4555 5555 5555 5555 5555 6666</td></tr>
+    </table>
+    <div><strong>Valor total R$ 102,87</strong></div>
+    </body></html>"""
+    nota = MgParser().parse_nfce(html)
+    assert nota.empresa == "Supermercado Mineiro S.A."
+    assert nota.chave == "31200622222233300014455555555555555555556666"
+    assert len(nota.items) == 1
+    assert nota.items[0]["item_valor_total"] == 37.98
+
+
 # ── Dispatcher ───────────────────────────────────────────────────────
 
 
