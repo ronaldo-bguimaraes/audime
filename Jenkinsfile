@@ -12,7 +12,7 @@ pipeline {
                     sh '''
                         rm -f .env
                         cp "$ENV_FILE" .env
-                        docker compose build backend
+                        docker compose build
                     '''
                 }
             }
