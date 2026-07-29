@@ -17,5 +17,11 @@ test.db
 web/playwright-report/
 web/test-results/
 
+# Node
+node_modules/
+
+# Flutter
+flutter/
+
 # Python build artifacts
 *.egg-info/

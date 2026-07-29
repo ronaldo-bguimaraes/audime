@@ -14,7 +14,7 @@ Entry point for the squad-based incremental development agent system.
 .cursor/
   agents/           ← Cursor adapter layer (references .agents/agents/)
   rules/            ← Cursor-specific rules (future use)
-docs/               ← Project documentation (sprint workflow, CLI, commits, architecture)
+docs/               ← Project documentation (sprint workflow, CLI, commits, architecture, mobile)
 AGENTS.md           ← Entry point for the agent system
 ```
 
