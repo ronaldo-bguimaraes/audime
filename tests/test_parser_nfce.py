@@ -234,7 +234,7 @@ def test_mg_parser_rejects_none():
 
 def test_mg_parser_with_extra_whitespace():
     """MgParser handles extra whitespace in key fields."""
-    html = b"""<html><body>
+    html = ("""<html><body>
     <table class="text-center" style="width:100%">
       <tr><td colspan="2"><strong>NOTA FISCAL</strong></td></tr>
       <tr><td colspan="2"><strong>  Supermercado Mineiro S.A.  </strong></td></tr>
@@ -242,17 +242,17 @@ def test_mg_parser_with_extra_whitespace():
       <tr><td colspan="2">  Av. Amazonas, 1500  ,  Centro  ,  Belo Horizonte  ,  MG  </td></tr>
     </table>
     <table class="table-striped" style="width:100%">
-      <tr><td>Café Torrado 500g</td><td>2</td><td>UN: UN</td><td>37,98</td></tr>
+      <tr><td>Caf\u00e9 Torrado 500g</td><td>2</td><td>UN: UN</td><td>37,98</td></tr>
     </table>
     <table class="table-hover" style="width:100%">
-      <tr><td>Modelo</td><td>Número</td><td>Série</td><td>Emissão</td></tr>
+      <tr><td>Modelo</td><td>N\u00famero</td><td>S\u00e9rie</td><td>Emiss\u00e3o</td></tr>
       <tr><td>65</td><td>987654</td><td>2</td><td>20/06/2026</td></tr>
     </table>
     <table class="table-hover" style="width:100%">
       <tr><td>3120 0622 2222 3330 0014 4555 5555 5555 5555 5555 6666</td></tr>
     </table>
     <div><strong>Valor total R$ 102,87</strong></div>
-    </body></html>"""
+    </body></html>""").encode("utf-8")
     nota = MgParser().parse_nfce(html)
     assert nota.empresa == "Supermercado Mineiro S.A."
     assert nota.chave == "31200622222233300014455555555555555555556666"

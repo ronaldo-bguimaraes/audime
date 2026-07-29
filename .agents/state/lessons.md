@@ -2,6 +2,25 @@
 
 <!-- Accumulated across cycles. Every failure becomes a lesson here. -->
 
+## Cycle 10 — Sprint All 11 Issues (Fase 1-3)
+
+### What worked
+- **Phased approach (P0 → P1 → P2)** kept the sprint manageable: bugs first, enhancements second, features third
+- **Real HTML fixtures** resolved 10 xfails in one shot — simplified fixtures were the root cause of false negatives
+- **Force-reset endpoint** is a simple but effective escape hatch for stuck extractions without manual DB intervention
+- **Recharts** proved to be a good choice for React charting — lightweight, declarative, works well with TypeScript
+
+### What we learned
+- **SQLite test state pollution**: Running `pytest` multiple times without cleaning `test.db` causes cascading failures. Always clean the database between test runs for accurate metrics. [EXECUTION]
+- **Parser edge cases**: Empty HTML, malformed HTML, missing item tables — each reveals a different parsing vulnerability. Edge case tests are essential for parser robustness. [EXECUTION]
+- **Playwright without backend**: 7/8 Playwright failures are `ECONNREFUSED` because the backend isn't running. Frontend-only tests need proper mocking or a running backend. [CONSTRAINT]
+- **Semantic debate: 0 vs None**: When a data element doesn't exist (no item table), should the parser return `0` (assume zero) or `None` (unknown)? This is a design decision that should be explicit in the spec. [DESIGN]
+- **81 tests from 54**: Adding 27 new tests (+50%) without breaking any existing ones is feasible when tests are well-isolated and follow the same patterns. [PROCESS]
+
+### What didn't work
+- **Attempting 11 issues in one sprint**: 2 of 11 issues (#3 Google OAuth, #5 Fluxo Extração) were not started. The scope was too large for a single sprint cycle.
+- **Playwright CI dependency**: Without a running backend, most Playwright tests fail. Need to either mock API calls or provide docker-compose for CI.
+
 ## Cycle 9 — Leitura de QR Code via câmera na tela de Nova Extração (#20)
 
 ### What worked

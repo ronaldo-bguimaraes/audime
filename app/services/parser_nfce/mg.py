@@ -45,7 +45,7 @@ class MgParser(BaseParser):
             emissao=emissao,
             items=items,
             valor_total=valor_total or 0,
-            qtd_total_itens=qtd_total_itens or 0,
+            qtd_total_itens=qtd_total_itens,
             extra={
                 "emitente": {"cnpj": cnpj, **endereco},
                 "protocolo_autorizacao": None,
