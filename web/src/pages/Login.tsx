@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, type FormEvent } from "react";
 import { useNavigate } from "react-router";
+import { Zap } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { FetchError } from "../api/client";
 import styles from "./Login.module.css";
@@ -117,9 +118,7 @@ export function Login() {
       <div className={styles.card}>
         <div className={styles.logoArea}>
           <div className={styles.logoIcon}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor" />
-            </svg>
+            <Zap size={24} />
           </div>
           <h1 className={styles.title}>audime</h1>
           <p className={styles.subtitle}>

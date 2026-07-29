@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, type FormEvent } from "react";
 import { useNavigate } from "react-router";
+import { ScanLine } from "lucide-react";
 import { criarExtracao, listarExtracoes, reprocessarExtracao, type ExtracaoResult, type PipelineStep } from "../api/extracoes";
 import { FetchError } from "../api/client";
 import { QrCodeScanner } from "../components/QrCodeScanner";
@@ -160,7 +161,7 @@ export function Extrair() {
               aria-label="Escanear QR Code"
               disabled={loading}
             >
-              📷
+              <ScanLine size={20} />
             </button>
           </div>
           <button
