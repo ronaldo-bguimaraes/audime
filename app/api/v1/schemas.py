@@ -82,6 +82,16 @@ class ReprocessarExtracaoResponse(BaseModel):
     job_id: str | None = None
 
 
+class ForceResetRequest(BaseModel):
+    mensagem: str = "Forçado manualmente"
+
+
+class ForceResetResponse(BaseModel):
+    id_extracao: int
+    status: str
+    mensagem: str
+
+
 class BackfillResponse(BaseModel):
     enqueued: int
     total: int

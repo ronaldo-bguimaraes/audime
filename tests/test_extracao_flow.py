@@ -90,3 +90,175 @@ def test_list_extracao_limit(client, auth_header, db_session):
 def test_list_extracao_unauthorized(client):
     r = client.get("/v1/extracoes")
     assert r.status_code in (401, 403)
+
+
+# ── Force-reset endpoint (Issue #12: Stuck PENDING recovery) ────────
+
+
+def test_force_reset_pending_to_error(client, auth_header, db_session):
+    """Force-reset transitions PENDING -> ERROR with a message."""
+    headers, uid = auth_header()
+    _ensure_usuario(db_session, uid)
+    now = datetime.now(timezone.utc)
+    e = Extracao(
+        id_extracao=100,
+        id_usuario=uid,
+        status=ExtracaoStatus.PENDING,
+        created_at=now,
+    )
+    db_session.add(e)
+    db_session.commit()
+
+    r = client.post(
+        "/v1/extracoes/100/force-reset",
+        json={"mensagem": "Worker timeout - stuck pending"},
+        headers=headers,
+    )
+    assert r.status_code == 200
+    data = r.json()
+    assert data["status"] == "ERROR"
+    assert "mensagem" in data
+
+
+def test_force_reset_not_found(client, auth_header):
+    """Force-reset returns 404 for non-existent extraction."""
+    headers, _ = auth_header()
+    r = client.post(
+        "/v1/extracoes/99999/force-reset",
+        json={"mensagem": "test"},
+        headers=headers,
+    )
+    assert r.status_code == 404
+
+
+def test_force_reset_wrong_user(client, auth_header, db_session):
+    """Force-reset returns 404 for another user's extraction."""
+    headers1, uid1 = auth_header(email="user1@test.com")
+    headers2, uid2 = auth_header(email="user2@test.com")
+    _ensure_usuario(db_session, uid1)
+    _ensure_usuario(db_session, uid2)
+    now = datetime.now(timezone.utc)
+    e = Extracao(
+        id_extracao=101,
+        id_usuario=uid1,
+        status=ExtracaoStatus.PENDING,
+        created_at=now,
+    )
+    db_session.add(e)
+    db_session.commit()
+
+    r = client.post(
+        "/v1/extracoes/101/force-reset",
+        json={"mensagem": "test"},
+        headers=headers2,
+    )
+    assert r.status_code == 404
+
+
+def test_force_reset_done_not_allowed(client, auth_header, db_session):
+    """Force-reset returns 409 for DONE extraction (not stuck)."""
+    headers, uid = auth_header()
+    _ensure_usuario(db_session, uid)
+    now = datetime.now(timezone.utc)
+    e = Extracao(
+        id_extracao=102,
+        id_usuario=uid,
+        status=ExtracaoStatus.DONE,
+        created_at=now,
+    )
+    db_session.add(e)
+    db_session.commit()
+
+    r = client.post(
+        "/v1/extracoes/102/force-reset",
+        json={"mensagem": "test"},
+        headers=headers,
+    )
+    assert r.status_code == 409
+
+
+def test_force_reset_running_not_allowed(client, auth_header, db_session):
+    """Force-reset returns 409 for RUNNING extraction (still active)."""
+    headers, uid = auth_header()
+    _ensure_usuario(db_session, uid)
+    now = datetime.now(timezone.utc)
+    e = Extracao(
+        id_extracao=103,
+        id_usuario=uid,
+        status=ExtracaoStatus.RUNNING,
+        created_at=now,
+    )
+    db_session.add(e)
+    db_session.commit()
+
+    r = client.post(
+        "/v1/extracoes/103/force-reset",
+        json={"mensagem": "test"},
+        headers=headers,
+    )
+    assert r.status_code == 409
+
+
+def test_force_reset_error_not_allowed(client, auth_header, db_session):
+    """Force-reset returns 409 for ERROR extraction (already terminated)."""
+    headers, uid = auth_header()
+    _ensure_usuario(db_session, uid)
+    now = datetime.now(timezone.utc)
+    e = Extracao(
+        id_extracao=104,
+        id_usuario=uid,
+        status=ExtracaoStatus.ERROR,
+        created_at=now,
+    )
+    db_session.add(e)
+    db_session.commit()
+
+    r = client.post(
+        "/v1/extracoes/104/force-reset",
+        json={"mensagem": "test"},
+        headers=headers,
+    )
+    assert r.status_code == 409
+
+
+def test_force_reset_preserves_imports(client, auth_header, db_session):
+    """Force-reset preserves existing import data (does not delete history)."""
+    from abstract.models.raw import Importacao
+
+    headers, uid = auth_header()
+    _ensure_usuario(db_session, uid)
+    now = datetime.now(timezone.utc)
+    e = Extracao(
+        id_extracao=105,
+        id_usuario=uid,
+        status=ExtracaoStatus.PENDING,
+        created_at=now,
+    )
+    db_session.add(e)
+    db_session.commit()
+
+    imp = Importacao(
+        id_importacao=105,
+        storage_bucket="test",
+        storage_key="test/105",
+        storage_filename="file105.html",
+        sha256="0" * 64,
+        imported_at=now,
+        id_extracao=105,
+        id_usuario=uid,
+    )
+    db_session.add(imp)
+    db_session.commit()
+
+    r = client.post(
+        "/v1/extracoes/105/force-reset",
+        json={"mensagem": "test"},
+        headers=headers,
+    )
+    assert r.status_code == 200
+
+    # Import should still exist
+    imp_count = db_session.query(Importacao).filter(
+        Importacao.id_extracao == 105
+    ).count()
+    assert imp_count == 1

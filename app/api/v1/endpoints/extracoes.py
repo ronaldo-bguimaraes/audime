@@ -10,6 +10,8 @@ from app.api.v1.schemas import (
     ExtracaoRequest,
     ExtracaoResponse,
     ExtracaoStatusResponse,
+    ForceResetRequest,
+    ForceResetResponse,
     ParsingAttemptItem,
     ParsingAttemptResponse,
     PipelineStepResponse,
@@ -306,6 +308,52 @@ async def reprocessar_extracao(
         id_extracao=id_extracao,
         status=ExtracaoStatus.PENDING.value,
         job_id=job.job_id if job else None,
+    )
+
+
+@router.post(
+    "/{id_extracao}/force-reset",
+    response_model=ForceResetResponse,
+    status_code=status.HTTP_200_OK,
+)
+def force_reset_extracao(
+    id_extracao: int,
+    body: ForceResetRequest,
+    db: Session = Depends(get_db),
+    id_usuario: int = Depends(get_current_user_id),
+) -> ForceResetResponse:
+    """Force-reset a stuck PENDING extraction to ERROR.
+
+    Only PENDING extractions can be force-reset. DONE, RUNNING, and ERROR
+    extractions are not considered stuck and return 409.
+    """
+    extracao = db.get(Extracao, id_extracao)
+    if extracao is None or extracao.id_usuario != id_usuario:
+        raise HTTPException(status_code=404, detail="Extração não encontrada")
+
+    if extracao.status == ExtracaoStatus.DONE:
+        raise HTTPException(
+            status_code=409,
+            detail="Extração já concluída. Use reprocessar para reprocessar.",
+        )
+    if extracao.status == ExtracaoStatus.RUNNING:
+        raise HTTPException(
+            status_code=409,
+            detail="Extração em execução. Aguarde concluir.",
+        )
+    if extracao.status == ExtracaoStatus.ERROR:
+        raise HTTPException(
+            status_code=409,
+            detail="Extração já está em erro. Use reprocessar para tentar novamente.",
+        )
+
+    extracao.status = ExtracaoStatus.ERROR
+    db.commit()
+
+    return ForceResetResponse(
+        id_extracao=id_extracao,
+        status=ExtracaoStatus.ERROR.value,
+        mensagem=body.mensagem,
     )
 
 
