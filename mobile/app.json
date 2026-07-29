@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "HelloWorld",
-    "slug": "expo-template-blank-typescript",
+    "name": "Audime",
+    "slug": "audime-mobile",
+    "scheme": "audime",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

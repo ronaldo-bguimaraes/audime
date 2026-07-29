@@ -10,41 +10,56 @@ export class FetchError extends Error {
   }
 }
 
-function getToken(): string | null {
-  if (typeof localStorage !== "undefined") {
-    return localStorage.getItem("audime_token");
-  }
-  return null;
-}
-
 export type ApiClient = {
   get: <T>(path: string) => Promise<T>;
   post: <T>(path: string, body?: unknown) => Promise<T>;
   patch: <T>(path: string, body?: unknown) => Promise<T>;
 };
 
-export function createApiClient(baseUrl: string): ApiClient {
+export type ApiClientOptions = {
+  getToken?: () => string | null;
+  onUnauthorized?: () => void;
+};
+
+function defaultGetToken(): string | null {
+  if (typeof localStorage !== "undefined") {
+    return localStorage.getItem("audime_token");
+  }
+  return null;
+}
+
+function defaultOnUnauthorized(): void {
+  if (typeof localStorage !== "undefined") {
+    localStorage.removeItem("audime_token");
+    localStorage.removeItem("audime_user_id");
+  }
+}
+
+export function createApiClient(
+  baseUrl: string,
+  options?: ApiClientOptions,
+): ApiClient {
+  const getToken = options?.getToken ?? defaultGetToken;
+  const onUnauthorized = options?.onUnauthorized ?? defaultOnUnauthorized;
+
   async function request<T>(
     path: string,
-    options: RequestInit = {},
+    reqOptions: RequestInit = {},
   ): Promise<T> {
     const token = getToken();
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
-      ...(options.headers as Record<string, string>),
+      ...(reqOptions.headers as Record<string, string>),
     };
 
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
 
-    const res = await fetch(`${baseUrl}${path}`, { ...options, headers });
+    const res = await fetch(`${baseUrl}${path}`, { ...reqOptions, headers });
 
     if (res.status === 401) {
-      if (typeof localStorage !== "undefined") {
-        localStorage.removeItem("audime_token");
-        localStorage.removeItem("audime_user_id");
-      }
+      onUnauthorized();
       throw new FetchError("Não autenticado", 401);
     }
 

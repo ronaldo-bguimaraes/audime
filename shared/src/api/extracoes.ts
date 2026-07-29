@@ -33,6 +33,9 @@ export function createExtracoesApi(api: ApiClient) {
     listar: (limit = 10): Promise<ExtracaoResult[]> =>
       api.get<ExtracaoResult[]>(`/v1/extracoes?limit=${limit}`),
 
+    obter: (id: number): Promise<ExtracaoResult> =>
+      api.get<ExtracaoResult>(`/v1/extracoes/${id}`),
+
     reprocessar: (id: number, url?: string): Promise<CriarExtracaoResult> =>
       api.post(`/v1/extracoes/${id}/reprocessar`, url ? { url } : undefined),
   };
