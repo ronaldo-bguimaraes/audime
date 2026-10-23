@@ -1,16 +1,7 @@
+import { FetchError } from "shared";
+export { FetchError };
+
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
-
-export class FetchError extends Error {
-  status: number;
-  body: unknown;
-
-  constructor(message: string, status: number, body?: unknown) {
-    super(message);
-    this.name = "FetchError";
-    this.status = status;
-    this.body = body;
-  }
-}
 
 function getToken(): string | null {
   return localStorage.getItem("audime_token");
