@@ -3,6 +3,8 @@ import { useNavigate } from "react-router";
 import { Zap } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
 import { FetchError } from "../api/client";
+import { Button } from "../components/ui/Button";
+import { Input } from "../components/ui/Input";
 import styles from "./Login.module.css";
 
 type LoginPhase = "idle" | "sending" | "codeSent" | "verifying" | "error";
@@ -135,29 +137,20 @@ export function Login() {
         {phase !== "codeSent" && phase !== "verifying" ? (
           /* Etapa 1: solicitar email */
           <form onSubmit={handleSendCode} className={styles.form}>
-            <div className={styles.field}>
-              <label htmlFor="login-email" className={styles.label}>
-                Seu e-mail
-              </label>
-              <input
-                id="login-email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="seu@email.com"
-                className={styles.input}
-                autoComplete="email"
-                disabled={loading}
-              />
-            </div>
-            <button
-              type="submit"
-              className={styles.button}
-              disabled={loading || !email}
-            >
+            <Input
+              id="login-email"
+              label="Seu e-mail"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="seu@email.com"
+              autoComplete="email"
+              disabled={loading}
+            />
+            <Button type="submit" disabled={loading || !email}>
               {loading ? "Enviando..." : "Enviar código"}
-            </button>
+            </Button>
           </form>
         ) : (
           /* Etapa 2: verificar código */
@@ -168,30 +161,22 @@ export function Login() {
             <p className={styles.spamHint}>
               Não recebeu? Verifique a caixa de spam.
             </p>
-            <div className={styles.field}>
-              <label htmlFor="login-code" className={styles.label}>
-                Código de verificação
-              </label>
-              <input
-                id="login-code"
-                type="text"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                maxLength={6}
-                value={code}
-                onChange={(e) => handleCodeChange(e.target.value)}
-                placeholder="000000"
-                className={styles.codeInput}
-                disabled={loading}
-              />
-            </div>
-            <button
-              type="submit"
-              className={styles.button}
-              disabled={loading || code.length !== 6}
-            >
+            <Input
+              id="login-code"
+              label="Código de verificação"
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              maxLength={6}
+              value={code}
+              onChange={(e) => handleCodeChange(e.target.value)}
+              placeholder="000000"
+              className={styles.codeInput}
+              disabled={loading}
+            />
+            <Button type="submit" disabled={loading || code.length !== 6}>
               {loading ? "Verificando..." : "Verificar"}
-            </button>
+            </Button>
             <div className={styles.resendArea}>
               {timeLeft > 0 ? (
                 <span className={styles.cooldown}>

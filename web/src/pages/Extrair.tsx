@@ -4,6 +4,8 @@ import { ScanLine, RotateCw } from "lucide-react";
 import { criarExtracao, listarExtracoes, reprocessarExtracao, type ExtracaoResult, type PipelineStep } from "../api/extracoes";
 import { FetchError } from "../api/client";
 import { QrCodeScanner } from "../components/QrCodeScanner";
+import { Button } from "../components/ui/Button";
+import { StatusBadge } from "../components/ui/Badge";
 import styles from "./Extrair.module.css";
 
 const STATUS_ATIVOS = new Set(["PENDING", "RUNNING"]);
@@ -22,16 +24,6 @@ function activeStep(steps: PipelineStep[]): { etapa: string; status: string } | 
   return ativo
     ? { etapa: STEP_LABELS[ativo.etapa] || ativo.etapa, status: ativo.status }
     : { etapa: STEP_LABELS[ordenados[ordenados.length - 1].etapa] || ordenados[ordenados.length - 1].etapa, status: "DONE" };
-}
-
-function StatusBadge({ status }: { status: string }) {
-  const cls = `${styles.badge} ${styles[`badge_${status.toLowerCase()}`] || styles.badge_pending}`;
-  return (
-    <span className={cls}>
-      <span className={styles.badgeDot} />
-      {status}
-    </span>
-  );
 }
 
 export function Extrair() {
@@ -152,13 +144,9 @@ export function Extrair() {
               <ScanLine size={20} />
             </button>
           </div>
-          <button
-            type="submit"
-            className={styles.button}
-            disabled={loading || !url}
-          >
+          <Button type="submit" disabled={loading || !url}>
             {loading ? "Extraindo..." : "Extrair"}
-          </button>
+          </Button>
         </form>
 
         <QrCodeScanner

@@ -1,369 +1,341 @@
 .container {
-  max-width: 600px;
+  max-width: 860px;
   margin: 0 auto;
-  padding: 32px 24px;
-  animation: fadeIn 0.3s var(--ease-out) both;
-}
-
-@media (max-width: 480px) {
-  .container {
-    padding: 20px 12px;
-  }
-
-  .card,
-  .progressCard {
-    padding: 16px;
-  }
+  padding: var(--space-7) var(--space-5) var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  animation: fadeIn var(--duration-normal) var(--ease-out);
 }
 
 .backButton {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: none;
-  border: 1px solid var(--border);
+  gap: var(--space-2);
+  align-self: flex-start;
+  height: 28px;
+  padding: 0 var(--space-2);
+  margin-left: calc(var(--space-2) * -1);
+  border: none;
   border-radius: var(--radius-sm);
-  padding: 6px 14px;
-  cursor: pointer;
-  color: var(--text);
-  font-size: 13px;
-  font-weight: 500;
-  margin-bottom: 20px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
   transition:
-    background var(--duration-fast) var(--ease-out),
-    border-color var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out),
     color var(--duration-fast) var(--ease-out);
 }
 
 .backButton:hover {
   background: var(--bg-hover);
-  border-color: var(--border-strong);
   color: var(--text-h);
 }
 
+/* ── Metadados ── */
 .card {
-  background: var(--bg-elevated);
+  padding: var(--space-5);
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  margin-bottom: 20px;
-  box-shadow: var(--shadow-xs);
+  border-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .title {
-  font-size: 20px;
-  font-weight: 700;
-  margin: 0 0 6px;
-  letter-spacing: -0.01em;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--text-h);
+  letter-spacing: -0.025em;
 }
 
 .subtitle {
+  font-size: var(--text-xs);
   color: var(--text-muted);
-  font-size: 14px;
-  margin: 0 0 16px;
 }
 
 .infoRow {
   display: flex;
-  gap: 8px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 14px;
-}
-
-.infoRow:last-child {
-  border-bottom: none;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
 }
 
 .infoLabel {
-  flex-shrink: 0;
+  flex: none;
+  width: 84px;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-medium);
   color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .infoValue {
-  font-weight: 500;
+  font-size: var(--text-sm);
   color: var(--text-h);
+  font-variant-numeric: tabular-nums;
 }
 
 .urlValue {
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
+  align-items: center;
+  gap: var(--space-2);
   min-width: 0;
-  flex: 1;
 }
 
 .urlLink {
-  color: var(--accent);
-  font-size: 13px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-family: var(--font-mono);
-  text-decoration: none;
-  word-break: break-all;
-  line-height: 1.4;
+  font-size: var(--text-xs);
+  color: var(--accent);
 }
-
-.urlLink:hover {
-  text-decoration: underline;
-}
-
-
 
 .copyButton {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  background: none;
+  gap: var(--space-1);
+  height: 24px;
+  padding: 0 var(--space-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 4px 8px;
-  cursor: pointer;
-  color: var(--text-muted);
-  font-size: 12px;
-  flex-shrink: 0;
-  position: relative;
-  transition:
-    border-color var(--duration-fast) var(--ease-out),
-    color var(--duration-fast) var(--ease-out);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--text-2xs);
+  flex: none;
 }
 
 .copyButton:hover {
-  border-color: var(--border-strong);
-  color: var(--text);
+  background: var(--bg-hover);
+  color: var(--text-h);
 }
 
 .copyFeedback {
-  font-size: 11px;
-  color: var(--success-text);
-  font-weight: 500;
+  color: var(--positive);
 }
 
-/* Progress Card */
+/* ── Progresso ── */
 .progressCard {
-  background: var(--bg-elevated);
+  padding: var(--space-5);
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  box-shadow: var(--shadow-xs);
+  border-radius: var(--radius-xl);
 }
 
 .progressHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 4px;
+  gap: var(--space-3);
 }
 
 .progressTitle {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
   color: var(--text-h);
 }
 
 .progressStatus {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--text-muted);
 }
 
 .progressDesc {
-  font-size: 14px;
-  color: var(--text-muted);
-  margin: 0 0 20px;
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
 }
 
-/* Progress Bar */
 .progressTrack {
   height: 4px;
+  margin-top: var(--space-4);
+  border-radius: var(--radius-full);
   background: var(--bg-subtle);
-  border-radius: 2px;
-  margin-bottom: 6px;
   overflow: hidden;
 }
 
 .progressFill {
   height: 100%;
+  border-radius: var(--radius-full);
   background: var(--accent);
-  border-radius: 2px;
-  transition: width 0.5s var(--ease-out);
+  transition: width var(--duration-normal) var(--ease-out);
 }
 
 .progressLabel {
   display: block;
-  font-size: 12px;
+  margin-top: var(--space-2);
+  font-size: var(--text-2xs);
   color: var(--text-muted);
-  font-family: var(--font-mono);
-  margin-bottom: 24px;
+  font-variant-numeric: tabular-nums;
 }
 
-/* Steps */
+/* ── Timeline ── */
 .steps {
   display: flex;
   flex-direction: column;
+  margin-top: var(--space-5);
+  border-top: 1px solid var(--border);
 }
 
 .step {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 8px 0;
-  min-height: 32px;
-  border-radius: var(--radius-sm);
-  transition: background var(--duration-fast) var(--ease-out);
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border);
 }
 
-.step.running {
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--accent-light) 50%,
-    transparent
-  );
-  background-size: 200% 100%;
-  animation: shimmer 2s ease-in-out infinite;
-  margin: 0 -12px;
-  padding: 8px 12px;
-}
-
-.step.waiting {
-  opacity: 0.5;
-}
-
-.step.errored {
-  background: var(--error-bg);
-  margin: 0 -12px;
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
+.step:last-child {
+  border-bottom: none;
 }
 
 .stepIcon {
-  width: 20px;
-  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  flex: none;
   margin-top: 1px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
 }
 
 .stepBody {
-  flex: 1;
   min-width: 0;
+  flex: 1;
 }
 
 .stepRow {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .stepName {
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--text-h);
-  font-weight: 500;
-}
-
-.step.running .stepName {
-  color: var(--accent);
-  font-weight: 600;
 }
 
 .stepTime {
-  font-size: 12px;
-  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
   color: var(--text-muted);
-  white-space: nowrap;
-  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
 }
 
 .stepMessage {
-  font-size: 12px;
-  color: var(--error-text);
-  margin: 4px 0 0;
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  line-height: 1.45;
+  word-break: break-word;
 }
 
-/* Icons */
+.waiting .stepName {
+  color: var(--text-muted);
+}
+
+.running .stepIcon {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.errored .stepIcon {
+  background: var(--negative-light);
+  color: var(--negative);
+}
+
+.errored .stepMessage {
+  color: var(--error-text);
+}
+
 .iconDone {
-  color: var(--success-text);
+  color: var(--positive);
 }
 
 .iconError {
-  color: var(--error-text);
+  color: var(--negative);
 }
 
 .iconWaiting {
   color: var(--text-muted);
-  opacity: 0.3;
 }
 
 .spinIcon {
-  animation: spinIcon 0.7s linear infinite;
+  color: var(--accent);
+  animation: spin 1s linear infinite;
 }
 
-@keyframes spinIcon {
-  to { transform: rotate(360deg); }
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-/* Empty state */
-.empty {
-  color: var(--text-muted);
-  font-size: 14px;
-  text-align: center;
-  padding: 24px 0;
-}
-
-/* Collapsible log */
+/* ── Log (progressive disclosure) ── */
 .log {
-  margin-top: 20px;
+  margin-top: var(--space-4);
   border-top: 1px solid var(--border);
-  padding-top: 12px;
+  padding-top: var(--space-3);
 }
 
 .logSummary {
-  list-style: none;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
   cursor: pointer;
-  font-size: 13px;
-  color: var(--text-muted);
-  user-select: none;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  list-style: none;
 }
 
-.logSummary::-webkit-details-marker {
-  display: none;
-}
-
-.logSummary svg {
-  transition: transform var(--duration-fast) var(--ease-out);
-}
-
-.log[open] .logSummary svg {
-  transform: rotate(180deg);
+.logSummary:hover {
+  color: var(--text-h);
 }
 
 .logEntries {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  margin-top: 8px;
+  gap: var(--space-1);
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  background: var(--bg-subtle);
+  border-radius: var(--radius-sm);
   font-family: var(--font-mono);
-  font-size: 12px;
 }
 
 .logEntry {
   display: flex;
-  gap: 12px;
-  color: var(--text-muted);
+  gap: var(--space-3);
+  font-size: var(--text-2xs);
+  line-height: 1.5;
 }
 
 .logTime {
-  opacity: 0.5;
+  flex: none;
+  width: 68px;
+  color: var(--text-muted);
+}
+
+.logText {
+  color: var(--text-secondary);
+  word-break: break-word;
+}
+
+.empty {
+  margin-top: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: var(--space-5) var(--space-4) var(--space-7);
+  }
+
+  .infoLabel {
+    width: 68px;
+  }
+
+  .logText {
+    font-size: var(--text-2xs);
+  }
 }

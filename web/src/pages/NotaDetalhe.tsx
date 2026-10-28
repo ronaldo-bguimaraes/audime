@@ -7,6 +7,7 @@ import { FetchError } from "../api/client";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { formatBRL, formatDate } from "../utils/format";
+import { Button } from "../components/ui/Button";
 import type { DashboardNota, VersaoNota } from "../types";
 import styles from "./NotaDetalhe.module.css";
 
@@ -91,14 +92,14 @@ export function NotaDetalhe() {
           )}
         </div>
         <div className={styles.actions}>
-          <button
-            type="button"
-            className={styles.desativarBtn}
+          <Button
+            variant="danger"
+            size="sm"
             onClick={handleDesativar}
             disabled={toggling}
           >
             {toggling ? "Aguarde..." : "Desativar Nota"}
-          </button>
+          </Button>
           {toggleMsg && (
             <span className={toggleMsg.includes("sucesso") ? styles.successMsg : styles.errorMsg}>
               {toggleMsg}

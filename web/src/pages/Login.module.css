@@ -3,175 +3,90 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  padding: 16px;
-  background:
-    radial-gradient(ellipse at 20% 50%, rgba(5, 150, 105, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(52, 211, 153, 0.05) 0%, transparent 50%),
-    var(--bg);
-}
-
-@media (prefers-color-scheme: dark) {
-  .container {
-    background:
-      radial-gradient(ellipse at 20% 50%, rgba(52, 211, 153, 0.08) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 20%, rgba(5, 150, 105, 0.05) 0%, transparent 50%),
-      var(--bg);
-  }
+  padding: var(--space-6) var(--space-4);
 }
 
 .card {
   width: 100%;
-  max-width: 400px;
-  padding: 40px 32px 32px;
+  max-width: 380px;
+  padding: var(--space-7) var(--space-6) var(--space-6);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
-  background: var(--bg-elevated);
-  box-shadow: var(--shadow-lg);
-  animation: fadeInUp 0.4s var(--ease-out) both;
+  box-shadow: var(--elevation-1);
+  animation: fadeInUp var(--duration-normal) var(--ease-out);
 }
 
 .logoArea {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin-bottom: 32px;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
 }
 
 .logoIcon {
-  width: 48px;
-  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-bottom: var(--space-1);
+  border-radius: var(--radius-md);
   background: var(--accent-light);
-  border-radius: var(--radius-lg);
   color: var(--accent);
-  margin-bottom: 16px;
 }
 
 .title {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
   color: var(--text-h);
-  text-align: center;
-  margin: 0 0 4px;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 
 .subtitle {
-  font-size: 14px;
-  color: var(--text-muted);
-  text-align: center;
-  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-4);
 }
 
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.label {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-.input {
-  padding: 10px 14px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  font-size: 15px;
-  color: var(--text-h);
-  background: var(--bg);
-  outline: none;
-  transition:
-    border-color var(--duration-fast) var(--ease-out),
-    box-shadow var(--duration-fast) var(--ease-out);
-}
-
-.input::placeholder {
-  color: var(--text-muted);
-}
-
-.input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-light);
-}
-
+/* Inputs e botões vêm das primitivas (components/ui). */
 .codeInput {
-  composes: input;
-  text-align: center;
-  font-size: 28px;
-  letter-spacing: 12px;
   font-family: var(--font-mono);
-  padding: 12px 14px;
-  font-weight: 600;
-}
-
-.button {
-  padding: 11px 16px;
-  border: none;
-  border-radius: var(--radius-md);
-  background: var(--accent);
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    background var(--duration-fast) var(--ease-out),
-    box-shadow var(--duration-fast) var(--ease-out),
-    transform var(--duration-fast) var(--ease-out);
-  margin-top: 4px;
-}
-
-.button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.button:hover:not(:disabled) {
-  background: var(--accent-hover);
-  box-shadow: var(--shadow-accent);
-}
-
-.button:active:not(:disabled) {
-  transform: scale(0.98);
+  font-size: var(--text-lg);
+  letter-spacing: 0.4em;
+  text-align: center;
+  padding-left: calc(var(--space-3) + 0.4em);
 }
 
 .error {
-  padding: 10px 14px;
-  border-radius: var(--radius-md);
-  background: var(--error-bg);
+  margin-bottom: var(--space-4);
+  padding: var(--space-3);
   border: 1px solid var(--error-border);
+  border-radius: var(--radius-sm);
+  background: var(--error-bg);
   color: var(--error-text);
-  font-size: 13px;
-  font-weight: 500;
-  text-align: center;
+  font-size: var(--text-sm);
 }
 
 .codeSentMsg {
-  font-size: 14px;
-  color: var(--text);
-  text-align: center;
-  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
 }
 
 .codeSentMsg strong {
   color: var(--text-h);
+  font-weight: var(--weight-medium);
 }
 
 .spamHint {
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--text-muted);
-  text-align: center;
-  margin: -8px 0 0;
 }
 
 .resendArea {
@@ -179,52 +94,36 @@
   justify-content: center;
 }
 
-.cooldown {
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
 .resendBtn {
-  background: none;
   border: none;
+  background: none;
+  padding: 0;
+  font-size: var(--text-sm);
   color: var(--accent);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
 }
 
 .resendBtn:hover {
   color: var(--accent-hover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
-.resendBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.cooldown {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
 }
 
 .changeEmailBtn {
+  border: none;
   background: none;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  color: var(--text);
-  font-size: 13px;
-  font-weight: 500;
-  padding: 9px 16px;
-  cursor: pointer;
-  transition:
-    border-color var(--duration-fast) var(--ease-out),
-    color var(--duration-fast) var(--ease-out);
-  margin-top: 4px;
+  padding: 0;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  align-self: center;
 }
 
-.changeEmailBtn:hover:not(:disabled) {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.changeEmailBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.changeEmailBtn:hover {
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }

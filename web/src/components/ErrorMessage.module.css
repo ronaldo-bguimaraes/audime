@@ -1,53 +1,48 @@
 .container {
-  padding: 20px;
-  margin: 16px 0;
-  border-radius: var(--radius-lg);
-  background: var(--error-bg);
-  border: 1px solid var(--error-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  max-width: 420px;
+  margin: var(--space-8) auto;
+  padding: var(--space-6) var(--space-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
   text-align: center;
-  animation: fadeInUp 0.3s var(--ease-out) both;
 }
 
 .icon {
-  width: 40px;
-  height: 40px;
-  margin: 0 auto 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--error-border);
-  border-radius: 50%;
-  color: var(--error-text);
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: var(--negative-light);
+  color: var(--negative);
 }
 
 .message {
-  color: var(--error-text);
-  font-size: 14px;
-  font-weight: 500;
-  margin: 0 0 16px;
+  font-size: var(--text-sm);
+  color: var(--text-h);
+  line-height: 1.45;
 }
 
 .retry {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 18px;
-  border: 1px solid var(--error-border);
+  height: 32px;
+  padding: 0 var(--space-4);
+  margin-top: var(--space-1);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
-  background: var(--bg-elevated);
-  color: var(--error-text);
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
-  transition:
-    background var(--duration-fast) var(--ease-out),
-    transform var(--duration-fast) var(--ease-out);
+  background: var(--surface);
+  color: var(--text-h);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  transition: background-color var(--duration-fast) var(--ease-out);
 }
 
 .retry:hover {
-  background: var(--error-bg);
-}
-
-.retry:active {
-  transform: scale(0.98);
+  background: var(--bg-subtle);
 }

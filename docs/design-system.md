@@ -1,259 +1,109 @@
 # Design System — Audime
 
-> Fonte da verdade para estilo visual, cores, tipografia, componentes e decisões de design.
+> Fonte da verdade do visual. Implementação: `web/src/index.css` (tokens) e
+> `web/src/components/ui/` (primitivas). Nenhum `.module.css` declara cor literal.
 
----
+## Princípio
 
-## 1. Propósito
+**"Calm financial intelligence"** — confiável, preciso, analítico, premium.
+Hierarquia antes de decoração: o número que importa domina, o resto apoia.
+Inspiração de direção (não de cópia): Linear, Stripe, Revolut, Monzo.
 
-Audime é um app de gestão financeira pessoal com foco em **economia e positividade**. O design deve passar sensação de:
-- **Confiança** — dados financeiros precisam soar sólidos
-- **Leveza** — finanças pessoais não devem ser intimidadoras
-- **Progresso** — cada interação reforça "você está no controle"
+Regras que valem mais que estética:
 
----
+- Borda + superfície comunicam elevação; sombra é reforço, nunca protagonista.
+- Verde e vermelho só significam **movimento financeiro** (entrou/ficou abaixo vs
+  saiu/ficou acima). Nunca são cores decorativas.
+- Um único acento. O resto é neutro.
+- Nada de gradiente, glassmorphism, card flutuante ou sombra pesada.
 
-## 2. Paleta de Cores
-
-### 2.1 Brand (Verde Esmeralda)
-
-| Token | Light | Dark | Uso |
-|-------|-------|------|-----|
-| `--accent` | `#059669` | `#34d399` | Botões primários, links, indicadores ativos |
-| `--accent-hover` | `#047857` | `#6ee7b7` | Hover de elementos accent |
-| `--accent-light` | `rgba(5, 150, 105, 0.1)` | `rgba(52, 211, 153, 0.12)` | Backgrounds sutis, badges positivos |
-| `--accent-border` | `rgba(5, 150, 105, 0.3)` | `rgba(52, 211, 153, 0.3)` | Bordas de foco, outlines |
-
-**Por que verde?** Associação universal com crescimento, dinheiro, saúde financeira. Tom esmeralda (não verde limão) passa maturidade.
-
-### 2.2 Highlight (Âmbar)
+## Cores
 
 | Token | Light | Dark | Uso |
-|-------|-------|------|-----|
-| `--highlight` | `#f59e0b` | `#fbbf24` | Selos de economia, alerts positivos, ícones de meta |
-| `--highlight-light` | `#fef3c7` | `#422006` | Background de badges de meta/destaque |
+|---|---|---|---|
+| `--bg` | `#faf9f7` (off-white quente) | `#0c0e10` | Fundo da aplicação |
+| `--surface` | `#ffffff` | `#14181b` | Cards, tabelas, inputs |
+| `--bg-subtle` | `#f3f1ed` | `#1a1f23` | Header de tabela, hover, skeleton |
+| `--border` | `#e6e2dc` | `#242a2f` | Divisórias e contornos |
+| `--border-strong` | `#d5d0c8` | `#303840` | Contorno de input, botão secundário |
+| `--text-h` | `#14161a` | `#f3f5f6` | Títulos e valores |
+| `--text` | `#4b4f55` | `#a7aeb5` | Corpo |
+| `--text-secondary` | `#5f646b` | `#9aa2aa` | Labels, apoio |
+| `--text-muted` | `#6b7076` | `#7c858d` | Metadados |
+| `--accent` | `#0a7b5e` | `#34d399` | Ação primária, link, série ativa |
+| `--positive` | `#0a7b5e` | `#34d399` | Gasto abaixo do período anterior |
+| `--negative` | `#b42318` | `#f97066` | Gasto acima / erro |
+| `--warning` | `#a15c00` | `#f5b544` | Aviso (nunca verde/vermelho) |
 
-**Por que âmbar?** Acentua sem competir com o verde. Usado para "atenção positiva" — você está no caminho certo.
+Contraste mínimo: **4,5:1** texto/fundo e **3:1** UI. Verificação:
+`node web/scripts/check-contrast.mjs` (18 pares, light + dark).
 
-### 2.3 Neutros
+## Tipografia
 
-| Token | Light | Dark | Uso |
-|-------|-------|------|-----|
-| `--bg` | `#f8fafc` | `#0f172a` | Fundo geral (slate muito suave) |
-| `--bg-elevated` | `#ffffff` | `#1e293b` | Cards, modais, superfícies elevadas |
-| `--bg-subtle` | `#f1f5f9` | `#1e293b` | Hover de linhas, inputs |
-| `--border` | `#e2e8f0` | `#334155` | Bordas padrão |
-| `--border-strong` | `#cbd5e1` | `#475569` | Bordas de destaque |
+Inter (400/500/600), escala de 6 níveis + micro:
 
-**Por que slate (cinza azulado) em vez de gray/cool-gray?** O tom azulado sutíl reforça a sensação de confiança e profissionalismo (bancos usam neutros azulados). Evita o amarelado de "paper envelhecido".
+| Token | px | Uso |
+|---|---|---|
+| `--text-2xl` | 40 | Métrica hero (total do período) |
+| `--text-xl` | 28 | Título de tela |
+| `--text-lg` | 20 | Valor secundário, título de card |
+| `--text-md` | 16 | Subtítulo |
+| `--text-base` | 14 | Corpo, tabela, valor de linha |
+| `--text-sm` | 13 | Apoio, botão, link |
+| `--text-xs` | 12 | Label, metadado |
+| `--text-2xs` | 11 | Badge, header de tabela |
 
-### 2.4 Texto
+Números são **sempre tabulares** (`font-variant-numeric: tabular-nums`, aplicado
+globalmente) e alinhados à direita em tabelas. Títulos com `letter-spacing`
+negativo; nunca justificar texto.
 
-| Token | Light | Dark | Uso |
-|-------|-------|------|-----|
-| `--text` | `#475569` | `#94a3b8` | Corpo de texto |
-| `--text-h` | `#0f172a` | `#f1f5f9` | Títulos, valores em destaque |
-| `--text-muted` | `#94a3b8` | `#64748b` | Labels, hints, metadados |
+## Espaço, raio, elevação
 
-### 2.5 Semântica
+- Espaço: `--space-1..8` (4, 8, 12, 16, 20, 24, 32, 48).
+- Raio: `--radius-sm 8` · `--radius-md 10` · `--radius-lg 12` · `--radius-xl 14`.
+  Card usa 14; input/botão 10; badge 8.
+- Elevação: `--elevation-1` (1px) e `--elevation-2`. Cards usam **borda**, não sombra.
+- Movimento: 120ms (micro) e 180ms (transição), com `prefers-reduced-motion`.
 
-| Token | Light | Dark | Uso |
-|-------|-------|------|-----|
-| `--success` (+ bg/border) | verde (`#16a34a`) | verde escuro | Operações concluídas |
-| `--error` (+ bg/border) | vermelho (`#dc2626`) | vermelho escuro | Erros, falhas |
-| `--warning` (+ bg/border) | âmbar (`#d97706`) | âmbar escuro | Alertas |
-| `--info` (+ bg/border) | azul (`#2563eb`) | azul escuro | Informações neutras |
+## Primitivas (`web/src/components/ui/`)
 
----
+| Componente | Variantes |
+|---|---|
+| `Button` | `primary`, `secondary`, `ghost`, `danger` · `sm`, `md` |
+| `Input` | label + hint/erro, `aria-invalid`, `aria-describedby` |
+| `Card` / `CardHeader` | com/sem padding, header com ações |
+| `Badge` / `StatusBadge` | `neutral`, `positive`, `negative`, `warning`, `progress` |
+| `Skeleton` | placeholder com pulse discreto |
+| `EmptyState` | ícone + título + descrição + ação |
+| `Stat` | label/valor/hint, `hero` para a métrica principal |
 
-## 3. Tipografia
+Regra: se um botão/input/badge aparece em duas telas, ele é primitiva — não uma
+classe nova no módulo da página.
 
-### 3.1 Família
+## Hierarquia do dashboard
 
-**Inter** (Google Fonts) — única fonte do sistema.
+1. **Hero**: total do período, 40px, primeiro no fluxo.
+2. **Insight**: uma frase comparando com o mês anterior (cor semântica).
+3. **Secundárias**: 3 métricas em 20px — nunca competem com o hero.
+4. **Apoio**: gráfico de barras mensal (sem eixo Y, sem grid vertical, sem
+   gradiente) + top estabelecimentos com barra relativa.
+5. **Lista**: uma linha por nota, valor à direita, ação "Ver detalhes".
 
-```css
---font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
---font-mono: "SF Mono", ui-monospace, Consolas, monospace;
+## Tabelas e estados
+
+- Linha de tabela: 36–44px, header em `--text-2xs` maiúsculo, hover sutil.
+- Abaixo de 720px a tabela vira lista com `data-label` (sem scroll horizontal).
+- Loading: skeleton com a mesma geometria do conteúdo (sem salto de layout).
+- Vazio: frase + próxima ação, nunca ilustração decorativa.
+- Erro: mensagem + "Tentar novamente" no mesmo padrão visual.
+- Foco: `outline: 2px solid var(--accent)` visível em todo interativo.
+
+## Verificação
+
+```bash
+node web/scripts/check-contrast.mjs                      # contraste WCAG
+grep -rnE "#[0-9a-fA-F]{3,8}" web/src --include="*.module.css"   # deve ser 0
+grep -rn "gradient" web/src                              # deve ser 0
+grep -rn "<svg" web/src                                  # deve ser 0 (lucide)
+docker compose build web                                 # tsc + vite
 ```
-
-**Por que Inter?** Designed para telas, ótima legibilidade em pesos leves, suporte a `font-feature-settings` para números tabulares (essencial para valores financeiros).
-
-### 3.2 Escala
-
-| Nível | Tamanho | Peso | Uso |
-|-------|---------|------|-----|
-| Hero | `28px` | `700` | Saldo principal, totais grandes |
-| Título página | `22px` | `600` | Cabeçalhos de página |
-| Título card | `16px` | `600` | Títulos dentro de cards |
-| Corpo | `14px` | `400` | Texto geral |
-| Label | `12px` | `500` | Rótulos de campo, badges |
-| Valor | `14px` | `700` | Valores monetários em lista |
-| Valor grande | `22px` | `700` | Valores em cards de resumo |
-| Moeda | `12px` | `500` | Prefixo "R$" antes de valores |
-
-### 3.3 Números
-
-Sempre usar `font-feature-settings: "tnum"` para números tabulares (mesma largura) em valores financeiros:
-
-```css
-font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
-```
-
-Isso impede que números "pulem" visualmente ao mudar de `1.234,00` para `8.765,43`.
-
-### 3.4 Formatação monetária
-
-- Sempre `Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" })` ou `formatBRL()`
-- Prefixo `R$` junto do valor, sem espaço extra
-- Centavos sempre visíveis (ex: `R$ 42,00`, não `R$ 42`)
-
----
-
-## 4. Espaçamento e Layout
-
-### 4.1 Grid
-
-- Layout usa padding lateral de `24px` (desktop) → `16px` (mobile)
-- Gaps padrão: `8px` (interno), `12px` (entre cards), `20px` (entre seções)
-- Breakpoint mobile: `700px`
-
-### 4.2 Cards
-
-- Border radius: `12px` (`--radius-lg`)
-- Sombra: `--shadow-sm` (light) / `--shadow-md` (dark)
-- Padding interno: `16px`
-- Hover: `translateY(-1px)` + sombra mais alta (transição `200ms ease-out`)
-
-### 4.3 Botões
-
-| Tipo | Padding | BG | Border | Texto |
-|------|---------|----|--------|-------|
-| Primário | `10px 20px` | `--accent` | — | `#fff`, `600` |
-| Outline | `10px 20px` | transparente | `--border` | `--text-h` |
-| Ghost | `8px 12px` | transparente | — | `--text` (hover: `--text-h`) |
-| Danger | `10px 20px` | `--error-bg` | `--error-border` | `--error-text` |
-
-- Radius: `8px` (`--radius-md`)
-- Transição: `all 150ms ease-out`
-- Disabled: opacidade `0.5`, cursor `not-allowed`
-
-### 4.4 Badges
-
-- Padding: `4px 10px`
-- Radius: `6px` (`--radius-sm`)
-- Font: `12px`, `600`
-- Cor varia com contexto (success/accent/highlight)
-
-### 4.5 Inputs
-
-- Padding: `10px 12px`
-- Border: `1px solid --border`
-- Focus: `--accent-border` + `box-shadow: 0 0 0 3px var(--accent-light)`
-- Radius: `8px`
-- Label: `12px 500` acima do input
-
----
-
-## 5. Ícones
-
-- **Livraria:** `lucide-react` (consistente, Feather-style, SVGs puras)
-- Tamanho padrão: `20px` em botões, `16px` em labels, `24px` em navegação
-- Cor: herda `currentColor` do elemento pai
-- Nunca usar ícones soltos sem contexto semântico (sempre acompanhados de texto ou aria-label)
-
-### Ícones comuns
-
-| Contexto | Ícone Lucide |
-|----------|-------------|
-| Extração | `ScanLine`, `FileUp` |
-| Dashboard | `LayoutDashboard` |
-| Nota fiscal | `Receipt`, `FileText` |
-| QR Code | `QrCode` |
-| Login | `LogIn`, `Mail` |
-| Sucesso | `CheckCircle` |
-| Erro | `AlertCircle` |
-| Economia | `TrendingUp`, `PiggyBank` |
-| Valor | `DollarSign` |
-| Data | `Calendar` |
-| Cópia | `Copy` |
-| Abrir link | `ExternalLink` |
-| Menu | `Menu` |
-| Fechar | `X` |
-| Voltar | `ArrowLeft` |
-| Config | `Settings` |
-
----
-
-## 6. Sombras
-
-| Token | Light | Dark | Uso |
-|-------|-------|------|-----|
-| `--shadow-xs` | sutil | sutil | Inputs, badges |
-| `--shadow-sm` | leve | leve | Cards padrão |
-| `--shadow-md` | média | média | Modais, dropdowns |
-| `--shadow-lg` | alta | alta | Diálogos, notificações |
-| `--shadow-accent` | verde brilho | verde brilho | Botão primário (hover) |
-
----
-
-## 7. Animações
-
-- **Easing:** `cubic-bezier(0.16, 1, 0.3, 1)` — saída natural, sem exageros
-- **Duração padrão:** `200ms`
-- **Duração rápida:** `120ms` (hover, focus)
-- **Quando animar:** hover de cards, entrada de modais (fade + scale), transição de páginas, feedback de ação (copiar, salvar)
-- **Quando NÃO animar:** scroll, resize de janela, mudanças de rota instantâneas
-
----
-
-## 8. Responsividade
-
-| Faixa | Comportamento |
-|-------|---------------|
-| > 900px | Layout normal, grids de 2-3 colunas, sidebar visível |
-| 700-900px | Grids colapsam para 2 colunas, padding reduzido |
-| < 700px | Tudo em 1 coluna, navegação vira bottom sheet/menu hamburger, padding lateral `16px` |
-
----
-
-## 9. Dark Mode
-
-- Detectado por `prefers-color-scheme: dark`
-- **Nunca** usar `#000` puro como fundo — o tom mais escuro é `#0f172a` (slate-900)
-- Cards em dark mode usam `#1e293b` (slate-800) para criar hierarquia
-- Verde accent em dark mode clareia para `#34d399` (melhor contraste em fundo escuro)
-- Sombras em dark mode são mais opacas e difusas
-
----
-
-## 10. Navegação
-
-- **Header sempre visível** em telas > 700px
-- **Mobile:** NavBar vira bottom navigation ou drawer
-- **Logo:** SVG minimalista (raio/faísca) + logotipo "audime" em letras minúsculas
-- **Indicador de rota ativa:** barra vertical ou underline accent
-- **Logout:** tom danger suave, confirmar ação
-
----
-
-## 11. Guidelines de Conteúdo
-
-- **Tom:** amigável mas profissional. Tratar o usuário por "você"
-- **Erros:** explicar o que aconteceu + o que fazer. Nunca "erro desconhecido"
-- **Valores:** sempre formatados em BRL com centavos. Preto e verde para positivo, vermelho para negativo
-- **Datas:** formato BR completo (`20 de jun de 2026`). Em tabelas: `20/06/2026`
-- **Empty states:** ilustração + mensagem útil + call to action (nunca só "nada aqui")
-
----
-
-## 12. Checklist de Consistência
-
-- [ ] Botões primários sempre usam `--accent` como bg
-- [ ] Valores monetários sempre usam `formatBRL()` ou `Intl`
-- [ ] Ícones sempre de `lucide-react`, nunca SVG inline avulso
-- [ ] Dark mode testado em todas as telas antes de lançar
-- [ ] Animações respeitam `prefers-reduced-motion`
-- [ ] Inputs têm label visível (nunca só placeholder)
-- [ ] Todo link com `target="_blank"` tem `rel="noopener noreferrer"`
-- [ ] Badges de status seguem o mapa semântico (success/accent/highlight)

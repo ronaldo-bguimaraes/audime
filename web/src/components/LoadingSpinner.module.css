@@ -3,17 +3,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 64px 16px;
+  gap: var(--space-3);
+  min-height: 40vh;
+  padding: var(--space-7);
 }
 
 .spinner {
   color: var(--accent);
-  animation: spin 0.7s linear infinite;
+  animation: spin 1s linear infinite;
 }
 
 .message {
-  margin-top: 14px;
+  font-size: var(--text-sm);
   color: var(--text-muted);
-  font-size: 14px;
-  font-weight: 500;
 }

@@ -1,171 +1,228 @@
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 import { FileText } from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
 import { useFetch } from "../hooks/useFetch";
 import { listarDashboardNotas, obterDashboardResumo } from "../api/dashboard";
-import { LoadingSpinner } from "../components/LoadingSpinner";
 import { ErrorMessage } from "../components/ErrorMessage";
+import { Card, CardHeader } from "../components/ui/Card";
+import { Skeleton } from "../components/ui/Skeleton";
+import { EmptyState, Stat } from "../components/ui";
 import { formatBRL, maskChave, formatDate } from "../utils/format";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { computeInsight } from "../utils/insights";
 import type { DashboardNota, DashboardResumo } from "../types";
 import styles from "./Dashboard.module.css";
 
-const PIE_COLORS = ["#059669", "#34d399", "#6ee7b7", "#a7f3d0", "#d1fae5"];
+/* Cores dos gráficos vêm dos tokens — nada de hex aqui. */
+const CHART = {
+  bar: "var(--accent)",
+  axis: "var(--text-muted)",
+  grid: "var(--border)",
+};
+
+function ChartTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className={styles.tooltip}>
+      <span className={styles.tooltipLabel}>{label}</span>
+      <span className={styles.tooltipValue}>{formatBRL(Number(payload[0].value))}</span>
+    </div>
+  );
+}
 
 export function Dashboard() {
-  const navigate = useNavigate();
   const { data: notas, loading, error, refetch } = useFetch<DashboardNota[]>(
     listarDashboardNotas,
     [],
   );
-  const { data: resumo } = useFetch<DashboardResumo>(
-    obterDashboardResumo,
-    [],
-  );
-
-  if (loading) {
-    return <LoadingSpinner message="Carregando notas..." />;
-  }
+  const { data: resumo } = useFetch<DashboardResumo>(obterDashboardResumo, []);
 
   if (error) {
     return <ErrorMessage message={error} onRetry={refetch} />;
   }
 
+  const temResumo = resumo != null && resumo.total_notas > 0;
+  const insight = resumo ? computeInsight(resumo.por_mes) : null;
+  const maiorEmpresa = resumo?.por_empresa?.[0];
+  const maxEmpresa = maiorEmpresa?.valor ?? 1;
+  const meses = (resumo?.por_mes ?? []).map((m) => ({
+    name: `${String(m.mes).padStart(2, "0")}/${String(m.ano).slice(2)}`,
+    valor: m.valor,
+  }));
+
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>Notas Fiscais</h1>
-        <Link to="/extrair" className={styles.newButton}>
-          + Nova Extração
+    <div className={styles.page}>
+      <header className={styles.pageHeader}>
+        <div>
+          <h1>Notas Fiscais</h1>
+          <p className={styles.pageSubtitle}>
+            Seus gastos extraídos das NFC-e, consolidados por período.
+          </p>
+        </div>
+        <Link to="/extrair" className={styles.primaryLink}>
+          Nova extração
         </Link>
-      </div>
+      </header>
 
-      {resumo && resumo.total_notas > 0 && (
-        <section className={styles.resumoSection}>
-          <h2 className={styles.sectionTitle}>Resumo Financeiro</h2>
-
-          {/* Summary cards */}
-          <div className={styles.summaryCards}>
-            <div className={styles.summaryCard}>
-              <span className={styles.summaryLabel}>Total de Notas</span>
-              <span className={styles.summaryValue}>{resumo.total_notas}</span>
+      {loading && (
+        <section className={styles.overview} aria-busy="true">
+          <div className={styles.heroRow}>
+            <div className={styles.heroBlock}>
+              <Skeleton width={120} height={10} />
+              <Skeleton width={240} height={40} />
+              <Skeleton width={280} height={12} />
             </div>
-            <div className={styles.summaryCard}>
-              <span className={styles.summaryLabel}>Valor Total</span>
-              <span className={styles.summaryValue}>{formatBRL(resumo.valor_total)}</span>
+            <div className={styles.secondaryStats}>
+              {[0, 1, 2].map((i) => (
+                <div key={i} className={styles.statSkeleton}>
+                  <Skeleton width={70} height={10} />
+                  <Skeleton width={110} height={20} />
+                </div>
+              ))}
             </div>
-            <div className={styles.summaryCard}>
-              <span className={styles.summaryLabel}>Média por Nota</span>
-              <span className={styles.summaryValue}>{formatBRL(resumo.media_por_nota ?? 0)}</span>
-            </div>
-          </div>
-
-          {/* Charts row */}
-          <div className={styles.chartsRow}>
-            {/* Monthly bar chart */}
-            {resumo.por_mes.length > 0 && (
-              <div className={styles.chartBox}>
-                <h3 className={styles.chartTitle}>Gastos por Mês</h3>
-                <ResponsiveContainer width="100%" height={220}>
-                  <BarChart data={resumo.por_mes.map((m) => ({
-                    name: `${String(m.mes).padStart(2, "0")}/${m.ano}`,
-                    valor: m.valor,
-                  }))}>
-                    <XAxis dataKey="name" fontSize={11} />
-                    <YAxis fontSize={11} tickFormatter={(v: number) => `R$${v}`} />
-                    <Tooltip formatter={(value: any) => formatBRL(Number(value))} />
-                    <Bar dataKey="valor" fill="#059669" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-
-            {/* Per-company pie chart */}
-            {resumo.por_empresa.length > 0 && (
-              <div className={styles.chartBox}>
-                <h3 className={styles.chartTitle}>Gastos por Empresa</h3>
-                <ResponsiveContainer width="100%" height={220}>
-                  <PieChart>
-                    <Pie
-                      data={resumo.por_empresa}
-                      dataKey="valor"
-                      nameKey="empresa"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={80}
-                      label={(entry: any) =>
-                        `${String(entry.empresa).substring(0, 12)}… ${(entry.percent * 100).toFixed(0)}%`
-                      }
-                    >
-                      {resumo.por_empresa.map((_, idx) => (
-                        <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value: any) => formatBRL(Number(value))} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            )}
           </div>
         </section>
       )}
 
-      {!notas || notas.length === 0 ? (
-        <div className={styles.empty}>
-          <div className={styles.emptyIcon}>
-            <FileText size={28} />
-          </div>
-          <p>Nenhuma nota fiscal encontrada.</p>
-          <p>
-            Faça uma{" "}
-            <Link to="/extrair" className={styles.emptyLink}>
-              nova extração
-            </Link>{" "}
-            para começar.
-          </p>
-        </div>
-      ) : (
-        <div className={styles.grid}>
-          {notas.map((nota) => (
-            <NotaCard key={nota.id_extracao} nota={nota} navigate={navigate} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
+      {!loading && temResumo && resumo && (
+        <section className={styles.overview}>
+          <div className={styles.heroRow}>
+            <div className={styles.heroBlock}>
+              <span className={styles.heroLabel}>Total no período</span>
+              <span className={styles.heroValue}>{formatBRL(resumo.valor_total)}</span>
+              {insight && (
+                <p
+                  className={`${styles.insight} ${styles[`insight_${insight.tone}`]}`}
+                  data-tone={insight.tone}
+                >
+                  {insight.text}
+                </p>
+              )}
+            </div>
 
-function NotaCard({ nota, navigate }: { nota: DashboardNota; navigate: ReturnType<typeof useNavigate> }) {
-  return (
-    <div
-      className={styles.card}
-      role="button"
-      tabIndex={0}
-      onClick={() => navigate(`/notas/${nota.id_extracao}`)}
-      onKeyDown={(ev) => {
-        if (ev.key === "Enter" || ev.key === " ") {
-          ev.preventDefault();
-          navigate(`/notas/${nota.id_extracao}`);
-        }
-      }}
-    >
-      <div className={styles.cardHeader}>
-        <h2 className={styles.empresa}>#{nota.id_extracao} {nota.empresa}</h2>
-        <span className={styles.valor}>{formatBRL(nota.valor_total ?? 0)}</span>
-      </div>
-      <div className={styles.cardBody}>
-        <div className={styles.info}>
-          <span className={styles.label}>Chave:</span>
-          <span className={styles.value}>{maskChave(nota.chave_acesso ?? "")}</span>
+            <div className={styles.secondaryStats}>
+              <Stat label="Notas" value={resumo.total_notas} hint="no período" />
+              <Stat
+                label="Média por nota"
+                value={formatBRL(resumo.media_por_nota ?? 0)}
+                hint="ticket médio"
+              />
+              <Stat
+                label="Maior gasto"
+                value={maiorEmpresa ? formatBRL(maiorEmpresa.valor) : "—"}
+                hint={maiorEmpresa?.empresa ?? "sem dados"}
+              />
+            </div>
+          </div>
+
+          <div className={styles.supportGrid}>
+            <Card>
+              <CardHeader title="Gastos por mês" subtitle="Evolução do total extraído" />
+              <div className={styles.chartBody}>
+                <ResponsiveContainer width="100%" height={180}>
+                  <BarChart data={meses} margin={{ top: 4, right: 4, left: 4, bottom: 0 }}>
+                    <CartesianGrid vertical={false} stroke={CHART.grid} strokeDasharray="2 4" />
+                    <XAxis
+                      dataKey="name"
+                      tickLine={false}
+                      axisLine={false}
+                      tick={{ fill: CHART.axis, fontSize: 11 }}
+                      dy={6}
+                    />
+                    <Tooltip cursor={{ fill: "var(--bg-hover)" }} content={<ChartTooltip />} />
+                    <Bar dataKey="valor" fill={CHART.bar} radius={[3, 3, 0, 0]} maxBarSize={36} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+
+            <Card>
+              <CardHeader
+                title="Onde você mais gastou"
+                subtitle={`${resumo.por_empresa.length} estabelecimentos`}
+              />
+              <ul className={styles.companyList}>
+                {resumo.por_empresa.slice(0, 4).map((empresa) => (
+                  <li key={empresa.empresa} className={styles.companyItem}>
+                    <div className={styles.companyTop}>
+                      <span className={styles.companyName}>{empresa.empresa}</span>
+                      <span className={styles.companyValue}>{formatBRL(empresa.valor)}</span>
+                    </div>
+                    <div className={styles.companyTrack}>
+                      <div
+                        className={styles.companyBar}
+                        style={{ width: `${Math.max(4, (empresa.valor / maxEmpresa) * 100)}%` }}
+                      />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          </div>
+        </section>
+      )}
+
+      <section className={styles.listSection}>
+        <div className={styles.sectionHeader}>
+          <span className={styles.sectionTitle}>Notas</span>
+          {notas && notas.length > 0 && (
+            <span className={styles.sectionHint}>{notas.length} registros</span>
+          )}
         </div>
-        <div className={styles.info}>
-          <span className={styles.label}>Emissão:</span>
-          <span className={styles.value}>{nota.emissao ? formatDate(nota.emissao) : "-"}</span>
-        </div>
-        <div className={styles.info}>
-          <span className={styles.label}>Itens:</span>
-          <span className={styles.value}>{nota.items.length}</span>
-        </div>
-      </div>
+
+        {loading ? (
+          <div className={styles.rows}>
+            {[0, 1, 2].map((i) => (
+              <div key={i} className={styles.row}>
+                <div className={styles.rowMain}>
+                  <Skeleton width={220} height={14} />
+                  <Skeleton width={300} height={10} />
+                </div>
+                <Skeleton width={90} height={18} />
+              </div>
+            ))}
+          </div>
+        ) : !notas || notas.length === 0 ? (
+          <EmptyState
+            icon={<FileText size={18} />}
+            title="Nenhuma nota encontrada"
+            description="Extraia a primeira NFC-e para começar a acompanhar seus gastos."
+            action={
+              <Link to="/extrair" className={styles.primaryLink}>
+                Nova extração
+              </Link>
+            }
+          />
+        ) : (
+          <div className={styles.rows}>
+            {notas.map((nota) => (
+              <article key={nota.id_extracao} className={styles.row}>
+                <div className={styles.rowMain}>
+                  <h2 className={styles.empresa}>{nota.empresa}</h2>
+                  <span className={styles.meta}>
+                    #{nota.id_extracao}
+                    {nota.chave_acesso ? ` · ${maskChave(nota.chave_acesso)}` : ""}
+                    {nota.emissao ? ` · ${formatDate(nota.emissao)}` : ""}
+                  </span>
+                </div>
+                <div className={styles.rowNumbers}>
+                  <span className={styles.items}>{nota.items.length} itens</span>
+                  <span className={styles.valor}>{formatBRL(nota.valor_total ?? 0)}</span>
+                </div>
+                <Link to={`/notas/${nota.id_extracao}`} className={styles.detailsLink}>
+                  Ver detalhes
+                </Link>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }
