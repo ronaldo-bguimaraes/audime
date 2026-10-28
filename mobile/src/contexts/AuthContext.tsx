@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from "react"
 import * as SecureStore from "expo-secure-store"
-import { createApiClient, type ApiClient } from "shared"
+import { createApiClient, type ApiClient, createAuthApi } from "shared"
 
 const TOKEN_KEY = "audime_token"
 const USER_ID_KEY = "audime_user_id"

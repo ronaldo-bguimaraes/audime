@@ -33,6 +33,13 @@ export default function TabsLayout() {
           title: "Extração",
         }}
       />
+      <Tabs.Screen
+        name="nota/[id]"
+        options={{
+          href: null,
+          title: "Nota",
+        }}
+      />
     </Tabs>
   )
 }

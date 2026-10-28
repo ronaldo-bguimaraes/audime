@@ -75,7 +75,10 @@ export default function Dashboard() {
         </>
       )}
       renderItem={({ item }) => (
-        <View style={styles.card}>
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => router.push(`/nota/${item.id_nota_analytics}`)}
+        >
           <Text style={styles.cardTitle}>{item.empresa ?? "Sem empresa"}</Text>
           {item.chave_acesso && (
             <Text style={styles.cardSub}>{maskChave(item.chave_acesso)}</Text>
@@ -86,7 +89,7 @@ export default function Dashboard() {
           <Text style={styles.cardValue}>
             {item.valor_total != null ? formatBRL(item.valor_total) : "—"}
           </Text>
-        </View>
+        </TouchableOpacity>
       )}
       ListFooterComponent={() => (
         <>

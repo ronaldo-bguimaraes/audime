@@ -11,7 +11,7 @@ import {
 } from "react-native"
 import { router } from "expo-router"
 import { useAuth } from "../src/contexts/AuthContext"
-import { createApiClient } from "shared"
+import { createApiClient, createAuthApi } from "shared"
 
 const API_BASE = process.env.EXPO_PUBLIC_API_BASE_URL ?? ""
 const COOLDOWN_SECONDS = 60
@@ -26,6 +26,7 @@ export default function Login() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const api = createApiClient(API_BASE)
+  const authApi = createAuthApi(api)
 
   useEffect(() => {
     return () => {
@@ -50,7 +51,7 @@ export default function Login() {
     if (!email.trim() || cooldown > 0) return
     setIsLoading(true)
     try {
-      await api.post("/v1/auth/login", { email: email.trim() })
+      await authApi.requestCode(email.trim())
       setStep("code")
       startCooldown()
     } catch (err: unknown) {
@@ -65,11 +66,8 @@ export default function Login() {
     if (!code.trim()) return
     setIsLoading(true)
     try {
-      const result = await api.post<{ access_token: string; id_usuario: number }>(
-        "/v1/auth/verify",
-        { email: email.trim(), code: code.trim() },
-      )
-      await signIn(result.access_token, String(result.id_usuario))
+      const result = await authApi.verifyCode(email.trim(), code.trim())
+      await signIn(result.access_token as string, String(result.id_usuario as number))
       router.replace("/(tabs)/dashboard")
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Código inválido"
