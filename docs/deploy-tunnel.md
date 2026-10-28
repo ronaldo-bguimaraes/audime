@@ -98,6 +98,8 @@ docker logs audime-cloudflared --tail 20           # "Registered tunnel connecti
 - **Testes usam `REDIS_DB=15`** — assim um worker rodando localmente não consome jobs
   de teste (job de teste falha porque o usuário só existe em `audime_test`).
 - **Migrations**: `alembic upgrade head` manual antes do deploy.
+- **Sem CI/CD**: não há pipeline. Build e deploy são locais (`./deploy.sh`) e os
+  gates (testes, build, varredura de credenciais) rodam na máquina antes do push.
 
 ## Troubleshooting
 
