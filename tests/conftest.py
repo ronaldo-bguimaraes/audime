@@ -1,5 +1,13 @@
 import os
 
+# Must happen before any app import: app.core.config builds the Settings
+# singleton at import time, so setting these afterwards has no effect.
+os.environ.setdefault("JWT_SECRET", "test-secret-not-for-production-use")
+os.environ.setdefault("APP_ENV", "development")
+# Never enqueue test jobs into the worker's real queue (db 0) — a local worker
+# would pick them up and fail on users that only exist in the test database.
+os.environ.setdefault("REDIS_DB", "15")
+
 import pytest
 from alembic import command
 from alembic.config import Config
@@ -8,9 +16,6 @@ from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import Session
 
 from abstract.base import Base
-
-os.environ.setdefault("JWT_SECRET", "test-secret-not-for-production-use")
-os.environ.setdefault("APP_ENV", "development")
 
 ALEMBIC_CFG_PATH = os.path.join(os.path.dirname(__file__), "..", "alembic.ini")
 TEST_DATABASE_URL = os.environ.get(
