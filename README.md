@@ -25,6 +25,7 @@ uvicorn app.main:app --reload
 
 ## Documentação
 
+- `docs/deploy-tunnel.md` — Deploy self-hosted via Cloudflare Tunnel
 - `docs/banco-de-dados.md` — Schema do banco
 - `docs/arquitetura/api.md` — Endpoints REST
 - `docs/arquitetura/backend.md` — Arquitetura
