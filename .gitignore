@@ -1,13 +1,9 @@
 .env
-.cursor/
 
 __pycache__/
 .venv/
-# Loopback — memória de sessão (transitório)
-.agents/state/memoria/
 
-# Loopback — workspace do ciclo (transitório)
-.agents/workspace/
+# Análise one-off (histórico, não versionado)
 docs/analise-loopback.md
 
 # Test database

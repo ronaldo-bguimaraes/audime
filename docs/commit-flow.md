@@ -1,223 +1,189 @@
 # Fluxo de Commit e Push
 
-> Processo completo desde a modificação do código até o push, com segurança integrada.
-
----
-
-## Ciclo de Trabalho
+> Do código modificado ao push, com os gates da constituição aplicados.
+> Regras: `.specify/memory/constitution.md`.
 
 ```
-[1] Modificar código
+[1] Implementar (TDD)
         │
         ▼
-[2] Executar testes (pytest)
+[2] Testes verdes (regressão completa)
         │
         ▼
-[3] Varredura de segurança (@devops_engineer)
+[3] Varredura de segurança
         │
         ▼
-[4] git add (apenas arquivos intencionados)
+[4] git add (só o que foi intencionado)
         │
         ▼
-[5] git commit (formato padronizado)
+[5] git commit (Conventional Commits)
         │
         ▼
 [6] git push
 ```
 
----
+## Step 1: Implementar
 
-## Step 1: Modificar Código
+- TDD: o teste falha antes, o código vem depois.
+- Uma mudança lógica por commit; não expandir escopo além da spec
+  (`specs/NNN-slug/spec.md`).
 
-- Seguir TDD: primeiro o teste falha, depois a implementação
-- Manter escopo limitado: uma mudança lógica por vez
-- Não expandir escopo além do necessário para satisfazer os testes
+## Step 2: Testes
 
----
-
-## Step 2: Executar Testes
-
-Sempre executar a suíte completa antes de commitar:
+A suíte exige infraestrutura:
 
 ```bash
-pytest tests/ -v
+docker compose -f docker-compose.test.yml up -d   # Postgres :5433
+docker compose up -d redis                        # Redis :6379
+
+.venv/bin/python -m pytest -q
 ```
 
-Se houver testes de frontend:
+Se o web/mobile foi tocado:
 
 ```bash
-cd web && npm test
+docker compose build web      # tsc -b + vite build
 ```
 
-**Regra:** Se algum teste falhar, não commitar. Voltar ao Step 1.
+**Regra:** teste vermelho, nada de commit. Voltar ao Step 1.
 
----
+## Step 3: Varredura de segurança
 
-## Step 3: Varredura de Segurança
-
-**Obrigatório antes de todo commit.** Ativar `devops_engineer` ou executar:
+Obrigatória antes **de cada** commit:
 
 ```bash
-# Verificar se .env está no .gitignore
-grep -q "^\.env$" .gitignore && echo "✅ .env no .gitignore" || echo "❌ .env NÃO está no .gitignore"
+# .env fora do controle de versão
+git check-ignore -q .env && echo "OK: .env ignorado" || echo "FALHA: .env rastreável"
 
-# Verificar histórico por credenciais
-git log --all -p | grep -iE '(ghp_|sk-[a-zA-Z0-9]|AKIA[0-9A-Z]{16}|secret.*=|password.*=|token.*=)' || echo "✅ Nenhuma credencial encontrada no histórico"
+# Nada de segredo no que está indo para o commit
+git diff --cached | grep -inE '(ghp_|gho_|sk-[a-zA-Z0-9]{16,}|AKIA[0-9A-Z]{16}|BEGIN [A-Z ]*PRIVATE KEY|(secret|password|token|api[_-]?key)[[:space:]]*[:=][[:space:]]*["'"'"']?[A-Za-z0-9_\-]{16,})' && echo "FALHA: possível credencial" || echo "OK: diff limpo"
 
-# Verificar diff do staged para credenciais
-git diff --cached | grep -iE '(ghp_|sk-[a-zA-Z0-9]|AKIA[0-9A-Z]{16}|secret.*=|password.*=|token.*=)' || echo "✅ Nenhuma credencial no staged"
+# Nada de segredo no histórico recente
+git log --all -p -n 50 | grep -inE '(ghp_|AKIA[0-9A-Z]{16}|BEGIN [A-Z ]*PRIVATE KEY)' || echo "OK: histórico limpo"
 ```
 
-Se o `devops_engineer` (ou scan manual) flagar algo, **resolver antes de prosseguir**.
+Se aparecer algo: **remover do commit**, rotacionar a credencial e, se já foi
+publicada, limpar o histórico. Não existe "commit temporário com segredo".
 
----
+Também confirmar que nada novo ficou exposto:
+
+```bash
+docker compose ps                                   # portas publicadas
+grep -nE '127\.0\.0\.1|0\.0\.0\.0' docker-compose.yml
+```
 
 ## Step 4: git add
 
-Adicionar **apenas** os arquivos intencionados:
-
 ```bash
-# Verificar o que mudou
 git status
 git diff
-
-# Adicionar arquivos específicos
-git add caminho/para/arquivo.py
-git add caminho/para/test_arquivo.py
-
-# NUNCA fazer git add . sem antes revisar
+git add caminho/do/arquivo.py caminho/do/teste.py
 ```
 
----
+Nunca `git add .` sem revisar o que entrou.
 
 ## Step 5: git commit
-
-Formato obrigatório:
 
 ```
 <tipo>(<escopo>): <descrição>
 
-<corpo opcional — explica o porquê>
-
-<rodapé opcional>
+<corpo opcional — o porquê, não o quê>
 ```
 
 ### Tipos
 
 | Tipo | Quando usar |
-|------|-------------|
+|---|---|
 | `feat` | Nova funcionalidade |
 | `fix` | Correção de bug |
 | `docs` | Documentação |
-| `refactor` | Mudança estrutural sem mudança de comportamento |
-| `perf` | Melhoria de performance |
-| `test` | Adição ou correção de teste |
+| `refactor` | Mudança estrutural sem mudar comportamento |
+| `perf` | Performance |
+| `test` | Teste adicionado/corrigido |
 | `chore` | Manutenção (deps, config, build) |
-| `ci` | CI/CD |
-| `style` | Formatação (sem mudança de lógica) |
+| `ci` | Pipeline |
+| `style` | Formatação/visual (sem lógica) |
 
 ### Escopos
 
 | Escopo | Área |
-|--------|------|
-| `cycle` | Ciclo do orchestrator |
-| `agents` | Definições de agentes |
-| `adapter` | Adaptadores de ferramenta |
-| `docs` | Documentação do projeto |
-| `spec` | Especificação do ciclo |
-| `policy` | Políticas de segurança |
+|---|---|
+| `api` | Endpoints e schemas FastAPI |
+| `parser` | Parsers de NFC-e |
+| `db` | Models, schemas, migrações |
+| `worker` | Fila ARQ e tasks |
+| `auth` | Autenticação/JWT/e-mail |
+| `web` | Frontend React |
+| `mobile` | App Expo |
+| `shared` | Pacote compartilhado |
+| `deploy` | Compose, Dockerfile, tunnel |
+| `docs` | Documentação |
+| `spec` | Artefatos do spec-kit (`specs/`) |
 
 ### Regras
 
-1. Título ≤ 50 caracteres, sem ponto final
-2. Modo imperativo: "Add feature" (não "Added" ou "Adding")
-3. Corpo explica o **porquê** — o **o quê** já está no diff
-4. Commits atômicos: uma mudança lógica por commit
-5. Linhas do corpo ≤ 72 caracteres
-6. Breaking changes: usar `!` após tipo/escopo: `refactor(api)!: remove legacy endpoint`
+1. Título ≤ 50 caracteres, sem ponto final.
+2. Imperativo: "Add feature" (não "Added"/"Adding").
+3. O corpo explica o **porquê**.
+4. Commits atômicos.
+5. Linhas do corpo ≤ 72 caracteres.
+6. Breaking change: `!` após tipo/escopo — `refactor(api)!: remover endpoint legado`.
 
 ### Exemplos
 
 ```
-feat(agents): add specification agent preflight mode
+feat(auth): add Google ID token login
+
+Passwordless email is friction for returning users. Validating the
+ID token server-side keeps a single JWT format for both flows.
 ```
 
 ```
-refactor(cycle): simplify from 8 to 5 steps
+fix(parser): return None when item table is absent
 
-Dedicated docs step created overhead without adding traceability.
-Merging it into inquiry makes docs a continuous side-effect.
+Zero and "unknown" are different answers; analytics summed the wrong
+one. Absent data must stay absent through the layers.
 ```
 
 ```
-docs(commits): add commit conventions
+docs(spec): rewrite workflow for spec-kit
 ```
-
----
 
 ## Step 6: git push
-
-```bash
-git push origin <branch>
-```
-
-Para branch atual:
 
 ```bash
 git push
 ```
 
-**Regra:** Só fazer push se todos os steps anteriores passarem.
-
----
+Só depois dos steps anteriores.
 
 ## Convenção de Branches
-
-### Formato
 
 ```
 <tipo>/#<numeroIssue>-<alias>
 ```
 
-### Tipos
-
-| Tipo | Uso |
-|------|-----|
-| `feat` | Nova funcionalidade |
-| `fix` | Correção de bug |
-| `docs` | Documentação |
-| `refactor` | Refatoração |
-| `style` | Formatação/design |
-| `test` | Testes |
-| `chore` | Manutenção |
-
-### Exemplos
-
 | Branch | Descrição |
-|--------|-----------|
-| `feat/#21-remodelagem-design` | Remodelagem visual do frontend |
+|---|---|
+| `feat/#21-remodelagem-design` | Remodelagem visual |
 | `fix/#12-url-truncada` | Correção de URL truncada |
-| `docs/#10-workflow-sprint` | Documentação do fluxo de sprint |
-| `style/#8-refresh-login` | Ajuste de estilo na tela de login |
+| `docs/#10-workflow` | Documentação do fluxo |
+| `style/#8-refresh-login` | Ajuste visual na tela de login |
 
-**Regra:** Toda branch deve estar associada a uma issue. O número da issue é obrigatório no nome.
+Toda branch referencia uma issue. Features do spec-kit criam branch própria
+(`NNN-slug`) — nesse caso a issue correspondente é a da feature.
 
----
+## Checklist pré-commit
 
-## Checklist Pré-Commit
+- [ ] Teste novo falhou antes da implementação
+- [ ] `pytest` completo verde
+- [ ] Build do web verde (se aplicável)
+- [ ] Varredura de segurança limpa (Step 3)
+- [ ] `git diff --staged` revisado — só arquivos intencionados
+- [ ] Mensagem no formato correto
 
-- [ ] Testes passam (`pytest tests/ -v`)
-- [ ] Lint passa (`ruff check .`)
-- [ ] Typecheck passa (`pyright app/ tests/` ou `npx tsc --noEmit`)
-- [ ] `@devops_engineer` — nenhuma credencial vazada
-- [ ] `git diff` revisado — apenas arquivos intencionados
-- [ ] Mensagem de commit no formato correto
+## Ver também
 
----
-
-## Ver Também
-
-- `.agents/workspace/commit_conventions.md` — Definição canônica
-- `docs/workflow-sprint.md` — Fluxo completo de sprint
-- `docs/github-cli-workflow.md` — Como criar issues e gerenciar boards
-- `.agents/agents/devops_engineer.md` — Escaneamento de segurança
+- `docs/workflow.md` — ciclo completo e gates
+- `docs/github-cli-workflow.md` — issues e project board
+- `.specify/memory/constitution.md` — princípios e requisitos de segurança
