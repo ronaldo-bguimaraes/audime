@@ -39,9 +39,11 @@ async def startup(ctx: dict) -> None:
 
 async def shutdown(ctx: dict) -> None:
     """Clean up shared resources."""
-    db_factory = ctx.pop("db_session_factory", None)
-    if db_factory is not None:
-        db_factory.close_all()
+    # sessionmaker has no close_all() in SQLAlchemy 2.x — dispose the engine.
+    from abstract.engine import engine
+
+    ctx.pop("db_session_factory", None)
+    engine.dispose()
 
     arq_pool = ctx.pop("arq_pool", None)
     if arq_pool is not None:
